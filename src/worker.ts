@@ -110,15 +110,15 @@ export default {
 			description: he.encode(json.videoDetails.shortDescription),
 			viewCount: json.videoDetails.viewCount,
 			publishedAt:
-				json.initialData.contents.twoColumnWatchNextResults.results.results.contents[0].videoPrimaryInfoRenderer.dateText.simpleText,
+				json.initialData?.contents?.twoColumnWatchNextResults?.results?.results?.contents?.[0]?.videoPrimaryInfoRenderer?.dateText?.simpleText || 'Not found',
 			subscriberCountText:
-				json.initialData.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.owner.videoOwnerRenderer
-					.subscriberCountText.accessibility.accessibilityData.label,
+				json.initialData?.contents?.twoColumnWatchNextResults?.results?.results?.contents?.[1]?.videoSecondaryInfoRenderer?.owner?.videoOwnerRenderer
+					?.subscriberCountText?.accessibility?.accessibilityData?.label || 'Not found',
 			likeCount:
-				json.initialData.contents.twoColumnWatchNextResults.results.results.contents[0].videoPrimaryInfoRenderer.videoActions.menuRenderer
-					.topLevelButtons[0].segmentedLikeDislikeButtonRenderer.likeCount,
-			category: json.microformat.playerMicroformatRenderer.category,
-			ownerProfileUrl: json.microformat.playerMicroformatRenderer.ownerProfileUrl,
+				json.initialData?.contents?.twoColumnWatchNextResults?.results?.results?.contents?.[0]?.videoPrimaryInfoRenderer?.videoActions?.menuRenderer
+					?.topLevelButtons?.[0]?.segmentedLikeDislikeButtonRenderer?.likeCount || 'Not found',
+			category: json.microformat?.playerMicroformatRenderer?.category || 'Not found',
+			ownerProfileUrl: json.microformat?.playerMicroformatRenderer?.ownerProfileUrl || 'Not found',
 			bestThumbnail: `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`,
 			directUrl: `https://iteroni.com/latest_version?id=${videoId}&itag=${vFormat.itag}`,
 			vFormat,
@@ -168,11 +168,39 @@ function renderTemplate(data: {
 	likeCount: string;
 	subscriberCountText: string;
 }) {
+	function constructProviderString(data: {
+		appTitle: string;
+		publishedAt: string;
+		viewCount: number;
+		likeCount: string;
+		subscriberCountText: string;
+	}): string {
+		let string = `${data.appTitle}\n`;
+
+		if (data.publishedAt && data.publishedAt !== 'Not found') {
+			string += `${data.publishedAt}\n`;
+		}
+
+		if (data.viewCount) {
+			string += `&#x1F441;&#xFE0E; ${data.viewCount} `;
+		}
+
+		if (data.likeCount && data.likeCount !== 'Not found') {
+			string += `&#x2764;&#xFE0E; ${data.likeCount} `;
+		}
+
+		if (data.subscriberCountText && data.subscriberCountText !== 'Not found') {
+			string += `&#x1F465;&#xFE0E; ${data.subscriberCountText.replace(' subscribers', '')}`;
+		}
+
+		return string;
+	}
 	return `
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+<title>${data.appTitle}</title>
 <style>
 	body {
 		background-color: #1f1f1f;
@@ -182,15 +210,10 @@ function renderTemplate(data: {
 		color: #ff5d5b;
 	}
 </style>
-<meta http-equiv="Content-Type"		content="text/html; charset=UTF-8" />
-<meta name="theme-color"			content="#FF0000" />
-<meta property="og:site_name" 		content="${
-		// I had a stroke reading this
-		data.appTitle +
-		`\n${data.publishedAt}\n&#x1F441;&#xFE0E; ${data.viewCount} &#x2764;&#xFE0E; ${
-			data.likeCount
-		} &#x1F465;&#xFE0E; ${data.subscriberCountText.replace(' subscribers', '')}`
-	}">
+
+<meta http-equiv="Content-Type"					content="text/html; charset=UTF-8" />
+<meta name="theme-color"						content="#FF0000" />
+<meta property="og:site_name" 					content="${constructProviderString(data)}">
 
 <meta name="twitter:card" 						content="player" />
 <meta name="twitter:title" 						content="${data.title}" />
@@ -216,13 +239,9 @@ function renderTemplate(data: {
 		new URLSearchParams({
 			author_name: data.author,
 			author_url: data.ownerProfileUrl,
-			provider_name:
-				data.appTitle +
-				`\n${data.publishedAt}\n&#x1F441;&#xFE0E; ${data.viewCount} &#x2764;&#xFE0E; ${
-					data.likeCount
-				} &#x1F465;&#xFE0E; ${data.subscriberCountText.replace(' subscribers', '')}`,
+			provider_name: constructProviderString(data),
 			provider_url: 'https://github.com/iGerman00/yockstube',
-			title: data.appTitle + ` - ${data.viewCount} \uD83D\uDC41\uFE0F, in ${data.category}`,
+			title: data.appTitle,
 			type: 'video',
 			version: '1.0',
 		}).toString()
