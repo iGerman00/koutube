@@ -1,3 +1,4 @@
+import he from "he";
 export interface Env {
 }
 
@@ -89,9 +90,10 @@ export default {
 
 			const essentialData = {
 				appTitle: "YocksTube",
-				title: json.videoDetails.title,
-				author: json.videoDetails.author,
-				description: json.videoDetails.shortDescription,
+				// url escape emojis and such
+				title: he.encode(json.videoDetails.title),
+				author: he.encode(json.videoDetails.author),
+				description: he.encode(json.videoDetails.shortDescription),
 				viewCount: json.videoDetails.viewCount,
 				publishedAt: json.initialDataFromMyShittyScript.contents.twoColumnWatchNextResults.results.results.contents[0].videoPrimaryInfoRenderer.dateText.simpleText,
 				subscriberCountText: json.initialDataFromMyShittyScript.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.owner.videoOwnerRenderer.subscriberCountText.accessibility.accessibilityData.label,
