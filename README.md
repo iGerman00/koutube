@@ -10,12 +10,19 @@ s/u/cks
 
 ## Installation
 
-To install yockstube, you need to have Node and [Cloudflare's wrangler tool](https://developers.cloudflare.com/workers/wrangler/) installed on your system. You also need to have a Cloudflare account and enabled Workers.
+To install yockstube, you need to have Node and [Cloudflare's wrangler tool](https://developers.cloudflare.com/workers/wrangler/) installed on your system. You also need to have a Cloudflare account and enabled Workers, as well as a [Workers KV database](https://developers.cloudflare.com/workers/wrangler/workers-kv/) in Cloudflare.
 
 To install wrangler, run the following command in your terminal:
 
 ```bash
 npm install -g wrangler
+```
+
+Replace the binding in `wrangler.toml` with your own ID:
+```yaml
+[[kv_namespaces]]
+binding = "YT_CACHE_DB"
+id = "your KV namespace ID" # <-- Replace This
 ```
 
 Once you have everything set up, you can clone this repository and deploy yockstube to your own Workers domain.

@@ -1,0 +1,9 @@
+name = "yockstube"
+main = "src/worker.ts"
+compatibility_date = "2023-09-23"
+
+# Bind a KV Namespace. Use KV as persistent storage for small key-value pairs.
+# Docs: https://developers.cloudflare.com/workers/runtime-apis/kv
+[[kv_namespaces]]
+binding = "YT_CACHE_DB"
+id = "your KV namespace ID" # Replace with your KV namespace ID

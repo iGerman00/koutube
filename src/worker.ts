@@ -15,8 +15,29 @@ const embedUserAgents = [
 	'Mozilla/5.0 (compatible; January/1.0; +https://gitlab.insrt.uk/revolt/january)',
 ];
 
+type Env = {
+	YT_CACHE_DB: KVNamespace;
+};
+
+type CacheData = {
+	response: string;
+	headers: {
+		'Content-Type': string;
+		'Cached-On': string;
+	};
+};
+
 export default {
-	async fetch(request: Request): Promise<Response> {
+	async fetch(request: Request, env: Env): Promise<Response> {
+		const cache = await env.YT_CACHE_DB.get(request.url);
+		if (cache) {
+			console.info('Cache hit for ' + request.url );
+			const cacheData: CacheData = JSON.parse(cache);
+			return new Response(cacheData.response, {
+				headers: cacheData.headers,
+			});
+		}
+
 		if (new URL(request.url).pathname === '/') {
 			return Response.redirect('https://github.com/iGerman00/yockstube', 302);
 		}
@@ -96,11 +117,21 @@ export default {
 		};
 
 		const html = renderTemplate(essentialData);
+
+		const cacheEntry: CacheData = {
+			response: html,
+			headers: {
+				'Content-Type': 'text/html',
+				'Cached-On': new Date().toUTCString(),
+			},
+		}
+		env.YT_CACHE_DB.put(request.url, JSON.stringify(cacheEntry), { expirationTtl: 60 * 60 * 24 * 7 });
+
 		return new Response(html, {
 			status: 200,
 			headers: {
 				'Content-Type': 'text/html',
-				Location: directUrl?.url || `https://www.youtube.com/watch?v=${videoId}`,
+				Location: `https://www.youtube.com/watch?v=${videoId}`,
 			},
 		});
 	},
@@ -130,7 +161,7 @@ function renderTemplate(data: {
 <html lang="en">
 
 <head>
-
+<style> body { background-color: #1f1f1f; } </style>
 <meta http-equiv="Content-Type"		content="text/html; charset=UTF-8" />
 <meta name="theme-color"			content="#FF0000" />
 <meta property="og:site_name" 		content="${
@@ -159,7 +190,6 @@ function renderTemplate(data: {
 		
 <meta property="og:description" 				content="${data.description.substring(0, 200)}" />
 
-// get base url
 <link rel="alternate" href="${
 		new URL(data.request.url).origin +
 		'/oembed.json?' +
