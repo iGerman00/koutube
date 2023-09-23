@@ -1,6 +1,6 @@
-# yockstube
+# Yockstube
 
-### I'm looking for a domain! if you would like to help out by sponsoring or providing a domain like https://yockstube.com or https://bettrtube.com, or something you suggest - feel free to make an issue with your contact details and I will contact you.
+### I'm looking for a domain! if you would like to help out by sponsoring or providing a domain like https://yockstube.com or https://bettrtube.com, or something you suggest - feel free to make an issue with your contact details and I will reach out.
 
 Yockstube is a web service, running in Cloudflare Workers, that fixes YouTube embeds on messenger platforms like Discord. It allows you to watch YouTube videos directly on Discord without opening a new tab or window.
 
@@ -15,14 +15,14 @@ Alternatively:
 https://yt.igerman.cc/https://www.youtube.com/watch?v=dQw4w9WgXcQ
 ```
 
-It should work with music as well, that includes the horrid domain of `music.yt.igerman.cc` for easy replacement.
+It should work with YouTube Music as well, that includes the horrid domain of `music.yt.igerman.cc` for easy replacement.
 
 ## Caching
 This project uses a 7-day cache of every URL that it processes to avoid hammering YouTube. Subject to change.
 
 ## Installation
 
-To install yockstube, you need to have Node and [Cloudflare's wrangler tool](https://developers.cloudflare.com/workers/wrangler/) installed on your system. You also need to have a Cloudflare account and enabled Workers, as well as a [Workers KV database](https://developers.cloudflare.com/workers/wrangler/workers-kv/) in Cloudflare.
+To install Yockstube, you need to have Node and [Cloudflare's wrangler tool](https://developers.cloudflare.com/workers/wrangler/) installed on your system. You also need to have a Cloudflare account and enabled Workers, as well as a [Workers KV database](https://developers.cloudflare.com/workers/wrangler/workers-kv/) in Cloudflare.
 
 To install wrangler, run the following command in your terminal:
 
@@ -37,7 +37,7 @@ binding = "YT_CACHE_DB"
 id = "your KV namespace ID" # <-- Replace This
 ```
 
-Once you have everything set up, you can clone this repository and deploy yockstube to your own Workers domain.
+Once you have everything set up, you can clone this repository and deploy Yockstube to your own Workers domain.
 
 ```bash
 git clone https://github.com/yocks/yockstube.git
@@ -58,11 +58,11 @@ Published yockstube (1.43 sec)
 Current Deployment ID: 1234abcd-5678-efgh-9012-ijklmnopqrst
 ```
 
-Now you can use yockstube by replacing `https://www.youtube.com/watch?v=` with `https://yockstube.yourdomain.workers.dev/watch?v=` in any YouTube video URL and sending it to Discord.
+Now you can use Yockstube by replacing `https://www.youtube.com/watch?v=` with `https://yockstube.yourdomain.workers.dev/watch?v=` in any YouTube video URL and sending it to Discord.
 
 ## Development
 
-To run yockstube locally for development, simply run:
+To run Yockstube locally for development, simply run:
 
 ```bash
 wrangler dev
@@ -85,7 +85,7 @@ To run an edge preview session for your Worker, use wrangler dev --remote
 
 ## License
 
-yockstube is licensed under the GPL-3.0 License.
+Yockstube is licensed under the GPL-3.0 License.
 
 ## Privacy
 
