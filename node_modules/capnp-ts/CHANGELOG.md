@@ -1,0 +1,59 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+<a name="0.4.0"></a>
+# [0.4.0](https://github.com/jdiaz5513/capnp-ts/compare/v0.3.1...v0.4.0) (2018-09-26)
+
+
+### Bug Fixes
+
+* revert botched import paths ([#111](https://github.com/jdiaz5513/capnp-ts/issues/111)) ([e280020](https://github.com/jdiaz5513/capnp-ts/commit/e280020))
+
+
+### Features
+
+* **compiler:** add support for capnpc v0.7.0 ([#110](https://github.com/jdiaz5513/capnp-ts/issues/110)) ([22bd14d](https://github.com/jdiaz5513/capnp-ts/commit/22bd14d))
+
+
+
+
+
+<a name="0.3.1"></a>
+## [0.3.1](https://github.com/jdiaz5513/capnp-ts/compare/v0.3.0...v0.3.1) (2018-09-25)
+
+
+### Bug Fixes
+
+* **serialization:** fix parse crash on null pointer dereference in resize ([#107](https://github.com/jdiaz5513/capnp-ts/issues/107)) ([3f8b307](https://github.com/jdiaz5513/capnp-ts/commit/3f8b307)), closes [#78](https://github.com/jdiaz5513/capnp-ts/issues/78)
+
+
+
+
+
+<a name="0.3.0"></a>
+# [0.3.0](https://github.com/jdiaz5513/capnp-ts/compare/v0.2.4...v0.3.0) (2018-08-29)
+
+
+### Bug Fixes
+
+* **build:** avoid use of debug script for capnpc build step ([#101](https://github.com/jdiaz5513/capnp-ts/issues/101)) ([f1d606a](https://github.com/jdiaz5513/capnp-ts/commit/f1d606a))
+* **serialization:** set instance variables before they may be referenced ([#106](https://github.com/jdiaz5513/capnp-ts/issues/106)) ([21deff5](https://github.com/jdiaz5513/capnp-ts/commit/21deff5))
+
+
+### Features
+
+* **compiler:** implement remaining serialization features ([#98](https://github.com/jdiaz5513/capnp-ts/issues/98)) ([524b6bd](https://github.com/jdiaz5513/capnp-ts/commit/524b6bd))
+
+
+
+
+
+<a name="0.2.4"></a>
+## [0.2.4](https://github.com/jdiaz5513/capnp-ts/compare/v0.2.3...v0.2.4) (2017-11-24)
+
+
+
+
+**Note:** Version bump only for package capnp-ts
