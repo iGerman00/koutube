@@ -99,7 +99,7 @@ export default {
 		const vFormat = {
 			width: directUrl?.width,
 			height: directUrl?.height,
-			itag: directUrl?.itag,
+			itag: directUrl?.itag || 18,
 		};
 
 		const essentialData = {
@@ -221,7 +221,7 @@ function renderTemplate(data: {
 				`\n${data.publishedAt}\n&#x1F441;&#xFE0E; ${data.viewCount} &#x2764;&#xFE0E; ${
 					data.likeCount
 				} &#x1F465;&#xFE0E; ${data.subscriberCountText.replace(' subscribers', '')}`,
-			provider_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+			provider_url: 'https://github.com/iGerman00/yockstube',
 			title: data.appTitle + ` - ${data.viewCount} \uD83D\uDC41\uFE0F, in ${data.category}`,
 			type: 'video',
 			version: '1.0',
