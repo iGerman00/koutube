@@ -67,7 +67,7 @@ export default {
 			itag: directUrl?.itag,
 		};
 
-		console.log(json.initialDataFromMyShittyScript);
+		console.log(json.initialData);
 
 		const essentialData = {
 			appTitle: 'YocksTube',
@@ -77,14 +77,13 @@ export default {
 			description: he.encode(json.videoDetails.shortDescription),
 			viewCount: json.videoDetails.viewCount,
 			publishedAt:
-				json.initialDataFromMyShittyScript.contents.twoColumnWatchNextResults.results.results.contents[0].videoPrimaryInfoRenderer.dateText
-					.simpleText,
+				json.initialData.contents.twoColumnWatchNextResults.results.results.contents[0].videoPrimaryInfoRenderer.dateText.simpleText,
 			subscriberCountText:
-				json.initialDataFromMyShittyScript.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.owner
-					.videoOwnerRenderer.subscriberCountText.accessibility.accessibilityData.label,
+				json.initialData.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.owner.videoOwnerRenderer
+					.subscriberCountText.accessibility.accessibilityData.label,
 			likeCount:
-				json.initialDataFromMyShittyScript.contents.twoColumnWatchNextResults.results.results.contents[0].videoPrimaryInfoRenderer
-					.videoActions.menuRenderer.topLevelButtons[0].segmentedLikeDislikeButtonRenderer.likeCount,
+				json.initialData.contents.twoColumnWatchNextResults.results.results.contents[0].videoPrimaryInfoRenderer.videoActions.menuRenderer
+					.topLevelButtons[0].segmentedLikeDislikeButtonRenderer.likeCount,
 			category: json.microformat.playerMicroformatRenderer.category,
 			ownerProfileUrl: json.microformat.playerMicroformatRenderer.ownerProfileUrl,
 			bestThumbnail: `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`,
@@ -216,7 +215,7 @@ async function getVideoInfo(videoId: string): Promise<{
 		}[];
 	};
 	// Can't be bothered to properly type these two
-	initialDataFromMyShittyScript: { [key: string]: any };
+	initialData: { [key: string]: any };
 	microformat: { [key: string]: any };
 }> {
 	const page = await fetch(`https://www.youtube.com/watch?v=${videoId}?hl=en&gl=US&has_verified=1&bpctr=9999999999`, {
@@ -234,6 +233,6 @@ async function getVideoInfo(videoId: string): Promise<{
 	const json = JSON.parse(regex[1]);
 	const json2 = JSON.parse(regex2[1]);
 	// unite both jsons
-	json.initialDataFromMyShittyScript = json2;
+	json.initialData = json2;
 	return json;
 }
