@@ -87,3 +87,8 @@ yockstube is licensed under the GPL-3.0 License.
 ## Credits
 
 @dylanpdx' [vxtiktok](https://github.com/dylanpdx/vxtiktok) for some embed template inspiration and bot user-agent list
+
+## Privacy
+
+Nothing is logged explicitly, however I have full access to the KV database, meaning I am able to see what links are generated - not that I would have any reason to look through them.  
+The one piece of logging that is present is a "Cache hit" log with no additional information.

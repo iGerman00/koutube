@@ -31,7 +31,7 @@ export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
 		const cache = await env.YT_CACHE_DB.get(request.url);
 		if (cache) {
-			console.info('Cache hit for ' + request.url );
+			console.info('Cache hit');
 			const cacheData: CacheData = JSON.parse(cache);
 			return new Response(cacheData.response, {
 				headers: cacheData.headers,
@@ -87,8 +87,6 @@ export default {
 			height: directUrl?.height,
 			itag: directUrl?.itag,
 		};
-
-		console.log(json.initialData);
 
 		const essentialData = {
 			appTitle: 'YocksTube',
