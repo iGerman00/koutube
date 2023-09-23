@@ -66,3 +66,6 @@ To run an edge preview session for your Worker, use wrangler dev --remote
 ## License
 
 yockstube is licensed under the GPL-3.0 License.
+
+## Credits
+@dylanpdx' [vxtiktok](https://github.com/dylanpdx/vxtiktok) for some embed template inspiration and bot user-agent list
