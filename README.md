@@ -5,8 +5,15 @@ Yockstube is a web service, running in Cloudflare Workers, that fixes YouTube em
 ## Usage
 
 ```
-s/u/cks
+s/youtube.com/yt.igerman.cc
 ```
+
+Alternatively:
+```
+https://yt.igerman.cc/https://www.youtube.com/watch?v=dQw4w9WgXcQ
+```
+
+It should work with music as well, that includes the horrid domain of `music.yt.igerman.cc` for easy replacement.
 
 ## Installation
 
