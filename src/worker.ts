@@ -44,6 +44,10 @@ interface VideoInfo {
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+		if (new URL(request.url).pathname === "/") {
+			return Response.redirect("https://github.com/iGerman00/yockstube", 302);
+		}
+
 		// if we fetch oembed, get all params and return them as json
 		if (request.url.includes("oembed.json")) {
 			let params: { [key: string]: string } = {};
