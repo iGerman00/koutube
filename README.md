@@ -17,6 +17,9 @@ https://yt.igerman.cc/https://www.youtube.com/watch?v=dQw4w9WgXcQ
 
 It should work with music as well, that includes the horrid domain of `music.yt.igerman.cc` for easy replacement.
 
+## Caching
+This project uses a 7-day cache of every URL that it processes to avoid hammering YouTube. Subject to change.
+
 ## Installation
 
 To install yockstube, you need to have Node and [Cloudflare's wrangler tool](https://developers.cloudflare.com/workers/wrangler/) installed on your system. You also need to have a Cloudflare account and enabled Workers, as well as a [Workers KV database](https://developers.cloudflare.com/workers/wrangler/workers-kv/) in Cloudflare.
@@ -84,11 +87,11 @@ To run an edge preview session for your Worker, use wrangler dev --remote
 
 yockstube is licensed under the GPL-3.0 License.
 
-## Credits
-
-@dylanpdx' [vxtiktok](https://github.com/dylanpdx/vxtiktok) for some embed template inspiration and bot user-agent list
-
 ## Privacy
 
 Nothing is logged explicitly, however I have full access to the KV database, meaning I am able to see what links are generated - not that I would have any reason to look through them.  
 The one piece of logging that is present is a "Cache hit" log with no additional information.
+
+## Credits
+
+@dylanpdx' [vxtiktok](https://github.com/dylanpdx/vxtiktok) for some embed template inspiration and bot user-agent list
