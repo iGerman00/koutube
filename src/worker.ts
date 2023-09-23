@@ -161,7 +161,15 @@ function renderTemplate(data: {
 <html lang="en">
 
 <head>
-<style> body { background-color: #1f1f1f; } </style>
+<style>
+	body {
+		background-color: #1f1f1f;
+		color: white;
+	}
+	a {
+		color: #ff5d5b;
+	}
+</style>
 <meta http-equiv="Content-Type"		content="text/html; charset=UTF-8" />
 <meta name="theme-color"			content="#FF0000" />
 <meta property="og:site_name" 		content="${
