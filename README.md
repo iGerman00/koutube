@@ -1,5 +1,7 @@
 # yockstube
 
+### I'm looking for a domain! if you would like to help out by sponsoring or providing a domain like https://yockstube.com or https://bettrtube.com, or something you suggest - feel free to make an issue with your contact details and I will contact you.
+
 Yockstube is a web service, running in Cloudflare Workers, that fixes YouTube embeds on messenger platforms like Discord. It allows you to watch YouTube videos directly on Discord without opening a new tab or window.
 
 ## Usage
