@@ -148,7 +148,7 @@ function renderTemplate(data: {
 <head>
 <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
 <meta content="#FF0000" name="theme-color" />
-<meta property="og:site_name" content="${data.appTitle + `\non ${data.publishedAt}\n&#x1F441;&#xFE0E; ${data.viewCount} &#x2764;&#xFE0E; ${data.likeCount} &#x1F465;&#xFE0E; ${data.subscriberCountText.replace(' subscribers', '')}`}">
+<meta property="og:site_name" content="${data.appTitle + `\n${data.publishedAt}\n&#x1F441;&#xFE0E; ${data.viewCount} &#x2764;&#xFE0E; ${data.likeCount} &#x1F465;&#xFE0E; ${data.subscriberCountText.replace(' subscribers', '')}`}">
 
 <meta name="twitter:card" content="player" />
 <meta name="twitter:title" content="${data.title}" />
@@ -171,7 +171,7 @@ function renderTemplate(data: {
 <link rel="alternate" href="${new URL(data.request.url).origin + "/oembed.json?" + new URLSearchParams({
 	"author_name": data.author,
     "author_url": data.ownerProfileUrl,
-    "provider_name": data.appTitle + `\non ${data.publishedAt}\n&#x1F441;&#xFE0E; ${data.viewCount} &#x2764;&#xFE0E; ${data.likeCount} &#x1F465;&#xFE0E; ${data.subscriberCountText.replace(' subscribers', '')}`,
+    "provider_name": data.appTitle + `\n${data.publishedAt}\n&#x1F441;&#xFE0E; ${data.viewCount} &#x2764;&#xFE0E; ${data.likeCount} &#x1F465;&#xFE0E; ${data.subscriberCountText.replace(' subscribers', '')}`,
     "provider_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     "title": data.appTitle + ` - ${data.viewCount} \uD83D\uDC41\uFE0F, in ${data.category}`,
     "type": "video",
