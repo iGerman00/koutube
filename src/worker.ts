@@ -29,13 +29,17 @@ type CacheData = {
 
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
-		const cache = await env.YT_CACHE_DB.get(request.url);
-		if (cache) {
-			console.info('Cache hit');
-			const cacheData: CacheData = JSON.parse(cache);
-			return new Response(cacheData.response, {
-				headers: cacheData.headers,
-			});
+		try {
+			const cache = await env.YT_CACHE_DB.get(request.url);
+			if (cache) {
+				console.info('Cache hit');
+				const cacheData: CacheData = JSON.parse(cache);
+				return new Response(cacheData.response, {
+					headers: cacheData.headers,
+				});
+			}
+		} catch (e) {
+			console.error("Cache error", e);
 		}
 
 		if (new URL(request.url).pathname === '/') {
@@ -137,7 +141,12 @@ export default {
 				'Cached-On': new Date().toUTCString(),
 			},
 		}
-		env.YT_CACHE_DB.put(request.url, JSON.stringify(cacheEntry), { expirationTtl: 60 * 60 * 24 * 7 });
+		try {
+			env.YT_CACHE_DB.put(request.url, JSON.stringify(cacheEntry), { expirationTtl: 60 * 60 * 24 * 7 });
+		}
+		catch (e) {
+			console.error("Cache saving error, e");
+		}
 
 		return new Response(html, {
 			status: 200,
