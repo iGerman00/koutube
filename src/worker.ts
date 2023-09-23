@@ -42,6 +42,20 @@ export default {
 			return Response.redirect('https://github.com/iGerman00/yockstube', 302);
 		}
 
+		const originalPath = request.url.replace(new URL(request.url).origin, '');
+		const isShorts = originalPath.startsWith('/shorts');
+		const isWatch = originalPath.startsWith('/watch');
+		const isEmbed = originalPath.startsWith('/embed');
+		const isMusic = request.url.startsWith('https://music') || request.url.startsWith('https://www.music');
+
+		function getOriginalUrl() {
+			if (isShorts) return `https://www.youtube.com${originalPath}`;
+			if (isWatch) return `https://www.youtube.com${originalPath}`;
+			if (isEmbed) return `https://www.youtube.com${originalPath}`;
+			if (isMusic) return `https://music.youtube.com${originalPath}`;
+			return `https://youtu.be${originalPath}`;
+		}
+
 		// if we fetch oembed, get all params and return them as json
 		if (request.url.includes('oembed.json')) {
 			let params: { [key: string]: string } = {};
@@ -74,7 +88,7 @@ export default {
 		const isBot = embedUserAgents.some((agent) => userAgent?.includes(agent));
 
 		// If a normal user is accessing the URL, redirect them to YouTube instead of returning an HTML response with meta tags for embedding
-		if (!isBot) return Response.redirect(`https://www.youtube.com/watch?v=${videoId}`, 302);
+		if (!isBot) return Response.redirect(getOriginalUrl(), 302);
 
 		const json = await getVideoInfo(videoId);
 		const directUrl =
@@ -108,7 +122,7 @@ export default {
 			bestThumbnail: `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`,
 			directUrl: `https://iteroni.com/latest_version?id=${videoId}&itag=${vFormat.itag}`,
 			vFormat,
-			youtubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
+			youtubeUrl: getOriginalUrl(),
 			videoId: videoId,
 			isDiscordBot: userAgent?.includes('Discord') ?? false,
 			request: request,
@@ -129,7 +143,7 @@ export default {
 			status: 200,
 			headers: {
 				'Content-Type': 'text/html',
-				Location: `https://www.youtube.com/watch?v=${videoId}`,
+				Location: getOriginalUrl(),
 			},
 		});
 	},
