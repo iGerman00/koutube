@@ -4,7 +4,7 @@
 
 Yockstube is a web service, running in Cloudflare Workers, that fixes YouTube embeds on messenger platforms like Discord. It allows you to watch YouTube videos directly on Discord without opening a new tab or window.
 
-## Usage
+## Usage 💡
 
 ```
 s/youtube.com/yt.igerman.cc
@@ -17,10 +17,22 @@ https://yt.igerman.cc/https://www.youtube.com/watch?v=dQw4w9WgXcQ
 
 It should work with YouTube Music as well, that includes the horrid domain of `music.yt.igerman.cc` for easy replacement.
 
-## Caching
-This project uses a 7-day cache of every URL that it processes to avoid hammering YouTube. Subject to change.
+## Features 🌟
+- 📊 Displays likes, subscribers, publish/last update date, and view count
+- 🎵 Supports `music.youtube.com`
+- 📱 Supports shorts
+- 🌐 Covers `youtu.be` links
+- 🎞️ Natively embeds videos
+- 🎶 Handles playlists
+- 🤳 Handles livestreams
+- ✔️ Displays channel verification status
+- 🚀 *May* bypass age restrictions
+- 💥 No random explosions (fixed!)
 
-## Installation
+## Caching 🚀
+This project uses a 7-day cache of every URL that it processes to avoid hammering any services. Subject to change.
+
+## Installation ⚙️
 
 To install Yockstube, you need to have Node and [Cloudflare's wrangler tool](https://developers.cloudflare.com/workers/wrangler/) installed on your system. You also need to have a Cloudflare account and enabled Workers, as well as a [Workers KV database](https://developers.cloudflare.com/workers/wrangler/workers-kv/) in Cloudflare.
 
@@ -60,7 +72,7 @@ Current Deployment ID: 1234abcd-5678-efgh-9012-ijklmnopqrst
 
 Now you can use Yockstube by replacing `https://www.youtube.com/watch?v=` with `https://yockstube.yourdomain.workers.dev/watch?v=` in any YouTube video URL and sending it to Discord.
 
-## Development
+## Development 🧑‍💻
 
 To run Yockstube locally for development, simply run:
 
@@ -83,18 +95,18 @@ To run an edge preview session for your Worker, use wrangler dev --remote
 ╰─────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-## License
+## License 📄
 
 Yockstube is licensed under the GPL-3.0 License.
 
-## Privacy
+## Privacy 🔒
 
 Nothing is logged explicitly, however I have full access to the KV database, meaning I am able to see what links are generated - not that I would have any reason to look through them.  
 The one piece of logging that is present is a "Cache hit" log with no additional information.  
 
 [Iteroni](https://iteroni.com)'s API is used, their [privacy policy](https://iteroni.com/privacy) applies.
 
-## Credits
+## Credits 👏
 
 - @dylanpdx' [vxtiktok](https://github.com/dylanpdx/vxtiktok) for some embed template inspiration and bot user-agent list
 - [Iteroni](https://iteroni.com) Invidious Instance and Invidious team for the easy-to-use API
