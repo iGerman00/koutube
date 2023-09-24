@@ -90,8 +90,11 @@ Yockstube is licensed under the GPL-3.0 License.
 ## Privacy
 
 Nothing is logged explicitly, however I have full access to the KV database, meaning I am able to see what links are generated - not that I would have any reason to look through them.  
-The one piece of logging that is present is a "Cache hit" log with no additional information.
+The one piece of logging that is present is a "Cache hit" log with no additional information.  
+
+[Iteroni](https://iteroni.com)'s API is used, their [privacy policy](https://iteroni.com/privacy) applies.
 
 ## Credits
 
-@dylanpdx' [vxtiktok](https://github.com/dylanpdx/vxtiktok) for some embed template inspiration and bot user-agent list
+- @dylanpdx' [vxtiktok](https://github.com/dylanpdx/vxtiktok) for some embed template inspiration and bot user-agent list
+- [Iteroni](https://iteroni.com) Invidious Instance and Invidious team for the easy-to-use API
