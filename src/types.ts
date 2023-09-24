@@ -38,6 +38,7 @@ export type VideoInfo = {
 	dislikeCount: number;
 	author: string;
 	authorUrl: string;
+	authorId: string;
 	subCountText: string;
 	isListed: boolean;
 	liveNow: boolean;
@@ -49,6 +50,7 @@ export type VideoEmbedData = {
 	appTitle: string;
 	title: string;
 	author: string;
+	isVerified: boolean;
 	description: string;
 	viewCount: number;
 	publishedAt: string;
@@ -72,6 +74,7 @@ type PlaylistVideo = {
 	videoId: string;
 	author: string;
 	authorUrl: string;
+	authorId: string;
 	videoThumbnails: VideoThumbnail[];
 	index: number;
 	lengthSeconds: number;
@@ -83,6 +86,7 @@ export type PlaylistInfo = {
 	description: string;
 	author: string;
 	authorUrl: string;
+	authorId: string;
 	videoCount: number;
 	viewCount: number;
 	updated: number;
@@ -93,6 +97,7 @@ export type PlaylistEmbedData = {
 	appTitle: string;
     title: string;
     author: string;
+	isVerified: boolean;
     description: string;
     viewCount: number;
     lastUpdated: Date;

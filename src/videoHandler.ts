@@ -1,6 +1,7 @@
 import { Env, VideoInfo, VideoEmbedData, CacheData } from "./types";
 import { embedUserAgents, config } from "./constants";
 import he from 'he';
+import { isChannelVerified } from "./utils";
 
 export default {
     async handleVideo(request: Request, env: Env): Promise<Response> {
@@ -53,6 +54,7 @@ export default {
 			publishedAt: info.publishedText,
 			subscriberCountText: info.subCountText,
 			likeCount: info.likeCount,
+			isVerified: await isChannelVerified(info.authorId),
 			ownerProfileUrl: 'https://youtube.com' + info.authorUrl,
 			bestThumbnail: 'https://iteroni.com' + info.videoThumbnails[0].url,
 			isLive: info.liveNow,
@@ -146,7 +148,7 @@ ${!info.isLive ? `
 		new URL(info.request.url).origin +
 		'/oembed.json?' +
 		new URLSearchParams({
-			author_name: info.author,
+			author_name: `${info.author}${info.isVerified ? ' &#x2713;&#xFE0E;' : ''}`,
 			author_url: info.ownerProfileUrl,
 			provider_name: constructProviderString(info),
 			provider_url: 'https://github.com/iGerman00/yockstube',
@@ -169,7 +171,7 @@ Please wait...
 }
 
 async function getVideoInfo(videoId: string): Promise<VideoInfo> {
-	const page = await fetch(`https://iteroni.com/api/v1/videos/${videoId}?hl=en&fields=title,videoThumbnails,description,publishedText,viewCount,likeCount,dislikeCount,author,authorUrl,subCountText,isListed,liveNow,formatStreams`, {
+	const page = await fetch(`https://iteroni.com/api/v1/videos/${videoId}?hl=en&fields=title,videoThumbnails,description,publishedText,viewCount,likeCount,dislikeCount,author,authorUrl,authorId,subCountText,isListed,liveNow,formatStreams`, {
 		headers: {
 			// set language to english
 			'Accept-Language': 'en-US,en;q=0.9',

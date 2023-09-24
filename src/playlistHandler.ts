@@ -1,6 +1,7 @@
 import { Env, CacheData, PlaylistInfo, PlaylistEmbedData } from "./types";
 import { embedUserAgents, config } from "./constants";
 import he from 'he';
+import { isChannelVerified } from "./utils";
 
 export default {
     async handlePlaylist(request: Request, env: Env): Promise<Response> {
@@ -37,6 +38,7 @@ export default {
 			ownerProfileUrl: 'https://youtube.com' + info.authorUrl,
 			bestThumbnail: info.playlistThumbnail,
 			videos: info.videos,
+			isVerified: await isChannelVerified(info.authorId),
 			youtubeUrl: getOriginalUrl(),
 			videoId: playlistId,
 			request: request,
@@ -79,11 +81,24 @@ function renderTemplate(info: PlaylistEmbedData) {
 
 	function constructVideoList(max: number) {
 		let string = '';
-		for (let i = 0; i < max; i++) {
+		let count = 0;
+		for (let i = 0; i < info.videos.length && count < max; i++) {
 			const video = info.videos[i];
-			string += `${i + 1}. ${video.title}\n`;
+			if (video && video.title !== '[Private video]') {
+				count++;
+				string += `${count}. ${video.title}\n`;
+			}
 		}
 		return he.encode(string);
+	}
+
+	function constructDescription(info: PlaylistEmbedData) {
+		let description = '';
+		if (info.description !== '') {
+			description += info.description.substring(0, 170) + '...\n\n';
+		}
+		description += constructVideoList(5);
+		return description;
 	}
 
 	return `
@@ -112,14 +127,14 @@ function renderTemplate(info: PlaylistEmbedData) {
 
 <meta property="og:url" 						content="${info.youtubeUrl}" />
 <meta property="og:image" 						content="${info.bestThumbnail}" />
-		
-<meta property="og:description" 				content="${info.description.substring(0, 170)}...\n\n${constructVideoList(5)}" />
+
+<meta property="og:description" content="${constructDescription(info)}" />
 
 <link rel="alternate" href="${
 		new URL(info.request.url).origin +
 		'/oembed.json?' +
 		new URLSearchParams({
-			author_name: info.author,
+			author_name: `${info.author}${info.isVerified ? ' &#x2713;&#xFE0E;' : ''}`,
 			author_url: info.ownerProfileUrl,
 			provider_name: constructProviderString(info),
 			provider_url: 'https://github.com/iGerman00/yockstube',
