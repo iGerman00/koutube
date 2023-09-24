@@ -30,7 +30,8 @@ It should work with YouTube Music as well, that includes the horrid domain of `m
 - 💥 No random explosions (fixed!)
 
 ## Caching 🚀
-This project uses a 7-day cache of every URL that it processes to avoid hammering any services. Subject to change.
+This project uses a 7-day cache of every URL that it processes to avoid hammering any services. Subject to change.  
+To disable fetching the cached version, append `?noCache` or `&noCache` if your URL already has a param like `?v`
 
 ## Installation ⚙️
 
