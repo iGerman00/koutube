@@ -52,10 +52,10 @@ export type VideoEmbedData = {
 	author: string;
 	isVerified: boolean;
 	description: string;
-	viewCount: number;
+	viewCount: string;
 	publishedAt: string;
 	subscriberCountText: string;
-	likeCount: number;
+	likeCount: string;
 	ownerProfileUrl: string;
 	bestThumbnail: string;
 	directUrl: string | null;
@@ -99,9 +99,9 @@ export type PlaylistEmbedData = {
     author: string;
 	isVerified: boolean;
     description: string;
-    viewCount: number;
+    viewCount: string;
     lastUpdated: Date;
-    videoCount: number;
+    videoCount: string;
     ownerProfileUrl: string;
     bestThumbnail: string;
     videos: PlaylistVideo[];
