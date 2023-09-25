@@ -1,7 +1,6 @@
 import playlistHandler from './playlistHandler';
-import { Env, CacheData } from './types';
 import videoHandler from './videoHandler';
-
+import { Env, CacheData } from './types';
 
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {

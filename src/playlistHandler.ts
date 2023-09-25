@@ -1,7 +1,7 @@
-import { Env, CacheData, PlaylistInfo, PlaylistEmbedData } from "./types";
+import { Env, CacheData, PlaylistEmbedData } from "./types";
 import { embedUserAgents, config } from "./constants";
 import he from 'he';
-import { isChannelVerified } from "./utils";
+import { getPlaylistInfo, isChannelVerified } from "./utils";
 
 export default {
     async handlePlaylist(request: Request, env: Env): Promise<Response> {
@@ -154,18 +154,4 @@ Please wait...
 </body>
 </html>
 `;
-}
-
-async function getPlaylistInfo(playlistId: string): Promise<PlaylistInfo> {
-	const page = await fetch(`https://iteroni.com/api/v1/playlists/${playlistId}?hl=en`, {
-		headers: {
-			// set language to english
-			'Accept-Language': 'en-US,en;q=0.9',
-			'User-Agent': 'Mozilla/5.0 (compatible; Yockstube/1.0; +https://github.com/igerman00/yockstube)',
-		},
-	});
-
-	const json: PlaylistInfo = await page.json();
-
-	return json;
 }

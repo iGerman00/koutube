@@ -1,7 +1,7 @@
-import { Env, VideoInfo, VideoEmbedData, CacheData } from "./types";
+import { Env, VideoEmbedData, CacheData } from "./types";
 import { embedUserAgents, config } from "./constants";
 import he from 'he';
-import { isChannelVerified } from "./utils";
+import { getVideoInfo, isChannelVerified } from "./utils";
 
 export default {
     async handleVideo(request: Request, env: Env): Promise<Response> {
@@ -168,18 +168,4 @@ Please wait...
 </body>
 </html>
 `;
-}
-
-async function getVideoInfo(videoId: string): Promise<VideoInfo> {
-	const page = await fetch(`https://iteroni.com/api/v1/videos/${videoId}?hl=en&fields=title,videoThumbnails,description,publishedText,viewCount,likeCount,dislikeCount,author,authorUrl,authorId,subCountText,isListed,liveNow,formatStreams`, {
-		headers: {
-			// set language to english
-			'Accept-Language': 'en-US,en;q=0.9',
-			'User-Agent': 'Mozilla/5.0 (compatible; Yockstube/1.0; +https://github.com/igerman00/yockstube)',
-		},
-	});
-
-	const json: VideoInfo = await page.json();
-
-	return json;
 }

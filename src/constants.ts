@@ -1,5 +1,3 @@
-// Config
-
 export const config = {
     appName: 'YocksTube',
 };
