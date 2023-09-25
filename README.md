@@ -28,6 +28,7 @@ It should work with YouTube Music as well, that includes the horrid domain of `m
 - 🤳 Handles livestreams
 - ✔️ Displays channel verification status
 - 🚀 *May* bypass age restrictions
+- 🛡️ Removes tracking on redirects
 - 💥 No random explosions (fixed!)
 
 ## Caching 🚀
