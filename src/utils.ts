@@ -54,3 +54,30 @@ export async function isMix(playlistId: string, request: Request): Promise<boole
 	const isMix = url.pathname.startsWith('/api/v1/mixes')
 	return isMix;
 }
+
+export function stripTracking(link: string) {
+	const url = new URL(link);
+	url.searchParams.delete('feature');
+	url.searchParams.delete('pp');
+	url.searchParams.delete('si');
+	url.searchParams.delete('a');
+	url.searchParams.delete('utm_source');
+	url.searchParams.delete('utm_medium');
+	url.searchParams.delete('utm_campaign');
+	url.searchParams.delete('gclid');
+	url.searchParams.delete('fbclid');
+	url.searchParams.delete('cid');
+	url.searchParams.delete('mc_cid');
+	url.searchParams.delete('mc_eid');
+	url.searchParams.delete('yclid');
+	url.searchParams.delete('cmp');
+	url.searchParams.delete('context');
+	url.searchParams.delete('keyword');
+	url.searchParams.delete('source');
+	url.searchParams.delete('medium');
+	url.searchParams.delete('campaign');
+	url.searchParams.delete('term');
+	url.searchParams.delete('content');
+
+	return url.toString();
+}

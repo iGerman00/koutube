@@ -1,7 +1,7 @@
 import { Env, CacheData, PlaylistEmbedData } from "./types";
 import { embedUserAgents, config } from "./constants";
 import he from 'he';
-import { getPlaylistInfo, isChannelVerified, isMix } from "./utils";
+import { getPlaylistInfo, isChannelVerified, isMix, stripTracking } from "./utils";
 import mixHandler from "./mixHandler" 
 
 export default {
@@ -9,7 +9,7 @@ export default {
 		const originalPath = request.url.replace(new URL(request.url).origin, '');
 
 		function getOriginalUrl() {
-			return `https://www.youtube.com${originalPath}`;
+			return stripTracking(`https://www.youtube.com${originalPath}`);
 		}
 
         const parserRe = /(.*?)(^|\/|list=)([a-zA-Z0-9_-]{18,})(.*)?/gim;

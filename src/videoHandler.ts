@@ -1,7 +1,7 @@
 import { Env, VideoEmbedData, CacheData } from "./types";
 import { embedUserAgents, config } from "./constants";
 import he from 'he';
-import { getVideoInfo, isChannelVerified } from "./utils";
+import { getVideoInfo, isChannelVerified, stripTracking } from "./utils";
 
 export default {
     async handleVideo(request: Request, env: Env): Promise<Response> {
@@ -12,11 +12,13 @@ export default {
 		const isMusic = request.url.startsWith('https://music') || request.url.startsWith('https://www.music');
 
 		function getOriginalUrl() {
-			if (isShorts) return `https://www.youtube.com${originalPath}`;
-			if (isWatch) return `https://www.youtube.com${originalPath}`;
-			if (isEmbed) return `https://www.youtube.com${originalPath}`;
-			if (isMusic) return `https://music.youtube.com${originalPath}`;
-			return `https://youtu.be${originalPath}`;
+			let url = ''
+			if (isShorts) url = `https://www.youtube.com${originalPath}`;
+			if (isWatch) url = `https://www.youtube.com${originalPath}`;
+			if (isEmbed) url = `https://www.youtube.com${originalPath}`;
+			if (isMusic) url = `https://music.youtube.com${originalPath}`;
+			url = `https://youtu.be${originalPath}`;
+			return stripTracking(url)
 		}
 
         const parserRe = /(.*?)(^|\/|v=)([a-z0-9_-]{11})(.*)?/gim;

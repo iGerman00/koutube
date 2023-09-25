@@ -1,14 +1,14 @@
 import { Env, CacheData, MixEmbedData } from "./types";
 import { embedUserAgents, config } from "./constants";
 import he from 'he';
-import { getPlaylistInfo as getMixInfo } from "./utils";
+import { getPlaylistInfo as getMixInfo, stripTracking } from "./utils";
 
 export default {
     async handleMix(request: Request, env: Env): Promise<Response> {
 		const originalPath = request.url.replace(new URL(request.url).origin, '');
 
 		function getOriginalUrl() {
-			return `https://music.youtube.com${originalPath}`;
+			return stripTracking(`https://music.youtube.com${originalPath}`);
 		}
 
         const parserRe = /(.*?)(^|\/|list=)([a-zA-Z0-9_-]{18,})(.*)?/gim;
