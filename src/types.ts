@@ -109,3 +109,18 @@ export type PlaylistEmbedData = {
     videoId: string;
     request: Request;
 };
+
+export type MixInfo = {
+	title: string;
+	mixId: string;
+	videos: PlaylistVideo[];
+};
+
+export type MixEmbedData = {
+	appTitle: string;
+	title: string;
+	videos: PlaylistVideo[];
+	youtubeUrl: string;
+	mixId: string;
+	request: Request;
+};

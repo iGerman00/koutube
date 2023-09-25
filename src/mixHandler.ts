@@ -1,27 +1,22 @@
-import { Env, CacheData, PlaylistEmbedData } from "./types";
+import { Env, CacheData, MixEmbedData } from "./types";
 import { embedUserAgents, config } from "./constants";
 import he from 'he';
-import { getPlaylistInfo, isChannelVerified, isMix } from "./utils";
-import mixHandler from "./mixHandler" 
+import { getPlaylistInfo as getMixInfo } from "./utils";
 
 export default {
-    async handlePlaylist(request: Request, env: Env): Promise<Response> {
+    async handleMix(request: Request, env: Env): Promise<Response> {
 		const originalPath = request.url.replace(new URL(request.url).origin, '');
 
 		function getOriginalUrl() {
-			return `https://www.youtube.com${originalPath}`;
+			return `https://music.youtube.com${originalPath}`;
 		}
 
         const parserRe = /(.*?)(^|\/|list=)([a-zA-Z0-9_-]{18,})(.*)?/gim;
 		const match = parserRe.exec(getOriginalUrl());
-		const playlistId = match ? match[3] : null;
+		const mixId = match ? match[3] : null;
 
-		if (!playlistId) {
-			return new Response('Playlist ID not found!', { status: 400 });
-		}
-
-		if (await isMix(playlistId, request)) {
-			return mixHandler.handleMix(request, env);
+		if (!mixId) {
+			return new Response('Mix ID not found!', { status: 400 });
 		}
 
 
@@ -30,23 +25,15 @@ export default {
 
 		if (!isBot) return Response.redirect(getOriginalUrl(), 302);
 
-		const info = await getPlaylistInfo(playlistId);
+		const info = await getMixInfo(mixId);
 
-		const embedData: PlaylistEmbedData = {
+		const embedData: MixEmbedData = {
 			appTitle: config.appName,
 			// url escape emojis and such
 			title: he.encode(info.title),
-			author: he.encode(info.author),
-			description: he.encode(info.description),
-			viewCount: info.viewCount.toLocaleString('en-US'),
-			lastUpdated: new Date(info.updated * 1000),
-			videoCount: info.videoCount.toLocaleString('en-US'),
-			ownerProfileUrl: 'https://youtube.com' + info.authorUrl,
-			bestThumbnail: info.playlistThumbnail,
 			videos: info.videos,
-			isVerified: await isChannelVerified(info.authorId),
 			youtubeUrl: getOriginalUrl(),
-			videoId: playlistId,
+			mixId: mixId,
 			request: request,
 		};
 
@@ -76,12 +63,9 @@ export default {
 	},
 };
 
-function renderTemplate(info: PlaylistEmbedData) {
-    function constructProviderString(info: PlaylistEmbedData) {
-        let string = `${config.appName}\n`;
-        string += `Updated ${info.lastUpdated.toDateString().substring(4, 99)}\n`;
-        string += `&#x1F441;&#xFE0E; ${info.viewCount} `;
-        string += `&#x1F3AC;&#xFE0E; ${info.videoCount} `;
+function renderTemplate(info: MixEmbedData) {
+    function constructProviderString() {
+        let string = `${config.appName} - Mix`;
         return string;
     }
 
@@ -98,12 +82,9 @@ function renderTemplate(info: PlaylistEmbedData) {
 		return he.encode(string);
 	}
 
-	function constructDescription(info: PlaylistEmbedData) {
+	function constructDescription() {
 		let description = '';
-		if (info.description !== '') {
-			description += info.description.substring(0, 170) + '...\n\n';
-		}
-		description += constructVideoList(5);
+		description += constructVideoList(10);
 		return description;
 	}
 
@@ -125,30 +106,30 @@ function renderTemplate(info: PlaylistEmbedData) {
 
 <meta http-equiv="Content-Type"					content="text/html; charset=UTF-8" />
 <meta name="theme-color"						content="#FF0000" />
-<meta property="og:site_name" 					content="${constructProviderString(info)}">
+<meta property="og:site_name" 					content="${constructProviderString()}">
 
 <meta name="twitter:card" 						content="card" />
 <meta name="twitter:title" 						content="${info.title}" />
-<meta name="twitter:image" 						content="${info.bestThumbnail}" />
+<meta name="twitter:image" 						content="" />
 
 <meta property="og:url" 						content="${info.youtubeUrl}" />
-<meta property="og:image" 						content="${info.bestThumbnail}" />
+<meta property="og:image" 						content="" />
 
-<meta property="og:description" content="${constructDescription(info)}" />
+<meta property="og:description" content="${constructDescription()}" />
 
 <link rel="alternate" href="${
 		new URL(info.request.url).origin +
 		'/oembed.json?' +
 		new URLSearchParams({
-			author_name: `${info.author}${info.isVerified ? ' &#x2713;&#xFE0E;' : ''}`,
-			author_url: info.ownerProfileUrl,
-			provider_name: constructProviderString(info),
+			author_name: '',
+			author_url: '',
+			provider_name: constructProviderString(),
 			provider_url: 'https://github.com/iGerman00/yockstube',
 			title: info.appTitle,
 			type: 'video',
 			version: '1.0',
 		}).toString()
-	}" type="application/json+oembed" title="${info.author}"/>
+	}" type="application/json+oembed" title="${info.appTitle}"/>
 
 
 <meta http-equiv="refresh" content="0; url=${info.youtubeUrl}" />
