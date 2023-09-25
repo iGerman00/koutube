@@ -1,7 +1,6 @@
 import { PlaylistInfo, VideoInfo } from "./types";
 
 export async function isChannelVerified(channelId: string): Promise<boolean> {
-    console.log('checking verification')
 	const page = await fetch(`https://iteroni.com/api/v1/channels/${channelId}?hl=en&fields=authorVerified`, {
 		headers: {
 			// set language to english
