@@ -123,4 +123,5 @@ export type MixEmbedData = {
 	youtubeUrl: string;
 	mixId: string;
 	request: Request;
+	songCount: string;
 };

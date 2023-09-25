@@ -35,6 +35,7 @@ export default {
 			youtubeUrl: getOriginalUrl(),
 			mixId: mixId,
 			request: request,
+			songCount: info.videos.length.toLocaleString('en-US'),
 		};
 
 		const html = renderTemplate(embedData);
@@ -65,7 +66,8 @@ export default {
 
 function renderTemplate(info: MixEmbedData) {
     function constructProviderString() {
-        let string = `${config.appName} - Mix`;
+        let string = `${config.appName} - Mix\n`;
+		string += `&#x1F3B6;&#xFE0E; ${info.songCount}`;
         return string;
     }
 
