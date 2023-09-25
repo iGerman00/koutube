@@ -20,6 +20,7 @@ It should work with YouTube Music as well, that includes the horrid domain of `m
 ## Features 🌟
 - 📊 Displays likes, subscribers, publish/last update date, and view count
 - 🎵 Supports `music.youtube.com`
+- ⏯️ Supports YouTube Music mixes
 - 📱 Supports shorts
 - 🌐 Covers `youtu.be` links
 - 🎞️ Natively embeds videos
