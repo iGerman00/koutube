@@ -80,8 +80,8 @@ function renderTemplate(info: PlaylistEmbedData) {
     function constructProviderString(info: PlaylistEmbedData) {
         let string = `${config.appName}\n`;
         string += `Updated ${info.lastUpdated.toDateString().substring(4, 99)}\n`;
-        string += `&#x1F441;&#xFE0E; ${info.viewCount} `;
-        string += `&#x1F3AC;&#xFE0E; ${info.videoCount} `;
+        string += `${config.viewEmoji} ${info.viewCount} `;
+        string += `${config.videoEmoji} ${info.videoCount} `;
         return string;
     }
 

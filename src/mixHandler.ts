@@ -67,7 +67,7 @@ export default {
 function renderTemplate(info: MixEmbedData) {
     function constructProviderString() {
         let string = `${config.appName} - Mix\n`;
-		string += `&#x1F3B6;&#xFE0E; ${info.songCount}`;
+		string += `${config.songEmoji} ${info.songCount}`;
         return string;
     }
 

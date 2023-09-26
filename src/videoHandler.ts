@@ -102,18 +102,18 @@ function renderTemplate(info: VideoEmbedData) {
 
 		if (info.isLive) string += `&#x1F4FA;&#xFE0E; Live now\n`;
 
-        string += `&#x1F441;&#xFE0E; ${info.viewCount} `;
+        string += `${config.viewEmoji} ${info.viewCount} `;
 
 		if (info.rydResponse) {
 			let dislikeCountRYD = info.rydResponse.dislikes.toLocaleString('en-US');
 			let likeCountRYD = info.rydResponse.likes.toLocaleString('en-US');
-			string += `&#x1F44D;&#xFE0E; ${info.likeCount === '0' ? likeCountRYD : info.likeCount} `;
-			string += `&#x1F44E;&#xFE0E; ${dislikeCountRYD} `;
+			string += `${config.likeEmoji} ${info.likeCount === '0' ? likeCountRYD : info.likeCount} `;
+			string += `${config.dislikeEmoji} ${dislikeCountRYD} `;
 		} else {
-			string += `&#x1F44D;&#xFE0E; ${info.likeCount} `;
+			string += `${config.likeEmoji} ${info.likeCount} `;
 		}
 
-        string += `&#x1F465;&#xFE0E; ${info.subscriberCountText.replace(' subscribers', '')}`;
+        string += `${config.subscriberEmoji} ${info.subscriberCountText.replace(' subscribers', '')}`;
 
         return string;
     }
