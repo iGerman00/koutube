@@ -29,6 +29,7 @@ It should work with YouTube Music as well, that includes the horrid domain of `m
 - ✔️ Displays channel verification status
 - 🚀 *May* bypass age restrictions
 - 🛡️ Removes tracking on redirects
+- 👎 Supports dislikes via RYD
 - 💥 No random explosions (fixed!)
 
 ## Caching 🚀
@@ -111,5 +112,6 @@ The one piece of logging that is present is a "Cache hit" log with no additional
 
 ## Credits 👏
 
-- @dylanpdx' [vxtiktok](https://github.com/dylanpdx/vxtiktok) for some embed template inspiration and bot user-agent list
+- [@dylanpdx](https://github.com/dylanpdx)' [vxtiktok](https://github.com/dylanpdx/vxtiktok) for some embed template inspiration and bot user-agent list
 - [Iteroni](https://iteroni.com) Invidious Instance and Invidious team for the easy-to-use API
+- [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike) by [@Anarios](https://github.com/Anarios)

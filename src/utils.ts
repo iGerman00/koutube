@@ -1,4 +1,4 @@
-import { PlaylistInfo, VideoInfo } from "./types";
+import { RYDResponse, PlaylistInfo, VideoInfo } from "./types";
 
 export async function isChannelVerified(channelId: string): Promise<boolean> {
 	const page = await fetch(`https://iteroni.com/api/v1/channels/${channelId}?hl=en&fields=authorVerified`, {
@@ -80,4 +80,20 @@ export function stripTracking(link: string) {
 	url.searchParams.delete('content');
 
 	return url.toString();
+}
+
+export async function getDislikes(videoId: string): Promise<RYDResponse | undefined> {
+	try {
+		const page = await fetch(`https://returnyoutubedislikeapi.com/votes?videoId=${videoId}`, {
+			headers: {
+				'Accept-Language': 'en-US,en;q=0.9',
+				'User-Agent': 'Mozilla/5.0 (compatible; Yockstube/1.0',
+			},
+		});
+		const json: RYDResponse = await page.json();
+		return json;
+	} catch (error: any) {
+		console.error(error)
+		return undefined;
+	}
 }

@@ -46,6 +46,16 @@ export type VideoInfo = {
 	formatStreams: FormatStream[];
 };
 
+export type RYDResponse = {
+	id: string;
+	dateCreated: string;
+	likes: number;
+	dislikes: number;
+	rating: number
+	viewCount: number;
+	deleted: boolean;
+};
+
 export type VideoEmbedData = {
 	appTitle: string;
 	title: string;
@@ -66,6 +76,7 @@ export type VideoEmbedData = {
 	};
 	youtubeUrl: string;
 	videoId: string;
+	rydResponse?: RYDResponse; 
 	request: Request;
 };
 

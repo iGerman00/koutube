@@ -1,7 +1,7 @@
 import { Env, VideoEmbedData, CacheData } from "./types";
 import { embedUserAgents, config } from "./constants";
 import he from 'he';
-import { getVideoInfo, isChannelVerified, stripTracking } from "./utils";
+import { getDislikes, getVideoInfo, isChannelVerified, stripTracking } from "./utils";
 
 export default {
     async handleVideo(request: Request, env: Env): Promise<Response> {
@@ -66,6 +66,7 @@ export default {
 			youtubeUrl: getOriginalUrl(),
 			videoId: videoId,
 			request: request,
+			rydResponse: await getDislikes(videoId)
 		};
 		const html = renderTemplate(embedData);
 
@@ -96,11 +97,24 @@ export default {
 function renderTemplate(info: VideoEmbedData) {
     function constructProviderString(info: VideoEmbedData) {
         let string = `${config.appName}\n`;
+
         string += `${info.publishedAt}\n`;
+
 		if (info.isLive) string += `&#x1F4FA;&#xFE0E; Live now\n`;
+
         string += `&#x1F441;&#xFE0E; ${info.viewCount} `;
-        string += `&#x2764;&#xFE0E; ${info.likeCount} `;
+
+		if (info.rydResponse) {
+			let dislikeCountRYD = info.rydResponse.dislikes.toLocaleString('en-US');
+			let likeCountRYD = info.rydResponse.likes.toLocaleString('en-US');
+			string += `&#x1F44D;&#xFE0E; ${info.likeCount === '0' ? likeCountRYD : info.likeCount} `;
+			string += `&#x1F44E;&#xFE0E; ${dislikeCountRYD} `;
+		} else {
+			string += `&#x1F44D;&#xFE0E; ${info.likeCount} `;
+		}
+
         string += `&#x1F465;&#xFE0E; ${info.subscriberCountText.replace(' subscribers', '')}`;
+
         return string;
     }
 
