@@ -1,3 +1,4 @@
+import { config } from "./constants";
 import { RYDResponse, PlaylistInfo, VideoInfo } from "./types";
 
 export async function isChannelVerified(channelId: string): Promise<boolean> {
@@ -13,7 +14,7 @@ export async function isChannelVerified(channelId: string): Promise<boolean> {
 }
 
 export async function getVideoInfo(videoId: string): Promise<VideoInfo> {
-	const page = await fetch(`https://iteroni.com/api/v1/videos/${videoId}?hl=en&fields=title,videoThumbnails,description,publishedText,viewCount,likeCount,dislikeCount,author,authorUrl,authorId,subCountText,isListed,liveNow,formatStreams`, {
+	const page = await fetch(`https://iteroni.com/api/v1/videos/${videoId}?hl=en&fields=title,videoThumbnails,description,publishedText,viewCount,likeCount,dislikeCount,author,authorUrl,authorId,subCountText,isListed,liveNow,formatStreams,type,error`, {
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
 			'User-Agent': 'Mozilla/5.0 (compatible; Yockstube/1.0; +https://github.com/igerman00/yockstube)',
@@ -96,4 +97,52 @@ export async function getDislikes(videoId: string): Promise<RYDResponse | undefi
 		console.error(error)
 		return undefined;
 	}
+}
+
+export function renderGenericTemplate(info: string, redirectUrl: string, request: Request, title = 'Scheduled event') {
+	return `
+	<!DOCTYPE html>
+	<html lang="en">
+	
+	<head>
+	<title>${config.appName}</title>
+	<style>
+		body {
+			background-color: #1f1f1f;
+			color: white;
+		}
+		a {
+			color: #ff5d5b;
+		}
+	</style>
+	
+	<meta http-equiv="Content-Type"					content="text/html; charset=UTF-8" />
+	<meta name="theme-color"						content="#FF0000" />
+	<meta property="og:site_name" 					content="">
+			
+	<meta property="og:description" 				content="${info.substring(0, 160) + '...'}" />
+
+	<link rel="alternate" href="${
+		new URL(request.url).origin +
+		'/oembed.json?' +
+		new URLSearchParams({
+			author_name: '',
+			author_url: '',
+			provider_name: config.appName,
+			provider_url: 'https://github.com/iGerman00/yockstube',
+			title: title,
+			type: 'video',
+			version: '1.0',
+		}).toString()
+	}" type="application/json+oembed" title="d"/>
+	
+	<meta http-equiv="refresh" content="0; url=${redirectUrl}" />
+	</head>
+	
+	<body>
+	Please wait...
+	<a href="${redirectUrl}">Or click here.</a>
+	</body>
+	</html>
+	`;
 }

@@ -30,6 +30,8 @@ type FormatStream = {
 
 export type VideoInfo = {
 	title: string;
+	type?: string;
+	error?: string;
 	videoThumbnails: VideoThumbnail[];
 	description: string;
 	publishedText: string;
@@ -58,7 +60,10 @@ export type RYDResponse = {
 
 export type VideoEmbedData = {
 	appTitle: string;
+	type?: string;
+	error?: string;
 	title: string;
+	formatStreams: FormatStream[];
 	author: string;
 	isVerified: boolean;
 	description: string;

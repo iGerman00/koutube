@@ -1,7 +1,7 @@
 import { Env, VideoEmbedData, CacheData } from "./types";
 import { embedUserAgents, config } from "./constants";
 import he from 'he';
-import { getDislikes, getVideoInfo, isChannelVerified, stripTracking } from "./utils";
+import { getDislikes, getVideoInfo, isChannelVerified, renderGenericTemplate, stripTracking } from "./utils";
 
 export default {
     async handleVideo(request: Request, env: Env): Promise<Response> {
@@ -36,6 +36,21 @@ export default {
 
 		const info = await getVideoInfo(videoId);
 
+		// TODO: voodoo with some kind of API to get info on scheduled livestreams
+		if (info.error && info.error.startsWith('This live event will begin ')) {
+			const date = info.error.replace('This live event will begin ', '').replace('.', '');
+			const string = `Sorry, there's no info to give you other than the fact that the event will begin ${date}`
+			const response = renderGenericTemplate(string, getOriginalUrl(), request);
+			return new Response(response, {
+				status: 200,
+				headers: {
+					'Content-Type': 'text/html',
+					Location: getOriginalUrl(),
+				},
+			});
+		}
+			
+
 		const formatStream = info.formatStreams.find((stream) => stream.itag === '22') ||
 		info.formatStreams.find((stream) => stream.itag === '18')
 		|| null;
@@ -49,6 +64,8 @@ export default {
 		const embedData: VideoEmbedData = {
 			appTitle: config.appName,
 			// url escape emojis and such
+			type: info.type,
+			error: info.error,
 			title: he.encode(info.title),
 			author: he.encode(info.author),
 			description: he.encode(info.description),
@@ -62,6 +79,7 @@ export default {
 			isLive: info.liveNow,
 			// directUrl: formatStream?.url ?? null,
 			directUrl: `https://iteroni.com/latest_version?id=${videoId}&itag=${videoResolution.itag}`,
+			formatStreams: info.formatStreams,
 			resolution: videoResolution,
 			youtubeUrl: getOriginalUrl(),
 			videoId: videoId,
@@ -98,9 +116,13 @@ function renderTemplate(info: VideoEmbedData) {
     function constructProviderString(info: VideoEmbedData) {
         let string = `${config.appName}\n`;
 
-        string += `${info.publishedAt}\n`;
+		if (info.type === 'scheduled') {
+			string += `${info.error}\n`;
+			// if formatStreams is empty, then the video is probably either live or a premiere
+			if (info.formatStreams.length === 0) info.isLive = true;
+		} else string += `${info.publishedAt}\n`;
 
-		if (info.isLive) string += `&#x1F4FA;&#xFE0E; Live now\n`;
+		if (info.isLive && !(info.type === 'scheduled')) string += `&#x1F4FA;&#xFE0E; Live now\n`;
 
         string += `${config.viewEmoji} ${info.viewCount} `;
 
