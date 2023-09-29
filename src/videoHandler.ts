@@ -21,6 +21,10 @@ export default {
 			return stripTracking(url)
 		}
 
+		function getAssumedResolution() {
+			return isShorts ? [720, 1280] : [1280, 720]
+		}
+
         const parserRe = /(.*?)(^|\/|v=)([a-z0-9_-]{11})(.*)?/gim;
 		const match = parserRe.exec(getOriginalUrl());
 		const videoId = match ? match[3] : null;
@@ -56,8 +60,8 @@ export default {
 		|| null;
 
 		const videoResolution = {
-			width: Number(formatStream?.size?.split('x')[0]) || 1280,
-			height: Number(formatStream?.size?.split('x')[1]) || 720,
+			width: isShorts ? getAssumedResolution()[0] : Number(formatStream?.size?.split('x')[0]),
+			height: isShorts ? getAssumedResolution()[1] : Number(formatStream?.size?.split('x')[1]),
 			itag: formatStream?.itag || 18,
 		};
 
@@ -75,7 +79,7 @@ export default {
 			likeCount: info.likeCount.toLocaleString('en-US'),
 			isVerified: await isChannelVerified(info.authorId),
 			ownerProfileUrl: 'https://youtube.com' + info.authorUrl,
-			bestThumbnail: 'https://iteroni.com' + info.videoThumbnails[0].url,
+			bestThumbnail: isShorts ? '' :'https://iteroni.com' + info.videoThumbnails[0].url,
 			isLive: info.liveNow,
 			// directUrl: formatStream?.url ?? null,
 			directUrl: `https://iteroni.com/latest_version?id=${videoId}&itag=${videoResolution.itag}`,
