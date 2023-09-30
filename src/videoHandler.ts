@@ -4,7 +4,7 @@ import he from 'he';
 import { getDislikes, getVideoInfo, isChannelVerified, renderGenericTemplate, stripTracking } from "./utils";
 
 export default {
-    async handleVideo(request: Request, env: Env): Promise<Response> {
+	async handleVideo(request: Request, env: Env): Promise<Response> {
 		const originalPath = request.url.replace(new URL(request.url).origin, '');
 		const isShorts = originalPath.startsWith('/shorts');
 		const isWatch = originalPath.startsWith('/watch');
@@ -12,20 +12,18 @@ export default {
 		const isMusic = request.url.startsWith('https://music') || request.url.startsWith('https://www.music');
 
 		function getOriginalUrl() {
-			let url = ''
-			if (isShorts) url = `https://www.youtube.com${originalPath}`;
-			if (isWatch) url = `https://www.youtube.com${originalPath}`;
-			if (isEmbed) url = `https://www.youtube.com${originalPath}`;
-			if (isMusic) url = `https://music.youtube.com${originalPath}`;
-			url = `https://youtu.be${originalPath}`;
-			return stripTracking(url)
+			if (isShorts || isWatch || isEmbed) {
+				return stripTracking(`https://www.youtube.com${originalPath}`);
+			}
+			if (isMusic) {
+				return stripTracking(`https://music.youtube.com${originalPath}`);
+			}
+			return stripTracking(`https://youtu.be${originalPath}`);
 		}
 
-		function getAssumedResolution() {
-			return isShorts ? [720, 1280] : [1280, 720]
-		}
+		const [width, height] = isShorts ? [720, 1280] : [1280, 720];
 
-        const parserRe = /(.*?)(^|\/|v=)([a-z0-9_-]{11})(.*)?/gim;
+		const parserRe = /(.*?)(^|\/|v=)([a-z0-9_-]{11})(.*)?/gim;
 		const match = parserRe.exec(getOriginalUrl());
 		const videoId = match ? match[3] : null;
 
@@ -53,43 +51,45 @@ export default {
 				},
 			});
 		}
-			
+
 
 		const formatStream = info.formatStreams.find((stream) => stream.itag === '22') ||
-		info.formatStreams.find((stream) => stream.itag === '18')
-		|| null;
+			info.formatStreams.find((stream) => stream.itag === '18')
+			|| null;
 
 		const videoResolution = {
-			width: isShorts ? getAssumedResolution()[0] : Number(formatStream?.size?.split('x')[0]),
-			height: isShorts ? getAssumedResolution()[1] : Number(formatStream?.size?.split('x')[1]),
+			width: isShorts ? width : Number(formatStream?.size?.split('x')[0]),
+			height: isShorts ? height : Number(formatStream?.size?.split('x')[1]),
 			itag: formatStream?.itag || 18,
 		};
 
+		const isVerified = await isChannelVerified(info.authorId);
+		const rydResponse = await getDislikes(videoId);
+
 		const embedData: VideoEmbedData = {
 			appTitle: config.appName,
-			// url escape emojis and such
 			type: info.type,
 			error: info.error,
 			title: he.encode(info.title),
 			author: he.encode(info.author),
 			description: he.encode(info.description),
 			viewCount: info.viewCount.toLocaleString('en-US'),
-			publishedAt: info.liveNow ? '' : 'Uploaded ' + info.publishedText,
+			publishedAt: info.liveNow ? '' : `Uploaded ${info.publishedText}`,
 			subscriberCountText: info.subCountText,
 			likeCount: info.likeCount.toLocaleString('en-US'),
-			isVerified: await isChannelVerified(info.authorId),
-			ownerProfileUrl: 'https://youtube.com' + info.authorUrl,
-			bestThumbnail: isShorts ? '' :'https://iteroni.com' + info.videoThumbnails[0].url,
+			isVerified,
+			ownerProfileUrl: `https://youtube.com${info.authorUrl}`,
+			bestThumbnail: isShorts ? '' : `https://iteroni.com${info.videoThumbnails[0].url}`,
 			isLive: info.liveNow,
-			// directUrl: formatStream?.url ?? null,
 			directUrl: `https://iteroni.com/latest_version?id=${videoId}&itag=${videoResolution.itag}`,
 			formatStreams: info.formatStreams,
 			resolution: videoResolution,
 			youtubeUrl: getOriginalUrl(),
-			videoId: videoId,
-			request: request,
-			rydResponse: await getDislikes(videoId)
+			videoId,
+			request,
+			rydResponse
 		};
+
 		const html = renderTemplate(embedData);
 
 		const cacheEntry: CacheData = {
@@ -103,7 +103,7 @@ export default {
 			env.YT_CACHE_DB.put(request.url, JSON.stringify(cacheEntry), { expirationTtl: 60 * 60 * 24 * 7 });
 		}
 		catch (e) {
-			console.error('Cache saving error, e');
+			console.error('Cache saving error', e);
 		}
 
 		return new Response(html, {
@@ -117,8 +117,8 @@ export default {
 };
 
 function renderTemplate(info: VideoEmbedData) {
-    function constructProviderString(info: VideoEmbedData) {
-        let string = `${config.appName}\n`;
+	function constructProviderString(info: VideoEmbedData) {
+		let string = `${config.appName}\n`;
 
 		if (info.type === 'scheduled') {
 			string += `${info.error}\n`;
@@ -128,7 +128,7 @@ function renderTemplate(info: VideoEmbedData) {
 
 		if (info.isLive && !(info.type === 'scheduled')) string += `&#x1F4FA;&#xFE0E; Live now\n`;
 
-        string += `${config.viewEmoji} ${info.viewCount} `;
+		string += `${config.viewEmoji} ${info.viewCount} `;
 
 		if (info.rydResponse) {
 			let dislikeCountRYD = info.rydResponse.dislikes.toLocaleString('en-US');
@@ -139,10 +139,10 @@ function renderTemplate(info: VideoEmbedData) {
 			string += `${config.likeEmoji} ${info.likeCount} `;
 		}
 
-        string += `${config.subscriberEmoji} ${info.subscriberCountText.replace(' subscribers', '')}`;
+		string += `${config.subscriberEmoji} ${info.subscriberCountText.replace(' subscribers', '')}`;
 
-        return string;
-    }
+		return string;
+	}
 
 	return `
 <!DOCTYPE html>
@@ -186,8 +186,7 @@ ${!info.isLive ? `
 		
 <meta property="og:description" 				content="${info.description.substring(0, 160) + '...'}" />
 
-<link rel="alternate" href="${
-		new URL(info.request.url).origin +
+<link rel="alternate" href="${new URL(info.request.url).origin +
 		'/oembed.json?' +
 		new URLSearchParams({
 			author_name: `${info.author}${info.isVerified ? ' &#x2713;&#xFE0E;' : ''}`,
@@ -198,7 +197,7 @@ ${!info.isLive ? `
 			type: 'video',
 			version: '1.0',
 		}).toString()
-	}" type="application/json+oembed" title="${info.author}"/>
+		}" type="application/json+oembed" title="${info.author}"/>
 
 
 <meta http-equiv="refresh" content="0; url=${info.youtubeUrl}" />
