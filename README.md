@@ -36,6 +36,16 @@ It should work with YouTube Music as well, that includes the horrid domain of `m
 This project uses a 7-day cache of every URL that it processes to avoid hammering any services. Subject to change.  
 To disable fetching the cached version, append `?noCache` or `&noCache` if your URL already has a param like `?v`
 
+## Parameters
+- `nothumb` to disable embedding the thumbnail, may help fix video cropping on mobile Discord clients
+- `shorts` - treats the video as shorts
+
+Example usage:
+```
+https://yt.igerman.cc/dQw4w9WgXcQ?nothumb&shorts
+```
+Note: remember URL param syntax, the first param is always defined by a question mark, the subsequent ones - by an apersand.
+
 ## Installation ⚙️
 
 To install Yockstube, you need to have Node and [Cloudflare's wrangler tool](https://developers.cloudflare.com/workers/wrangler/) installed on your system. You also need to have a Cloudflare account and enabled Workers, as well as a [Workers KV database](https://developers.cloudflare.com/workers/wrangler/workers-kv/) in Cloudflare.

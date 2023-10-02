@@ -8,7 +8,9 @@ export const config = {
 
 	videoEmoji: '&#x1F3AC;&#xFE0E;', // 🎬
 
-	songEmoji: '&#x1F3B6;&#xFE0E;' // 🎶
+	songEmoji: '&#x1F3B6;&#xFE0E;', // 🎶
+
+	timecodeEmoji: '&#x1F554;&#xFE0E;' // 🕔
 };
 
 export const embedUserAgents = [

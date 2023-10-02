@@ -5,8 +5,11 @@ import { getDislikes, getVideoInfo, isChannelVerified, renderGenericTemplate, st
 
 export default {
     async handleVideo(request: Request, env: Env): Promise<Response> {
+		const overrideShorts = new URL(request.url).searchParams.get('shorts') !== null;
+		const overrideNoThumb = new URL(request.url).searchParams.get('nothumb') !== null;
+
 		const originalPath = request.url.replace(new URL(request.url).origin, '');
-		const isShorts = originalPath.startsWith('/shorts');
+		const isShorts = originalPath.startsWith('/shorts') || overrideShorts;
 		const isWatch = originalPath.startsWith('/watch');
 		const isEmbed = originalPath.startsWith('/embed');
 		const isMusic = request.url.startsWith('https://music') || request.url.startsWith('https://www.music');
@@ -55,14 +58,14 @@ export default {
 		}
 			
 
-		const formatStream = info.formatStreams.find((stream) => stream.itag === '22') ||
+		const selectedFormatStream = info.formatStreams.find((stream) => stream.itag === '22') ||
 		info.formatStreams.find((stream) => stream.itag === '18')
 		|| null;
 
 		const videoResolution = {
-			width: isShorts ? getAssumedResolution()[0] : Number(formatStream?.size?.split('x')[0]),
-			height: isShorts ? getAssumedResolution()[1] : Number(formatStream?.size?.split('x')[1]),
-			itag: formatStream?.itag || 18,
+			width: isShorts ? getAssumedResolution()[0] : Number(selectedFormatStream?.size?.split('x')[0]),
+			height: isShorts ? getAssumedResolution()[1] : Number(selectedFormatStream?.size?.split('x')[1]),
+			itag: selectedFormatStream?.itag || 18,
 		};
 
 		const embedData: VideoEmbedData = {
@@ -79,7 +82,7 @@ export default {
 			likeCount: info.likeCount.toLocaleString('en-US'),
 			isVerified: await isChannelVerified(info.authorId),
 			ownerProfileUrl: 'https://youtube.com' + info.authorUrl,
-			bestThumbnail: isShorts ? '' :'https://iteroni.com' + info.videoThumbnails[0].url,
+			bestThumbnail: isShorts || overrideNoThumb ? '' :'https://iteroni.com' + info.videoThumbnails[0].url,
 			isLive: info.liveNow,
 			// directUrl: formatStream?.url ?? null,
 			directUrl: `https://iteroni.com/latest_version?id=${videoId}&itag=${videoResolution.itag}`,
@@ -103,7 +106,7 @@ export default {
 			env.YT_CACHE_DB.put(request.url, JSON.stringify(cacheEntry), { expirationTtl: 60 * 60 * 24 * 7 });
 		}
 		catch (e) {
-			console.error('Cache saving error, e');
+			console.error('Cache saving error', e);
 		}
 
 		return new Response(html, {
@@ -118,7 +121,20 @@ export default {
 
 function renderTemplate(info: VideoEmbedData) {
     function constructProviderString(info: VideoEmbedData) {
-        let string = `${config.appName}\n`;
+        let string = `${config.appName}`;
+
+		const timecodeInSeconds = new URL(info.request.url).searchParams.get('t');
+
+		if (timecodeInSeconds !== null && timecodeInSeconds !== '') {
+			try {
+				const date = new Date(0);
+				date.setSeconds(Number(timecodeInSeconds));
+				let timeString = date.toISOString().substring(11, 19).replace('00:', '');
+				string += ` - ${config.timecodeEmoji} ${timeString}\n`;
+			} catch (e) {
+				console.error('Failed to get timecode', e);
+			}
+		} else string += '\n'
 
 		if (info.type === 'scheduled') {
 			string += `${info.error}\n`;
