@@ -30,6 +30,7 @@ It should work with YouTube Music as well, that includes the horrid domain of `m
 - 🚀 *May* bypass age restrictions
 - 🛡️ Removes tracking on redirects
 - 👎 Supports dislikes via RYD
+- 🕔 Displays timecodes
 - 💥 No random explosions (fixed!)
 
 ## Caching 🚀
