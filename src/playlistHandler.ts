@@ -63,7 +63,7 @@ export default {
 			env.YT_CACHE_DB.put(request.url, JSON.stringify(cacheEntry), { expirationTtl: 60 * 60 * 24 * 7 });
 		}
 		catch (e) {
-			console.error('Cache saving error, e');
+			console.error('Cache saving error', e);
 		}
 
 		return new Response(html, {
