@@ -137,8 +137,10 @@ function renderTemplate(info: VideoEmbedData) {
 		} else string += '\n'
 
 		if (info.type === 'scheduled') {
-			string += `${info.error}\n`;
-			// if formatStreams is empty, then the video is probably either live or a premiere
+			if (info.error !== undefined) {
+				string += `${info.error}\n`;
+			} else string += `${info.publishedAt}\n`;
+			
 			if (info.formatStreams.length === 0) info.isLive = true;
 		} else string += `${info.publishedAt}\n`;
 
