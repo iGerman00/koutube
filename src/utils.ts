@@ -124,28 +124,16 @@ export async function getDislikes(videoId: string): Promise<RYDResponse | undefi
 
 export function renderGenericTemplate(info: string, redirectUrl: string, request: Request, title = 'Scheduled event') {
 	return `
-	<!DOCTYPE html>
-	<html lang="en">
-	
-	<head>
-	<title>${config.appName}</title>
-	<style>
-		body {
-			background-color: #1f1f1f;
-			color: white;
-		}
-		a {
-			color: #ff5d5b;
-		}
-	</style>
-	
-	<meta http-equiv="Content-Type"					content="text/html; charset=UTF-8" />
-	<meta name="theme-color"						content="#FF0000" />
-	<meta property="og:site_name" 					content="">
-			
-	<meta property="og:description" 				content="${info.substring(0, 160) + '...'}" />
-
-	<link rel="alternate" href="${
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>${config.appName}</title>
+<style>body{background-color:#1f1f1f;color:white;}a{color:#ff5d5b;}</style>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="theme-color" content="#FF0000" />
+<meta property="og:site_name" content="">
+<meta property="og:description" content="${info.substring(0, 160) + '...'}" />
+<link rel="alternate" href="${
 		new URL(request.url).origin +
 		'/oembed.json?' +
 		new URLSearchParams({
@@ -158,16 +146,14 @@ export function renderGenericTemplate(info: string, redirectUrl: string, request
 			version: '1.0',
 		}).toString()
 	}" type="application/json+oembed" title="d"/>
-	
-	<meta http-equiv="refresh" content="0; url=${redirectUrl}" />
-	</head>
-	
-	<body>
-	Please wait...
-	<a href="${redirectUrl}">Or click here.</a>
-	</body>
-	</html>
-	`;
+<meta http-equiv="refresh" content="0; url=${redirectUrl}" />
+</head>
+<body>
+Please wait...
+<a href="${redirectUrl}">Or click here.</a>
+</body>
+</html>
+`;
 }
 
 export function escapeHtml(html: any) {

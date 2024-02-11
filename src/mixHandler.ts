@@ -93,32 +93,18 @@ function renderTemplate(info: MixEmbedData) {
 	return `
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <title>${config.appName}</title>
-<style>
-	body {
-		background-color: #1f1f1f;
-		color: white;
-	}
-	a {
-		color: #ff5d5b;
-	}
-</style>
-
-<meta http-equiv="Content-Type"					content="text/html; charset=UTF-8" />
-<meta name="theme-color"						content="#FF0000" />
-<meta property="og:site_name" 					content="${constructProviderString()}">
-
-<meta name="twitter:card" 						content="card" />
-<meta name="twitter:title" 						content="${info.title}" />
-<meta name="twitter:image" 						content="" />
-
-<meta property="og:url" 						content="${info.youtubeUrl}" />
-<meta property="og:image" 						content="" />
-
+<style>body{background-color:#1f1f1f;color:white;}a{color:#ff5d5b;}</style>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="theme-color" content="#FF0000" />
+<meta property="og:site_name" content="${constructProviderString()}">
+<meta name="twitter:card" content="card" />
+<meta name="twitter:title" content="${info.title}" />
+<meta name="twitter:image" content="" />
+<meta property="og:url" content="${info.youtubeUrl}" />
+<meta property="og:image" content="" />
 <meta property="og:description" content="${constructDescription()}" />
-
 <link rel="alternate" href="${
 		new URL(info.request.url).origin +
 		'/oembed.json?' +
@@ -132,11 +118,8 @@ function renderTemplate(info: MixEmbedData) {
 			version: '1.0',
 		}).toString()
 	}" type="application/json+oembed" title="${info.appTitle}"/>
-
-
 <meta http-equiv="refresh" content="0; url=${info.youtubeUrl}" />
 </head>
-
 <body>
 Please wait...
 <a href="${info.youtubeUrl}">Or click here.</a>
