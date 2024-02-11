@@ -146,4 +146,5 @@ export type PublicCacheEntry = {
 	url: string;
 	type: string;
 	timecode?: string;
+	expiration?: number;
 };

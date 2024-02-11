@@ -54,6 +54,7 @@ export default {
 						url: url.href.replace(url.origin, '').replace('/', ''),
 						type: getURLType(url),
 						timecode: url.searchParams.get('t') || 'N/A',
+						expiration: key.expiration,
 					};
 
 					return obj;
