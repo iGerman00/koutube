@@ -66,7 +66,6 @@ export default {
 			itag: formatStream?.itag || 18,
 		};
 
-		const isVerified = await isChannelVerified(info.authorId);
 		const rydResponse = await getDislikes(videoId);
 
 		const embedData: VideoEmbedData = {
