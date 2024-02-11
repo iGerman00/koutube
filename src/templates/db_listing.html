@@ -1,0 +1,267 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Yockstube cache</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.6.0/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div class="flex flex-col h-screen justify-between">
+    <div class="navbar bg-primary text-primary-content">
+      <div class="flex-1">
+        <a class="btn btn-ghost text-xl">Yockstube cache database
+          <div class="badge badge-accent badge-lg" id="entryCount">0</div>
+        </a>
+      </div>
+      <div class="dropdown dropdown-end">
+        <div tabindex="0" role="button" class="btn m-1 btn-ghost">Theme
+          <svg width="12px" height="12px" class="h-2 w-2 fill-current opacity-60 inline-block"
+            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048">
+            <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
+          </svg>
+        </div>
+        <ul tabindex="0" class="dropdown-content z-[1] p-2 shadow-2xl bg-primary rounded-box mt-6 h-72 overflow-scroll">
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Light" value="light" />
+          </li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Dark" value="dark" />
+          </li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Cupcake"
+              value="cupcake" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Bumblebee"
+              value="bumblebee" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Emerald"
+              value="emerald" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Corporate"
+              value="corporate" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Synthwave"
+              value="synthwave" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Retro" value="retro" />
+          </li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Cyberpunk"
+              value="cyberpunk" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Valentine"
+              value="valentine" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Halloween"
+              value="halloween" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Garden"
+              value="garden" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Forest"
+              value="forest" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Aqua" value="aqua" />
+          </li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Lofi" value="lofi" />
+          </li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Pastel"
+              value="pastel" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Fantasy"
+              value="fantasy" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Wireframe"
+              value="wireframe" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Black" value="black" />
+          </li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Luxury"
+              value="luxury" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Dracula"
+              value="dracula" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Cmyk" value="cmyk" />
+          </li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Autumn"
+              value="autumn" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Business"
+              value="business" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Acid" value="acid" />
+          </li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Lemonade"
+              value="lemonade" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Night" value="night" />
+          </li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" value="coffee"
+              aria-label="Coffee" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" value="winter"
+              aria-label="Winter" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" value="dim" aria-label="Dim" /></li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" value="nord" aria-label="Nord" />
+          </li>
+          <li><input type="radio" name="theme-dropdown"
+              class="theme-controller btn btn-sm btn-block btn-ghost justify-start" value="sunset"
+              aria-label="Sunset" /></li>
+        </ul>
+      </div>
+    </div>
+    <div class="w-full flex content-center justify-center mt-8 pb-10">
+      <div class="bg-base-300 shadow-md rounded p-5 w-[calc(100%-10rem)]">
+        <h2 class="text-2xl font-bold mb-4 text-center">Cache entries</h2>
+        <div class="flex flex-col" id="table-container">
+        </div>
+        <div class="grid grid-flow-col" id="buttons"></div>
+      </div>
+    </div>
+    <footer class="footer items-center p-4 bg-neutral text-neutral-content flex flex-row justify-between">
+      <aside>
+        <div>
+          <p>Please don't abuse my services</p>
+          <p>- G</p>
+        </div>
+      </aside>
+      <nav class="flex flex-col sm:flex-row">
+        <a href="https://github.com/iGerman00/yockstube" target="_blank" class="btn btn-wide btn-sm max-w-24">
+          GitHub
+        </a>
+        <a href="https://igerman.cc/" target="_blank" class="btn btn-primary btn-wide btn-sm max-w-24">
+          Contact
+        </a>
+        <a href="https://ko-fi.com/D1D2BJ5D6" target="_blank" class="btn btn-secondary btn-wide btn-sm max-w-24">
+          Donate
+        </a>
+      </nav>
+    </footer>
+  </div>
+</body>
+
+<script>
+  const theme = localStorage.getItem('theme') || 'business';
+  document.querySelector('html').setAttribute('data-theme', theme);
+
+  const themeControllers = document.querySelectorAll('.theme-controller');
+  themeControllers.forEach(controller => {
+    controller.addEventListener('click', function () {
+      const theme = this.value;
+      localStorage.setItem('theme', theme);
+      document.querySelector('html').setAttribute('data-theme', theme);
+    });
+  });
+
+  try {
+    window.cache_entries = $CACHE_ENTRIES;
+  } catch (e) {
+    window.cache_entries = [];
+  }
+
+  var entriesPerPage = 10;
+  var currentPage = 1;
+
+  var populateEntries = function () {
+    var tableContainer = document.querySelector('#table-container');
+    var buttonContainer = document.querySelector('#buttons');
+    tableContainer.innerHTML = '';
+
+    if (window.cache_entries.length === 0) {
+      tableContainer.innerHTML = '<p>Nothing here!</p>';
+    } else {
+      document.querySelector('#entryCount').innerText = window.cache_entries.length;
+      var table = document.createElement('table');
+      table.className = 'table table-zebra w-full';
+
+      // Create table head and body
+      var thead = document.createElement('thead');
+      var tbody = document.createElement('tbody');
+
+      // Define headers based on PublicCacheEntry keys
+      var headers = ['URL', 'Type', 'Timecode'];
+      var trHead = document.createElement('tr');
+      headers.forEach(header => {
+        var th = document.createElement('th');
+        th.innerText = header;
+        trHead.appendChild(th);
+      });
+      thead.appendChild(trHead);
+
+      var start = (currentPage - 1) * entriesPerPage;
+      var end = start + entriesPerPage;
+      var entriesToShow = window.cache_entries.slice(start, end);
+
+      // Populate table rows
+      entriesToShow.forEach(entry => {
+        var tr = document.createElement('tr');
+        headers.forEach(header => {
+          var td = document.createElement('td');
+
+          if (header.toLowerCase() === 'url') {
+            var a = document.createElement('a');
+            a.href = 'https://youtube.com/' + entry[header.toLowerCase()];
+            if (entry['type'] === 'music') {
+              a.href = 'https://music.youtube.com/' + entry[header.toLowerCase()];
+            }
+            a.innerText = entry[header.toLowerCase()];
+            a.target = '_blank';
+            td.appendChild(a);
+          } else {
+            // for others, just display the text
+            td.innerText = entry[header.toLowerCase()] || '';
+          }
+
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      tableContainer.appendChild(table);
+    }
+
+    // Pagination buttons
+    buttonContainer.innerHTML = '';
+
+    if (currentPage > 1) {
+      var prevPageButton = document.createElement('button');
+      prevPageButton.className = 'btn btn-primary m-2';
+      prevPageButton.innerText = 'Previous Page';
+      prevPageButton.addEventListener('click', function () {
+        currentPage--;
+        populateEntries();
+      });
+      buttonContainer.appendChild(prevPageButton);
+    }
+
+    if (end < window.cache_entries.length) {
+      var nextPageButton = document.createElement('button');
+      nextPageButton.className = 'btn btn-primary m-2';
+      nextPageButton.innerText = 'Next Page';
+      nextPageButton.addEventListener('click', function () {
+        currentPage++;
+        populateEntries();
+      });
+      buttonContainer.appendChild(nextPageButton);
+    }
+  };
+
+  populateEntries();
+</script>
+
+</html>

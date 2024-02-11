@@ -1,6 +1,29 @@
 import { config } from "./constants";
 import { RYDResponse, PlaylistInfo, VideoInfo } from "./types";
 
+export function getURLType(url: URL): string {
+	const isShorts = url.pathname.startsWith('/shorts');
+	const isWatch = url.pathname.startsWith('/watch');
+	const isEmbed = url.pathname.startsWith('/embed');
+	const isPlaylist = url.pathname.startsWith('/playlist');
+	const isMusic = url.origin.startsWith('https://music') || url.origin.startsWith('https://www.music');
+	
+	switch (true) {
+		case isShorts:
+			return 'shorts';
+		case isWatch:
+			return 'video';
+		case isEmbed:
+			return 'embed';
+		case isPlaylist:
+			return 'playlist';
+		case isMusic:
+			return 'music';
+		default:
+			return 'video';
+	}
+}
+
 export async function isChannelVerified(channelId: string): Promise<boolean> {
 	const page = await fetch(`https://iteroni.com/api/v1/channels/${channelId}?hl=en&fields=authorVerified`, {
 		headers: {
@@ -146,3 +169,20 @@ export function renderGenericTemplate(info: string, redirectUrl: string, request
 	</html>
 	`;
 }
+
+export function escapeHtml(html: any) {
+	const regex_html_characters_to_escape = /["'&<>]/g;
+	const escaped: { [key: string]: string } = {
+		'"': '&quot;',
+		"'": '&#39;',
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;'
+	};
+
+	return String(html).replace(
+		regex_html_characters_to_escape,
+		match => escaped[match]
+	);
+}
+  

@@ -141,3 +141,9 @@ export type MixEmbedData = {
 	request: Request;
 	songCount: string;
 };
+
+export type PublicCacheEntry = {
+	url: string;
+	type: string;
+	timecode?: string;
+};
