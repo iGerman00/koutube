@@ -2,7 +2,7 @@
 
 ### I'm looking for a domain! if you would like to help out by sponsoring or providing a domain like https://yockstube.com or https://bettrtube.com, or something you suggest - feel free to make an issue with your contact details and I will reach out.
 
-Yockstube is a web service, running in Cloudflare Workers, that fixes YouTube embeds on messenger platforms like Discord. It allows you to watch YouTube videos directly on Discord without opening a new tab or window.
+Yockstube is a web service, running in [Cloudflare Workers](https://workers.cloudflare.com/), that fixes YouTube embeds on messenger platforms like Discord. It allows you to watch YouTube videos directly on Discord without opening a new tab or window.
 
 ## Usage 💡
 
@@ -126,3 +126,4 @@ The one piece of logging that is present is a "Cache hit" log with no additional
 - [@dylanpdx](https://github.com/dylanpdx)' [vxtiktok](https://github.com/dylanpdx/vxtiktok) for some embed template inspiration and bot user-agent list
 - [Iteroni](https://iteroni.com) Invidious Instance and Invidious team for the easy-to-use API
 - [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike) by [@Anarios](https://github.com/Anarios)
+- [Cloudflare](https://cloudflare.com/), for providing the free and easy-to-use serverless architecture and KV database API for this project
