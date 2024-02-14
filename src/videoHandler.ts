@@ -143,7 +143,7 @@ function renderTemplate(info: VideoEmbedData) {
 			if (info.formatStreams.length === 0) info.isLive = true;
 		} else string += `${info.publishedAt}\n`;
 
-		if (info.isLive && !(info.type === 'scheduled')) string += `&#x1F4FA;&#xFE0E; Live now\n`;
+		if (info.isLive && !(info.type === 'scheduled')) string += `${config.tvEmoji} Live now\n`;
 
 		string += `${config.viewEmoji} ${info.viewCount} `;
 
@@ -195,10 +195,10 @@ let url=new URL("${info.youtubeUrl}"),id="${info.videoId}",tc="&t="+url.searchPa
 <link rel="alternate" href="${new URL(info.request.url).origin +
 		'/oembed.json?' +
 		new URLSearchParams({
-			author_name: `${info.author}${info.isVerified ? ' &#x2713;&#xFE0E;' : ''}`,
+			author_name: `${info.author} ${info.isVerified ? config.checkmarkEmoji : ''}`,
 			author_url: info.ownerProfileUrl,
 			provider_name: constructProviderString(info),
-			provider_url: 'https://github.com/iGerman00/yockstube',
+			provider_url: config.appLink,
 			title: info.appTitle,
 			type: 'video',
 			version: '1.0',

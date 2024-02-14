@@ -147,7 +147,7 @@ export function renderGenericTemplate(info: string, redirectUrl: string, request
 			author_name: '',
 			author_url: '',
 			provider_name: config.appName,
-			provider_url: 'https://github.com/iGerman00/yockstube',
+			provider_url: config.appLink,
 			title: title,
 			type: 'video',
 			version: '1.0',
