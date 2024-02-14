@@ -138,7 +138,6 @@ let url=new URL("${info.youtubeUrl}"),id="${info.playlistId}",ws="playlist?list=
 			version: '1.0',
 		}).toString()
 	}" type="application/json+oembed" title="${info.author}"/>
-<meta http-equiv="refresh" content="0; url=${info.youtubeUrl}" />
 </head>
 <body>
 Please wait...

@@ -153,7 +153,6 @@ export function renderGenericTemplate(info: string, redirectUrl: string, request
 			version: '1.0',
 		}).toString()
 	}" type="application/json+oembed" title="d"/>
-<meta http-equiv="refresh" content="0; url=${redirectUrl}" />
 </head>
 <body>
 Please wait...
