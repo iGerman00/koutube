@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "deploy": "wrangler deploy",
-    "start": "wrangler dev"
+    "start": "wrangler dev",
+    "purge-db": "node scripts/purgeDb.js"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230419.0",

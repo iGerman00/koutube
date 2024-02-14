@@ -19,6 +19,7 @@ It should work with YouTube Music as well, that includes the horrid domain of `m
 
 ## Features 🌟
 - 📊 Displays likes, subscribers, publish/last update date, and view count
+- 📦 Public database listing [on /](https://yt.igerman.cc)
 - 🎵 Supports `music.youtube.com`
 - ⏯️ Supports YouTube Music mixes
 - 📱 Supports shorts
@@ -30,6 +31,7 @@ It should work with YouTube Music as well, that includes the horrid domain of `m
 - 🚀 *May* bypass age restrictions
 - 🛡️ Removes tracking on redirects
 - 👎 Supports dislikes via RYD
+- 📲 Automatically redirects to the YouTube app on mobile
 - 🕔 Displays timecodes
 - 💥 No random explosions (fixed!)
 
@@ -109,6 +111,14 @@ To run an edge preview session for your Worker, use wrangler dev --remote
 │   browser,         Devtools,       mode,                console,        exit    │
 ╰─────────────────────────────────────────────────────────────────────────────────╯
 ```
+
+To **manually purge** the database, run:
+```bash
+npm run purge-db
+```
+This will remove all keys from the cache KV database
+
+Note: if you have changed the binding name, you will also need to change it in `scripts/purgeDb.js`
 
 ## License 📄
 

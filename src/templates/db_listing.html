@@ -217,14 +217,18 @@
           if (headerKey === 'url') {
             const baseUrl = entry['type'] === 'music' ? 'https://music.youtube.com/' : 'https://youtu.be/';
             const a = document.createElement('a');
-            const cleanedUrl = cellValue.replace(/(\?t=\d+&?)|(&t=\d+)/g, function (match, group1) {
+            let cleanedUrl = cellValue.replace(/(\?t=\d+&?)|(&t=\d+)/g, function (match, group1) {
               if (group1) { // If the match is at the beginning (?t=...&)
                 return match.endsWith('&') ? '?' : ''; // Replace with '?' if followed by another param, else remove
               }
               return ''; // For &t=... just remove it
             });
+            if (cleanedUrl.length > 50) {
+              cleanedUrl = cleanedUrl.substr(0, 50) + '...';
+            }
             a.href = `${baseUrl}${cellValue}`;
             a.innerText = cleanedUrl;
+            a.title = cellValue;
             a.target = '_blank';
             td.appendChild(a);
           } else if (headerKey === 'expiration') {
