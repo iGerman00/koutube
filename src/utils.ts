@@ -63,6 +63,7 @@ export async function getPlaylistInfo(playlistId: string): Promise<PlaylistInfo>
 }
 
 export async function isMix(playlistId: string, request: Request): Promise<boolean> {
+	// return true; // for testing
 	const isMusic = request.url.startsWith('https://music') || request.url.startsWith('https://www.music');
 	return isMusic;
 
@@ -120,6 +121,12 @@ export async function getDislikes(videoId: string): Promise<RYDResponse | undefi
 		console.error(error)
 		return undefined;
 	}
+}
+
+export function userAgentType(userAgent: string | null): string {
+	if (!userAgent) return 'unknown';
+	const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+	return mobileRegex.test(userAgent) ? 'mobile' : 'desktop';
 }
 
 export function renderGenericTemplate(info: string, redirectUrl: string, request: Request, title = 'Scheduled event') {

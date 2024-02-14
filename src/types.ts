@@ -122,7 +122,8 @@ export type PlaylistEmbedData = {
     bestThumbnail: string;
     videos: PlaylistVideo[];
     youtubeUrl: string;
-    videoId: string;
+    videoId?: string;
+	playlistId?: string;
     request: Request;
 };
 

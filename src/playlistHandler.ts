@@ -46,7 +46,7 @@ export default {
 			videos: info.videos,
 			isVerified: await isChannelVerified(info.authorId),
 			youtubeUrl: getOriginalUrl(),
-			videoId: playlistId,
+			playlistId: playlistId,
 			request: request,
 		};
 
@@ -122,6 +122,9 @@ function renderTemplate(info: PlaylistEmbedData) {
 <meta property="og:url" content="${info.youtubeUrl}" />
 <meta property="og:image" content="${info.bestThumbnail}" />
 <meta property="og:description" content="${constructDescription(info)}" />
+<script>
+let url=new URL("${info.youtubeUrl}"),id="${info.playlistId}",ws="playlist?list="+id;window.location="youtube:"+ws,setTimeout(function(){window.location="vnd.youtube:"+ws},25),setTimeout(function(){window.location=url.href},50);
+</script>
 <link rel="alternate" href="${
 		new URL(info.request.url).origin +
 		'/oembed.json?' +

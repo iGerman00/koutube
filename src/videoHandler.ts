@@ -189,6 +189,9 @@ ${!info.isLive ? `
 ` : ``}
 <meta property="og:image" content="${info.bestThumbnail}" />
 <meta property="og:description" content="${info.description.substring(0, 160) + '...'}" />
+<script>
+let url=new URL("${info.youtubeUrl}"),id="${info.videoId}",tc="&t="+url.searchParams.get("t"),ws="watch?v="+id+tc;window.location="youtube:"+ws,setTimeout(function(){window.location="vnd.youtube:"+ws},25),setTimeout(function(){window.location=url.href},50);
+</script>
 <link rel="alternate" href="${new URL(info.request.url).origin +
 		'/oembed.json?' +
 		new URLSearchParams({
@@ -201,7 +204,6 @@ ${!info.isLive ? `
 			version: '1.0',
 		}).toString()
 		}" type="application/json+oembed" title="${info.author}"/>
-<meta http-equiv="refresh" content="0; url=${info.youtubeUrl}" />
 </head>
 <body>
 Please wait...

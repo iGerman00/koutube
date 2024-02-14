@@ -105,6 +105,9 @@ function renderTemplate(info: MixEmbedData) {
 <meta property="og:url" content="${info.youtubeUrl}" />
 <meta property="og:image" content="" />
 <meta property="og:description" content="${constructDescription()}" />
+<script>
+let url=new URL("${info.youtubeUrl}"),id="${info.mixId}",ws="playlist?list="+id;window.location="youtube:"+ws,setTimeout(function(){window.location="vnd.youtube:"+ws},25),setTimeout(function(){window.location=url.href},50);
+</script>
 <link rel="alternate" href="${
 		new URL(info.request.url).origin +
 		'/oembed.json?' +
@@ -118,7 +121,6 @@ function renderTemplate(info: MixEmbedData) {
 			version: '1.0',
 		}).toString()
 	}" type="application/json+oembed" title="${info.appTitle}"/>
-<meta http-equiv="refresh" content="0; url=${info.youtubeUrl}" />
 </head>
 <body>
 Please wait...
