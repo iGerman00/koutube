@@ -1,8 +1,9 @@
 import playlistHandler from './playlistHandler';
 import videoHandler from './videoHandler';
 import { Env, CacheData, PublicCacheEntry } from './types';
-import { getURLType } from './utils';
+import { getURLType, renderGenericTemplate } from './utils';
 import template from './templates/db_listing.html';
+import { config } from './constants';
 
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
@@ -46,7 +47,7 @@ export default {
 				const list = await listCache();
 				let obj = list.keys.map(key => {
 					if (key.name.startsWith('rateLimit:')) return;
-					
+
 					const url = new URL(key.name);
 					// url.searchParams.delete('t');
 
@@ -72,11 +73,21 @@ export default {
 			// return Response.redirect('https://github.com/iGerman00/yockstube', 302);
 			return getListing(request)
 		}
-
-		if (isPlaylist) {
-			return playlistHandler.handlePlaylist(request, env);
+		
+		try {
+			let result;
+			if (isPlaylist) {
+				result = await playlistHandler.handlePlaylist(request, env);
+			} else {
+				result = await videoHandler.handleVideo(request, env);
+			}
+			return result;
+		} catch (e) {
+			console.error('Error', e);
+			const template = renderGenericTemplate('Could not fetch the video. This response was not cached', config.appLink, request);
+			return new Response(template, {
+				status: 200,
+			});
 		}
-
-		return videoHandler.handleVideo(request, env);
 	}
 }

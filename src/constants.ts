@@ -1,6 +1,16 @@
+export const api_instances = [
+	'https://iteroni.com',  // no trailing slash
+];
+
+export function getRandomApiInstance() {
+	return api_instances[Math.floor(Math.random() * api_instances.length)];
+}
+
 export const config = {
     appName: 'YocksTube',
 	appLink: 'https://yt.igerman.cc',
+
+	api_base: getRandomApiInstance(),
 
 	viewEmoji: '&#x1F441;&#xFE0E;', // 👁️
 	likeEmoji: '&#x1F44D;&#xFE0E;', // 👍
