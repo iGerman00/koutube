@@ -83,11 +83,11 @@ You should see a message like this:
 Total Upload: 7.10 KiB / gzip: 2.45 KiB
 Uploaded Koutube (1.96 sec)
 Published Koutube (1.43 sec)
-  https://Koutube.yourdomain.workers.dev
+  https://koutube.yourdomain.workers.dev
 Current Deployment ID: 1234abcd-5678-efgh-9012-ijklmnopqrst
 ```
 
-Now you can use Koutube by replacing `https://www.youtube.com/watch?v=` with `https://Koutube.yourdomain.workers.dev/watch?v=` in any YouTube video URL and sending it to Discord.
+Now you can use Koutube by replacing `https://www.youtube.com/watch?v=` with `https://koutube.yourdomain.workers.dev/watch?v=` in any YouTube video URL and sending it to Discord.
 
 ## Development 🧑‍💻
 
