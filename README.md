@@ -1,29 +1,29 @@
-# Yockstube
+# Koutube (ex YocksTube)
+*pronounced a bit like "cool tube"*
 
-### I'm looking for a domain! if you would like to help out by sponsoring or providing a domain like https://yockstube.com or https://bettrtube.com, or something you suggest - feel free to make an issue with your contact details and I will reach out.
-
-Yockstube is a web service, running in [Cloudflare Workers](https://workers.cloudflare.com/), that fixes YouTube embeds on messenger platforms like Discord. It allows you to watch YouTube videos directly on Discord without opening a new tab or window.
+Koutube is a web service, running in [Cloudflare Workers](https://workers.cloudflare.com/), that fixes YouTube embeds on messenger platforms like Discord. It allows you to watch YouTube videos directly on Discord without opening a new tab or window.
 
 ## Usage 💡
 
 ```
-s/youtube.com/yt.igerman.cc
+s/y/k
 ```
+(sounds like SIKE very funny)
 
 Alternatively:
 ```
-https://yt.igerman.cc/https://www.youtube.com/watch?v=dQw4w9WgXcQ
+https://koutube.com/https://www.youtube.com/watch?v=dQw4w9WgXcQ
 ```
 
-It should work with YouTube Music as well, that includes the horrid domain of `music.yt.igerman.cc` for easy replacement.
+It should work with YouTube Music as well, that includes `music.koutube.com` for easy replacement.
 
 ## Features 🌟
 - 📊 Displays likes, subscribers, publish/last update date, and view count
-- 📦 Public database listing [on /](https://yt.igerman.cc)
+- 📦 Public database listing [on /](https://koutube.com)
 - 🎵 Supports `music.youtube.com`
 - ⏯️ Supports YouTube Music mixes
 - 📱 Supports shorts
-- 🌐 Covers `youtu.be` links
+- 🌐 Covers `youtu.be` links using [https://koutu.be](https://koutu.be)
 - 🎞️ Natively embeds videos
 - 🎶 Handles playlists
 - 🤳 Handles livestreams
@@ -45,13 +45,13 @@ To disable fetching the cached version, append `?noCache` or `&noCache` if your 
 
 Example usage:
 ```
-https://yt.igerman.cc/dQw4w9WgXcQ?nothumb&shorts
+https://koutu.be/dQw4w9WgXcQ?nothumb&shorts
 ```
 Note: remember URL param syntax, the first param is always defined by a question mark, the subsequent ones - by an apersand.
 
 ## Installation ⚙️
 
-To install Yockstube, you need to have Node and [Cloudflare's wrangler tool](https://developers.cloudflare.com/workers/wrangler/) installed on your system. You also need to have a Cloudflare account and enabled Workers, as well as a [Workers KV database](https://developers.cloudflare.com/workers/wrangler/workers-kv/) in Cloudflare.
+To install Koutube, you need to have Node and [Cloudflare's wrangler tool](https://developers.cloudflare.com/workers/wrangler/) installed on your system. You also need to have a Cloudflare account and enabled Workers, as well as a [Workers KV database](https://developers.cloudflare.com/workers/wrangler/workers-kv/) in Cloudflare.
 
 To install wrangler, run the following command in your terminal:
 
@@ -66,11 +66,11 @@ binding = "YT_CACHE_DB"
 id = "your KV namespace ID" # <-- Replace This
 ```
 
-Once you have everything set up, you can clone this repository and deploy Yockstube to your own Workers domain.
+Once you have everything set up, you can clone this repository and deploy Koutube to your own Workers domain.
 
 ```bash
-git clone https://github.com/yocks/yockstube.git
-cd yockstube
+git clone https://github.com/igerman00/koutube.git
+cd koutube
 npm i
 wrangler deploy
 ```
@@ -81,17 +81,17 @@ You should see a message like this:
  ⛅️ wrangler 3.9.0
 ------------------
 Total Upload: 7.10 KiB / gzip: 2.45 KiB
-Uploaded yockstube (1.96 sec)
-Published yockstube (1.43 sec)
-  https://yockstube.yourdomain.workers.dev
+Uploaded Koutube (1.96 sec)
+Published Koutube (1.43 sec)
+  https://Koutube.yourdomain.workers.dev
 Current Deployment ID: 1234abcd-5678-efgh-9012-ijklmnopqrst
 ```
 
-Now you can use Yockstube by replacing `https://www.youtube.com/watch?v=` with `https://yockstube.yourdomain.workers.dev/watch?v=` in any YouTube video URL and sending it to Discord.
+Now you can use Koutube by replacing `https://www.youtube.com/watch?v=` with `https://Koutube.yourdomain.workers.dev/watch?v=` in any YouTube video URL and sending it to Discord.
 
 ## Development 🧑‍💻
 
-To run Yockstube locally for development, simply run:
+To run Koutube locally for development, simply run:
 
 ```bash
 wrangler dev
@@ -122,7 +122,7 @@ Note: if you have changed the binding name, you will also need to change it in `
 
 ## License 📄
 
-Yockstube is licensed under the GPL-3.0 License.
+Koutube is licensed under the GPL-3.0 License.
 
 ## Privacy 🔒
 

@@ -7,8 +7,8 @@ export function getRandomApiInstance() {
 }
 
 export const config = {
-    appName: 'YocksTube',
-	appLink: 'https://yt.igerman.cc',
+    appName: 'Koutube - embed using s/y/k',
+	appLink: 'https://koutube.com',
 
 	api_base: getRandomApiInstance(),
 

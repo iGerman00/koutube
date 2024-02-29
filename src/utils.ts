@@ -29,7 +29,7 @@ export async function isChannelVerified(channelId: string): Promise<boolean> {
 		headers: {
 			// set language to english
 			'Accept-Language': 'en-US,en;q=0.9',
-			'User-Agent': 'Mozilla/5.0 (compatible; Yockstube/1.0; +https://github.com/igerman00/yockstube)',
+			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
 		},
 	});
 	const json: { authorVerified: boolean; } = await page.json();
@@ -40,7 +40,7 @@ export async function getVideoInfo(videoId: string): Promise<VideoInfo> {
 	const page = await fetch(`${config.api_base}/api/v1/videos/${videoId}?hl=en&fields=title,videoThumbnails,description,publishedText,viewCount,likeCount,dislikeCount,author,authorUrl,authorId,subCountText,isListed,liveNow,formatStreams,type,error`, {
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
-			'User-Agent': 'Mozilla/5.0 (compatible; Yockstube/1.0; +https://github.com/igerman00/yockstube)',
+			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
 		},
 	});
 
@@ -53,7 +53,7 @@ export async function getPlaylistInfo(playlistId: string): Promise<PlaylistInfo>
 	const page = await fetch(`${config.api_base}/api/v1/playlists/${playlistId}?hl=en`, {
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
-			'User-Agent': 'Mozilla/5.0 (compatible; Yockstube/1.0; +https://github.com/igerman00/yockstube)',
+			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
 		},
 	});
 
@@ -72,7 +72,7 @@ export async function isMix(playlistId: string, request: Request): Promise<boole
 	const page = await fetch(`${config.api_base}/api/v1/playlists/${playlistId}?hl=en&fields=mixId,playlistId`, {
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
-			'User-Agent': 'Mozilla/5.0 (compatible; Yockstube/1.0; +https://github.com/igerman00/yockstube)',
+			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
 		},
 	});
 	const url = new URL(page.url);
@@ -112,7 +112,7 @@ export async function getDislikes(videoId: string): Promise<RYDResponse | undefi
 		const page = await fetch(`https://returnyoutubedislikeapi.com/votes?videoId=${videoId}`, {
 			headers: {
 				'Accept-Language': 'en-US,en;q=0.9',
-				'User-Agent': 'Mozilla/5.0 (compatible; Yockstube/1.0',
+				'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0',
 			},
 		});
 		const json: RYDResponse = await page.json();

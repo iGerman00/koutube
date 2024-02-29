@@ -70,7 +70,7 @@ export default {
 				});
 			}
 
-			// return Response.redirect('https://github.com/iGerman00/yockstube', 302);
+			// return Response.redirect('https://github.com/iGerman00/koutube', 302);
 			return getListing(request)
 		}
 		
