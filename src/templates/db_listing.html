@@ -215,7 +215,7 @@
           const cellValue = entry[headerKey];
 
           if (headerKey === 'url') {
-            const baseUrl = entry['type'] === 'music' ? 'https://music.youtube.com/' : 'https://youtu.be/';
+            const baseUrl = entry['type'] === 'music' ? 'https://music.koutube.com/' : window.location.origin + '/';
             const a = document.createElement('a');
             let cleanedUrl = cellValue.replace(/(\?t=\d+&?)|(&t=\d+)/g, function (match, group1) {
               if (group1) { // If the match is at the beginning (?t=...&)

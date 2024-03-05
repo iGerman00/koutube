@@ -1,14 +1,15 @@
 import playlistHandler from './playlistHandler';
 import videoHandler from './videoHandler';
 import { Env, CacheData, PublicCacheEntry } from './types';
-import { getURLType, renderGenericTemplate } from './utils';
+import { getURLType, renderGenericTemplate, stripTracking } from './utils';
 import template from './templates/db_listing.html';
 import { config } from './constants';
 
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
 		try {
-			const cache = await env.YT_CACHE_DB.get(request.url);
+			const url = stripTracking(request.url);
+			const cache = await env.YT_CACHE_DB.get(url);
 			const shouldCache = new URL(request.url).searchParams.get('noCache') === null;
 			if (cache && shouldCache) {
 				console.info('Cache hit');
