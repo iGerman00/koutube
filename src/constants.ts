@@ -10,6 +10,8 @@ export const config = {
     appName: 'Koutube - embed using s/y/k',
 	appLink: 'https://koutube.com',
 
+	enableTickCheck: false, // costs an extra request, disabled for now because it is often too slow
+
 	api_base: getRandomApiInstance(),
 
 	viewEmoji: '&#x1F441;&#xFE0E;', // 👁️

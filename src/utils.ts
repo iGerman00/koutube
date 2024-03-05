@@ -25,6 +25,7 @@ export function getURLType(url: URL): string {
 }
 
 export async function isChannelVerified(channelId: string): Promise<boolean> {
+	if (!config.enableTickCheck) return false;
 	const page = await fetch(`${config.api_base}/api/v1/channels/${channelId}?hl=en&fields=authorVerified`, {
 		headers: {
 			// set language to english
