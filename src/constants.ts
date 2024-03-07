@@ -10,7 +10,8 @@ export const config = {
     appName: 'Koutube - embed using s/y/k',
 	appLink: 'https://koutube.com',
 
-	enableTickCheck: false, // costs an extra request, disabled for now because it is often too slow
+	enableTickCheck: false, // costs an extra request to the iteroni api
+	enableDislikes: true, // costs a request to the RYD api
 
 	api_base: getRandomApiInstance(),
 

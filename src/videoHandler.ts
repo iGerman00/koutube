@@ -7,6 +7,7 @@ export default {
     async handleVideo(request: Request, env: Env): Promise<Response> {
 		const overrideShorts = new URL(request.url).searchParams.get('shorts') !== null;
 		const overrideNoThumb = new URL(request.url).searchParams.get('nothumb') !== null;
+		const overrideDislikes = new URL(request.url).searchParams.get('dislikes') !== null;
 
 		const originalPath = request.url.replace(new URL(request.url).origin, '');
 		const isShorts = originalPath.startsWith('/shorts') || overrideShorts;
@@ -66,7 +67,11 @@ export default {
 			itag: formatStream?.itag || 18,
 		};
 
-		const rydResponse = await getDislikes(videoId);
+		let rydResponse = undefined;
+
+		if (config.enableDislikes || overrideDislikes) {
+			rydResponse = await getDislikes(videoId);
+		}
 
 		const embedData: VideoEmbedData = {
 			appTitle: config.appName,

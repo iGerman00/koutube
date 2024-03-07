@@ -26,7 +26,7 @@ export function getURLType(url: URL): string {
 
 export async function isChannelVerified(channelId: string): Promise<boolean> {
 	if (!config.enableTickCheck) return false;
-	const page = await fetch(`${config.api_base}/api/v1/channels/${channelId}?hl=en&fields=authorVerified`, {
+	const page = await fetch(`${config.api_base}/api/v1/channels/${channelId}?hl=en`, {
 		headers: {
 			// set language to english
 			'Accept-Language': 'en-US,en;q=0.9',
@@ -38,7 +38,7 @@ export async function isChannelVerified(channelId: string): Promise<boolean> {
 }
 
 export async function getVideoInfo(videoId: string): Promise<VideoInfo> {
-	const page = await fetch(`${config.api_base}/api/v1/videos/${videoId}?hl=en&fields=title,videoThumbnails,description,publishedText,viewCount,likeCount,dislikeCount,author,authorUrl,authorId,subCountText,isListed,liveNow,formatStreams,type,error`, {
+	const page = await fetch(`${config.api_base}/api/v1/videos/${videoId}?hl=en`, {
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
 			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
@@ -70,7 +70,7 @@ export async function isMix(playlistId: string, request: Request): Promise<boole
 
 	// not sure if to include the rest, for now no need
 
-	const page = await fetch(`${config.api_base}/api/v1/playlists/${playlistId}?hl=en&fields=mixId,playlistId`, {
+	const page = await fetch(`${config.api_base}/api/v1/playlists/${playlistId}?hl=en`, {
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
 			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',

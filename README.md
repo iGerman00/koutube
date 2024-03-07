@@ -42,6 +42,7 @@ To disable fetching the cached version, append `?noCache` or `&noCache` if your 
 ## Parameters
 - `nothumb` to disable embedding the thumbnail, may help fix video cropping on mobile Discord clients
 - `shorts` - treats the video as shorts
+- `dislikes` - shows dislikes, requests from [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike) and is a bit slow
 
 Example usage:
 ```
