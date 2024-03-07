@@ -24,6 +24,7 @@ const getUserConfirmation = async (message) => {
 };
 
 const listKeys = async () => {
+    console.log('Listing keys...')
     try {
         const { stdout } = await exec(`wrangler kv:key list --binding=${binding}`);
         console.log('Keys listed successfully.');
