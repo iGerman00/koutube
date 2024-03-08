@@ -4,6 +4,7 @@ import { Env, CacheData, PublicCacheEntry } from './types';
 import { getURLType, renderGenericTemplate, stripTracking } from './utils';
 import template from './templates/db_listing.html';
 import { config } from './constants';
+import channelHandler from './channelHandler';
 
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
@@ -41,6 +42,7 @@ export default {
 
 		const originalPath = request.url.replace(new URL(request.url).origin, '');
 		const isPlaylist = originalPath.startsWith('/playlist');
+		const isChannel = originalPath.startsWith('/channel') || originalPath.startsWith('/c') || originalPath.startsWith('/@');
 
 		if (new URL(request.url).pathname === '/') {
 			const listCache = () => env.YT_CACHE_DB.list();
@@ -79,13 +81,15 @@ export default {
 			let result;
 			if (isPlaylist) {
 				result = await playlistHandler.handlePlaylist(request, env);
+			} else if (isChannel) {
+				result = await channelHandler.handleChannel(request, env);
 			} else {
 				result = await videoHandler.handleVideo(request, env);
 			}
 			return result;
 		} catch (e) {
 			console.error('Error', e);
-			const template = renderGenericTemplate('Could not fetch the video. This response was not cached', config.appLink, request);
+			const template = renderGenericTemplate('Could not fetch. This response was not cached', config.appLink, request);
 			return new Response(template, {
 				status: 200,
 			});

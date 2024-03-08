@@ -10,7 +10,7 @@ export const config = {
     appName: 'Koutube - embed using s/y/k',
 	appLink: 'https://koutube.com',
 
-	enableTickCheck: false, // costs an extra request to the iteroni api
+	enableTickCheck: true, // costs an extra request to the iteroni api
 	enableDislikes: true, // costs a request to the RYD api
 
 	api_base: getRandomApiInstance(),
@@ -24,7 +24,8 @@ export const config = {
 	timecodeEmoji: '&#x1F554;&#xFE0E;', // 🕔
 	checkmarkEmoji: '&#x2713;&#xFE0E;', // ✓
 	tvEmoji: '&#x1F4FA;&#xFE0E;', // 📺
-	
+
+	emptyString: '&#xFEFF;', // zero width no-break space
 };
 
 export const embedUserAgents = [
@@ -40,4 +41,5 @@ export const embedUserAgents = [
 	'Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)',
 	'TelegramBot (like TwitterBot)',
 	'Mozilla/5.0 (compatible; January/1.0; +https://gitlab.insrt.uk/revolt/january)',
+	'test'
 ];

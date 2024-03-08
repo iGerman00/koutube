@@ -1,5 +1,5 @@
 import { config } from "./constants";
-import { RYDResponse, PlaylistInfo, VideoInfo } from "./types";
+import { RYDResponse, PlaylistInfo, Video, ChannelInfo } from "./types";
 
 export function getURLType(url: URL): string {
 	const isShorts = url.pathname.startsWith('/shorts');
@@ -7,6 +7,7 @@ export function getURLType(url: URL): string {
 	const isEmbed = url.pathname.startsWith('/embed');
 	const isPlaylist = url.pathname.startsWith('/playlist');
 	const isMusic = url.origin.startsWith('https://music') || url.origin.startsWith('https://www.music');
+	const isChannel = url.pathname.startsWith('/channel') || url.pathname.startsWith('/c') || url.pathname.startsWith('/@');
 	
 	switch (true) {
 		case isShorts:
@@ -19,6 +20,8 @@ export function getURLType(url: URL): string {
 			return 'playlist';
 		case isMusic:
 			return 'music';
+		case isChannel:
+			return 'channel';
 		default:
 			return 'video';
 	}
@@ -37,7 +40,7 @@ export async function isChannelVerified(channelId: string): Promise<boolean> {
 	return json.authorVerified;
 }
 
-export async function getVideoInfo(videoId: string): Promise<VideoInfo> {
+export async function getVideoInfo(videoId: string): Promise<Video> {
 	const page = await fetch(`${config.api_base}/api/v1/videos/${videoId}?hl=en`, {
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
@@ -45,7 +48,7 @@ export async function getVideoInfo(videoId: string): Promise<VideoInfo> {
 		},
 	});
 
-	const json: VideoInfo = await page.json();
+	const json: Video = await page.json();
 
 	return json;
 }
@@ -60,6 +63,19 @@ export async function getPlaylistInfo(playlistId: string): Promise<PlaylistInfo>
 
 	const json: PlaylistInfo = await page.json();
 
+	return json;
+}
+
+export async function getChannelInfo(channelId: string): Promise<ChannelInfo> {
+	const page = await fetch(`${config.api_base}/api/v1/channels/${channelId}?hl=en`, {
+		headers: {
+			'Accept-Language': 'en-US,en;q=0.9',
+			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
+		},
+	});
+
+	const json: ChannelInfo = await page.json();
+	
 	return json;
 }
 
@@ -128,6 +144,13 @@ export function userAgentType(userAgent: string | null): string {
 	if (!userAgent) return 'unknown';
 	const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
 	return mobileRegex.test(userAgent) ? 'mobile' : 'desktop';
+}
+
+export function scrapeChannelId(html: string): string | null {
+	// <link rel="canonical" href="https://www.youtube.com/channel/UC_x5XG1OV2P6uZZ5FSM9Ttw">
+	// need to get the id from the link tag
+	const match = html.match(/<link rel="canonical" href="https:\/\/www.youtube.com\/channel\/(.*?)">/);
+	return match ? match[1] : null;
 }
 
 export function renderGenericTemplate(info: string, redirectUrl: string, request: Request, title = 'Scheduled event') {

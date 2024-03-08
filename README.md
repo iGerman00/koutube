@@ -10,29 +10,24 @@ s/y/k
 ```
 (sounds like SIKE very funny)
 
-Alternatively:
-```
-https://koutube.com/https://www.youtube.com/watch?v=dQw4w9WgXcQ
-```
-
 It should work with YouTube Music as well, that includes `music.koutube.com` for easy replacement.
 
 ## Features 🌟
-- 📊 Displays likes, subscribers, publish/last update date, and view count
+- 📊 Displays likes, subscribers, publish/last update date, and view count on videos
 - 📦 Public database listing [on /](https://koutube.com)
-- 🎵 Supports `music.youtube.com`
-- ⏯️ Supports YouTube Music mixes
+- ⏯️ Supports YouTube Music, including mixes
 - 📱 Supports shorts
-- 🌐 Covers `youtu.be` links using [https://koutu.be](https://koutu.be)
-- 🎞️ Natively embeds videos
-- 🎶 Handles playlists
-- 🤳 Handles livestreams
-- ✔️ Displays channel verification status
-- 🚀 *May* bypass age restrictions
-- 🛡️ Removes tracking on redirects
+- 📺 Supports channels
+- 🎶 Supports playlists
+- 🤳 Supports livestreams
 - 👎 Supports dislikes via RYD
-- 📲 Automatically redirects to the YouTube app on mobile
 - 🕔 Displays timecodes
+- ✔️ Displays channel verification
+- 📲 Automatically opens the YouTube app on mobile
+- 🎞️ Natively embeds videos on Discord
+- 🌐 Easily improve `youtu.be` links using [https://koutu.be](https://koutu.be)
+- 🚀 *May* bypass restrictions
+- 🛡️ Removes tracking on redirects
 - 💥 No random explosions (fixed!)
 
 ## Caching 🚀
