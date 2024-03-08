@@ -7,7 +7,7 @@ export function getURLType(url: URL): string {
 	const isEmbed = url.pathname.startsWith('/embed');
 	const isPlaylist = url.pathname.startsWith('/playlist');
 	const isMusic = url.origin.startsWith('https://music') || url.origin.startsWith('https://www.music');
-	const isChannel = url.pathname.startsWith('/channel') || url.pathname.startsWith('/c') || url.pathname.startsWith('/@');
+	const isChannel = url.pathname.startsWith('/channel') || url.pathname.startsWith('/c') || url.pathname.startsWith('/@') || url.pathname.startsWith('/user/');
 	
 	switch (true) {
 		case isShorts:

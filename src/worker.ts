@@ -42,7 +42,7 @@ export default {
 
 		const originalPath = request.url.replace(new URL(request.url).origin, '');
 		const isPlaylist = originalPath.startsWith('/playlist');
-		const isChannel = originalPath.startsWith('/channel') || originalPath.startsWith('/c') || originalPath.startsWith('/@');
+		const isChannel = originalPath.startsWith('/channel') || originalPath.startsWith('/c') || originalPath.startsWith('/@') || originalPath.startsWith('/user/');
 
 		if (new URL(request.url).pathname === '/') {
 			const listCache = () => env.YT_CACHE_DB.list();

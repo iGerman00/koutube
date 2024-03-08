@@ -17,7 +17,7 @@ export default {
 
 		if (!isBot) return Response.redirect(getOriginalUrl(), 302);
 
-		if (originalPath.startsWith('/c/') || originalPath.startsWith('/@')) {
+		if (originalPath.startsWith('/c/') || originalPath.startsWith('/@') || originalPath.startsWith('/user/')) {
 			// need to get the channel id
 			const page = await fetch(getOriginalUrl(), {
 				headers: {
