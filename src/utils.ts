@@ -8,7 +8,8 @@ export function getURLType(url: URL): string {
 	const isPlaylist = url.pathname.startsWith('/playlist');
 	const isMusic = url.origin.startsWith('https://music') || url.origin.startsWith('https://www.music');
 	const isChannel = url.pathname.startsWith('/channel') || url.pathname.startsWith('/c') || url.pathname.startsWith('/@') || url.pathname.startsWith('/user/');
-	
+	const isImage = url.pathname.startsWith('/img');
+
 	switch (true) {
 		case isShorts:
 			return 'shorts';
@@ -22,6 +23,8 @@ export function getURLType(url: URL): string {
 			return 'music';
 		case isChannel:
 			return 'channel';
+		case isImage:
+			return 'image';
 		default:
 			return 'video';
 	}

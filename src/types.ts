@@ -182,4 +182,5 @@ export type PublicCacheEntry = {
 	type: string;
 	timecode?: string;
 	expiration?: number;
+	size: string | null;
 };

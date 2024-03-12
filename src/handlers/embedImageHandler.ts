@@ -1,4 +1,4 @@
-import { Env } from '../types';
+import { CacheData, Env } from '../types';
 import { stripTracking } from '../utils';
 import puppeteer from '@cloudflare/puppeteer';
 
@@ -6,8 +6,6 @@ export default {
 	async handleEmbedImage(request: Request, env: Env): Promise<Response> {
 		console.log('Handling embed image request');
 		const overrideShorts = new URL(request.url).searchParams.get('shorts') !== null;
-		const overrideWidth = new URL(request.url).searchParams.get('width');
-		const overrideHeight = new URL(request.url).searchParams.get('height');
 		const overrideSize = new URL(request.url).searchParams.get('size');
 
 		const originalPath = request.url.replace(new URL(request.url).origin, '');
@@ -26,18 +24,8 @@ export default {
 			return stripTracking(`https://youtu.be${originalPath}`);
 		}
 
-		let [width, height] = isShorts ? [360, 640] : [640, 360];
-		if (overrideWidth && overrideHeight) {
-			// check if number
-			if (isNaN(parseInt(overrideWidth)) || isNaN(parseInt(overrideHeight))) {
-				return new Response('Width and height must be numbers', { status: 400 });
-			}
-			if (parseInt(overrideWidth) > 1920 || parseInt(overrideHeight) > 1080) {
-				return new Response('Max width is 1920 and max height is 1080', { status: 400 });
-			}
-			width = parseInt(overrideWidth);
-			height = parseInt(overrideHeight);
-		}
+		let [width, height] = [640, 360];
+
 		if (overrideSize) {
 			switch (overrideSize) {
 				case 'small':
@@ -63,6 +51,10 @@ export default {
 				default:
 					break;
 			}
+		}
+
+		if (isShorts) {
+			[width, height] = [height, width];
 		}
 
 		const parserRe = /(.*?)(^|\/|v=)([a-z0-9_-]{11})(.*)?/gim;
@@ -96,6 +88,22 @@ export default {
 			});
 			const screenshot = await page.screenshot();
 			await browser.close();
+
+			const base64Image = screenshot.toString('base64');
+
+			const cacheEntry: CacheData = {
+				response: base64Image,
+				headers: {
+					'Content-Type': 'image/png',
+					'Cached-On': new Date().toUTCString(),
+				},
+			};
+
+			try {
+				await env.YT_CACHE_DB.put(`${stripTracking(request.url)}`, JSON.stringify(cacheEntry), { expirationTtl: 60 * 60 * 24 * 365 }); // 1 year cache
+			} catch (e) {
+				console.error('Cache saving error', e);
+			}
 
 			return new Response(screenshot, {
 				status: 200,
