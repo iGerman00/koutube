@@ -152,7 +152,6 @@ function renderTemplate(info: VideoEmbedData) {
 				const date = new Date(0);
 				date.setSeconds(timeInSeconds == 0 ? Number(timecodeParam) : timeInSeconds);
 				let timeString = date.toISOString().substring(11, 19).replace('00:', '');
-				console.log('Timecode', timeString);
 				string += ` - ${config.timecodeEmoji} ${timeString}\n`;
 			} catch (e) {
 				console.error('Failed to get timecode', e);
