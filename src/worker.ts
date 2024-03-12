@@ -1,10 +1,11 @@
-import playlistHandler from './playlistHandler';
-import videoHandler from './videoHandler';
+import playlistHandler from './handlers/playlistHandler';
+import videoHandler from './handlers/videoHandler';
 import { Env, CacheData, PublicCacheEntry } from './types';
 import { getURLType, renderGenericTemplate, stripTracking } from './utils';
 import template from './templates/db_listing.html';
 import { config } from './constants';
-import channelHandler from './channelHandler';
+import embedImageHandler from './handlers/embedImageHandler';
+import channelHandler from './handlers/channelHandler';
 
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
@@ -21,6 +22,11 @@ export default {
 			}
 		} catch (e) {
 			console.error("Cache error", e);
+		}
+		
+		// if subdomain is img, embedImageHandler
+		if (new URL(request.url).pathname.startsWith('/img/') && config.enableImageEmbeds) {
+			return embedImageHandler.handleEmbedImage(request, env);
 		}
 
 		// if we fetch oembed, get all params and return them as json

@@ -12,6 +12,7 @@ export const config = {
 
 	enableTickCheck: true, // costs an extra request to the iteroni api
 	enableDislikes: true, // costs a request to the RYD api
+	enableImageEmbeds: true, // requires browser rendering api which is waitlisted as of now
 
 	api_base: getRandomApiInstance(),
 

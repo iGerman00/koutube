@@ -2,6 +2,10 @@ name = "koutube"
 main = "src/worker.ts"
 compatibility_date = "2023-09-23"
 
+# for image embed feature
+compatibility_flags = [ "nodejs_compat" ]
+browser = { binding = "BROWSER" }
+
 # Bind a KV Namespace. Use KV as persistent storage for small key-value pairs.
 # Docs: https://developers.cloudflare.com/workers/runtime-apis/kv
 [[kv_namespaces]]

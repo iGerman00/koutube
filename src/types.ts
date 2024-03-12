@@ -1,5 +1,6 @@
 export type Env = {
 	YT_CACHE_DB: KVNamespace;
+	BROWSER: Fetcher;
 };
 
 export type CacheData = {

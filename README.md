@@ -16,18 +16,20 @@ It should work with YouTube Music as well, that includes `music.koutube.com` for
 - 📊 Displays likes, subscribers, publish/last update date, and view count on videos
 - 📦 Public database listing [on /](https://koutube.com)
 - ⏯️ Supports YouTube Music, including mixes
+- Ⓜ️ Supports `m.youtube.com`
 - 📱 Supports shorts
 - 📺 Supports channels
 - 🎶 Supports playlists
 - 🤳 Supports livestreams
 - 👎 Supports dislikes via RYD
-- 🕔 Displays timecodes
+- 🕔 Displays timecodes, including the format `1h2m3s`
 - ✔️ Displays channel verification
 - 📲 Automatically opens the YouTube app on mobile
 - 🎞️ Natively embeds videos on Discord
 - 🌐 Easily improve `youtu.be` links using [https://koutu.be](https://koutu.be)
 - 🚀 *May* bypass restrictions
 - 🛡️ Removes tracking on redirects
+- 🧪 (BETA) `/img/` endpoint for generating embed images
 - 💥 No random explosions (fixed!)
 
 ## Caching 🚀
@@ -45,9 +47,27 @@ https://koutu.be/dQw4w9WgXcQ?nothumb&shorts
 ```
 Note: remember URL param syntax, the first param is always defined by a question mark, the subsequent ones - by an apersand.
 
+Usage of `/img/` endpoint:
+This is an endpoint to generate embed images, for example for embedding into markdown. It renders the real YouTube embed as an image.
+```
+https://koutu.be/img/watch?v=dQw4w9WgXcQ
+```
+Params:
+- `?width=1280` - width in pixels
+- `?height=720` - height in pixels
+- `?size=hd720` - preset sizes:
+- - `small` - 320x180
+- - `medium` - 640x360
+- - `large` - 854x480
+- - `hd720` - 1280x720
+- - `hd1080` - 1920x1080
+
+Default width and height are 854x480.
+
+
 ## Installation ⚙️
 
-To install Koutube, you need to have Node and [Cloudflare's wrangler tool](https://developers.cloudflare.com/workers/wrangler/) installed on your system. You also need to have a Cloudflare account and enabled Workers, as well as a [Workers KV database](https://developers.cloudflare.com/workers/wrangler/workers-kv/) in Cloudflare.
+To install Koutube, you need to have Node and [Cloudflare's wrangler tool](https://developers.cloudflare.com/workers/wrangler/) installed on your system. You also need to have a Cloudflare account and enabled Workers, as well as a [Workers KV database](https://developers.cloudflare.com/workers/wrangler/workers-kv/) in Cloudflare. The [Browser Rendering API](https://developers.cloudflare.com/browser-rendering/) is used for the image embed function.
 
 To install wrangler, run the following command in your terminal:
 

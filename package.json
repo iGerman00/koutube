@@ -8,10 +8,11 @@
     "purge-db": "node scripts/purgeDb.js"
   },
   "devDependencies": {
+    "@cloudflare/puppeteer": "^0.0.5",
     "@cloudflare/workers-types": "^4.20230419.0",
     "@types/he": "^1.2.1",
     "typescript": "^5.0.4",
-    "wrangler": "^3.28.1"
+    "wrangler": "^3.30.1"
   },
   "dependencies": {
     "he": "^1.2.0"

@@ -1,10 +1,10 @@
-import { Env, VideoEmbedData, CacheData } from "./types";
-import { embedUserAgents, config } from "./constants";
+import { Env, VideoEmbedData, CacheData } from '../types';
+import { embedUserAgents, config } from '../constants';
 import he from 'he';
-import { getDislikes, getVideoInfo, isChannelVerified, renderGenericTemplate, stripTracking } from "./utils";
+import { getDislikes, getVideoInfo, isChannelVerified, renderGenericTemplate, stripTracking } from '../utils';
 
 export default {
-    async handleVideo(request: Request, env: Env): Promise<Response> {
+	async handleVideo(request: Request, env: Env): Promise<Response> {
 		const overrideShorts = new URL(request.url).searchParams.get('shorts') !== null;
 		const overrideNoThumb = new URL(request.url).searchParams.get('nothumb') !== null;
 		const overrideDislikes = new URL(request.url).searchParams.get('dislikes') !== null;
@@ -45,7 +45,7 @@ export default {
 		// TODO: voodoo with some kind of API to get info on scheduled livestreams
 		if (info.error && info.error.startsWith('This live event will begin ')) {
 			const date = info.error.replace('This live event will begin ', '').replace('.', '');
-			const string = `Sorry, there's no info to give you other than the fact that the event will begin ${date}`
+			const string = `Sorry, there's no info to give you other than the fact that the event will begin ${date}`;
 			const response = renderGenericTemplate(string, getOriginalUrl(), request);
 			return new Response(response, {
 				status: 200,
@@ -56,10 +56,13 @@ export default {
 			});
 		}
 
-
-		const formatStream = info.formatStreams.find((stream) => stream.itag === '22') ||
-			info.formatStreams.find((stream) => stream.itag === '18')
-			|| null;
+		let formatStream = null;
+		try {
+			formatStream =
+				info.formatStreams.find((stream) => stream.itag === '22') || info.formatStreams.find((stream) => stream.itag === '18') || null;
+		} catch (e) {
+			// console.error('Failed to get format stream', e);
+		}
 
 		const videoResolution = {
 			width: isShorts ? width : Number(formatStream?.size?.split('x')[0]),
@@ -94,7 +97,7 @@ export default {
 			youtubeUrl: getOriginalUrl(),
 			videoId,
 			request,
-			rydResponse
+			rydResponse,
 		};
 
 		const html = renderTemplate(embedData);
@@ -105,11 +108,10 @@ export default {
 				'Content-Type': 'text/html',
 				'Cached-On': new Date().toUTCString(),
 			},
-		}
+		};
 		try {
 			await env.YT_CACHE_DB.put(stripTracking(request.url), JSON.stringify(cacheEntry), { expirationTtl: 60 * 60 * 24 * 7 });
-		}
-		catch (e) {
+		} catch (e) {
 			console.error('Cache saving error', e);
 		}
 
@@ -124,27 +126,45 @@ export default {
 };
 
 function renderTemplate(info: VideoEmbedData) {
-    function constructProviderString(info: VideoEmbedData) {
-        let string = `${config.appName}`;
+	function constructProviderString(info: VideoEmbedData) {
+		let string = `${config.appName}`;
 
-		const timecodeInSeconds = new URL(info.request.url).searchParams.get('t');
+		let timecodeParam = new URL(info.request.url).searchParams.get('t');
 
-		if (timecodeInSeconds !== null && timecodeInSeconds !== '') {
+		if (timecodeParam !== null && timecodeParam !== '') {
 			try {
+				let timeInSeconds = 0;
+				if (timecodeParam.includes('h')) {
+					const hours = Number(timecodeParam.split('h')[0]);
+					timeInSeconds += hours * 3600;
+					timecodeParam = timecodeParam.split('h')[1];
+				}
+				if (timecodeParam.includes('m')) {
+					const minutes = Number(timecodeParam.split('m')[0]);
+					timeInSeconds += minutes * 60;
+					timecodeParam = timecodeParam.split('m')[1];
+				}
+				if (timecodeParam.includes('s')) {
+					const seconds = Number(timecodeParam.split('s')[0]);
+					timeInSeconds += seconds;
+				}
+
 				const date = new Date(0);
-				date.setSeconds(Number(timecodeInSeconds));
+				date.setSeconds(timeInSeconds == 0 ? Number(timecodeParam) : timeInSeconds);
 				let timeString = date.toISOString().substring(11, 19).replace('00:', '');
+				console.log('Timecode', timeString);
 				string += ` - ${config.timecodeEmoji} ${timeString}\n`;
 			} catch (e) {
 				console.error('Failed to get timecode', e);
+				string += '\n';
 			}
-		} else string += '\n'
+		} else string += '\n';
 
 		if (info.type === 'scheduled') {
 			if (info.error !== undefined) {
 				string += `${info.error}\n`;
 			} else string += `${info.publishedAt}\n`;
-			
+
 			if (info.formatStreams.length === 0) info.isLive = true;
 		} else string += `${info.publishedAt}\n`;
 
@@ -177,27 +197,38 @@ function renderTemplate(info: VideoEmbedData) {
 <meta property="og:site_name" content="${constructProviderString(info)}">
 <meta name="twitter:card" content="${info.isLive ? 'summary_large_image' : 'player'}" />
 <meta name="twitter:title" content="${info.title}" />
-${!info.isLive ? `
+${
+	!info.isLive
+		? `
 <meta name="twitter:player:width" content="${info.resolution.width}" />
 <meta name="twitter:player:height" content="${info.resolution.height}" />
 <meta name="twitter:player:stream" content="${info.directUrl}" />
-` : ''}
+`
+		: ''
+}
 <meta name="twitter:image" content="${info.bestThumbnail}" />
 <meta name="twitter:player:stream:content_type" content="video/mp4" />
 <meta property="og:url" content="${info.youtubeUrl}" />
-${!info.isLive ? `
+${
+	!info.isLive
+		? `
 <meta property="og:video" content="${info.directUrl}" />
 <meta property="og:video:secure_url" content="${info.directUrl}" />
 <meta property="og:video:type" content="video/mp4" />
 <meta property="og:video:width" content="${info.resolution.width}" />
 <meta property="og:video:height" content="${info.resolution.height}" />
-` : ``}
+`
+		: ``
+}
 <meta property="og:image" content="${info.bestThumbnail}" />
 <meta property="og:description" content="${info.description.substring(0, 160) + '...'}" />
 <script>
-let url=new URL("${info.youtubeUrl}"),id="${info.videoId}",tc="&t="+url.searchParams.get("t"),ws="watch?v="+id+tc;window.location="youtube:"+ws,setTimeout(function(){window.location="vnd.youtube:"+ws},25),setTimeout(function(){window.location=url.href},50);
+let url=new URL("${info.youtubeUrl}"),id="${
+		info.videoId
+	}",tc="&t="+url.searchParams.get("t"),ws="watch?v="+id+tc;window.location="youtube:"+ws,setTimeout(function(){window.location="vnd.youtube:"+ws},25),setTimeout(function(){window.location=url.href},50);
 </script>
-<link rel="alternate" href="${new URL(info.request.url).origin +
+<link rel="alternate" href="${
+		new URL(info.request.url).origin +
 		'/oembed.json?' +
 		new URLSearchParams({
 			author_name: `${info.author} ${info.isVerified ? config.checkmarkEmoji : ''}`,
@@ -208,7 +239,7 @@ let url=new URL("${info.youtubeUrl}"),id="${info.videoId}",tc="&t="+url.searchPa
 			type: 'video',
 			version: '1.0',
 		}).toString()
-		}" type="application/json+oembed" title="${info.author}"/>
+	}" type="application/json+oembed" title="${info.author}"/>
 </head>
 <body>
 Please wait...
