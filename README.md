@@ -34,6 +34,7 @@ It should work with YouTube Music as well, that includes `music.koutube.com` for
 
 ## Caching 🚀
 This project uses a 7-day cache of every URL that it processes to avoid hammering any services. Subject to change.  
+For image embeds, the cache is 1 year since I expect it to be used in more static applications.
 To disable fetching the cached version, append `?noCache` or `&noCache` if your URL already has a param like `?v`
 
 ## Parameters
@@ -53,8 +54,6 @@ This is an endpoint to generate embed images, for example for embedding into mar
 https://koutu.be/img/watch?v=dQw4w9WgXcQ
 ```
 Params:
-- `?width=1280` - width in pixels
-- `?height=720` - height in pixels
 - `?size=hd720` - preset sizes:
 - - `small` - 320x180
 - - `medium` - 640x360
@@ -62,7 +61,7 @@ Params:
 - - `hd720` - 1280x720
 - - `hd1080` - 1920x1080
 
-Default width and height are 854x480.
+Default is `medium`.
 
 
 ## Installation ⚙️
