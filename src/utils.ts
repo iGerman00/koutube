@@ -106,6 +106,15 @@ export function stripTracking(link: string) {
 	url.searchParams.delete('pp');
 	url.searchParams.delete('si');
 	url.searchParams.delete('a');
+	url.searchParams.delete('embeds_referring_euri');
+	url.searchParams.delete('embeds_referring_origin');
+	url.searchParams.delete('embeds_euri');
+	url.searchParams.delete('embeds_origin');
+	url.searchParams.delete('embeds_widget_referrer');
+	url.searchParams.delete('source_ve_path');
+	url.searchParams.delete('iv_load_policy');
+	url.searchParams.delete('rel');
+	// just to be safe:
 	url.searchParams.delete('utm_source');
 	url.searchParams.delete('utm_medium');
 	url.searchParams.delete('utm_campaign');

@@ -71,12 +71,12 @@ export default {
 					if (key.name.startsWith('rateLimit:')) return;
 
 					const url = new URL(key.name);
-					// url.searchParams.delete('t');
+					const timecode = url.searchParams.get('t') || url.searchParams.get('time_continue')
 
 					const obj: PublicCacheEntry = {
 						url: url.href.replace(url.origin, '').replace('/', ''),
 						type: getURLType(url),
-						timecode: url.searchParams.get('t') || 'N/A',
+						timecode: timecode || 'N/A',
 						expiration: key.expiration,
 						size: url.searchParams.get('size') || 'N/A',
 					};

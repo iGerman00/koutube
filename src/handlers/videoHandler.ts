@@ -129,8 +129,9 @@ function renderTemplate(info: VideoEmbedData) {
 	function constructProviderString(info: VideoEmbedData) {
 		let string = `${config.appName}`;
 
-		let timecodeParam = new URL(info.request.url).searchParams.get('t');
-
+		let params = new URL(info.request.url).searchParams;
+		let timecodeParam = params.get('t') || params.get('time_continue');
+		
 		if (timecodeParam !== null && timecodeParam !== '') {
 			try {
 				let timeInSeconds = 0;
