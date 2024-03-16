@@ -192,7 +192,7 @@
       var tbody = document.createElement('tbody');
 
       // Define headers based on PublicCacheEntry keys
-      var headers = ['URL', 'Timecode', 'Type', 'Expiration', 'Size'];
+      var headers = ['URL', 'Timecode', 'Type', 'Expiration', 'Itag', 'Size'];
       var trHead = document.createElement('tr');
       headers.forEach(header => {
         var th = document.createElement('th');
@@ -232,6 +232,12 @@
                 return ''; // For &size=... just remove it
               });
             }
+            cleanedUrl = cleanedUrl.replace(/(\?itag=\w+)|(&itag=\w+)/g, function (match, group1) {
+              if (group1) { // If the match is at the beginning (?itag=...&)
+                return match.endsWith('&') ? '?' : ''; // Replace with '?' if followed by another param, else remove
+              }
+              return ''; // For &itag=... just remove it
+            });
             if (cleanedUrl.length > 50) {
               cleanedUrl = cleanedUrl.substr(0, 50) + '...';
             }
@@ -248,7 +254,10 @@
           } else if (headerKey === 'size') {
             td.innerText = cellValue;
             // else td.innerText = 'N/A';
-          } else {
+          } else if (headerKey === 'itag') {
+            td.innerText = cellValue || 'N/A';
+          }
+          else {
             td.innerText = cellValue || '';
           }
 

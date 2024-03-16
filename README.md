@@ -29,31 +29,34 @@ It should work with YouTube Music as well, that includes `music.koutube.com` for
 - 🌐 Easily improve `youtu.be` links using [https://koutu.be](https://koutu.be)
 - 🚀 *May* bypass restrictions
 - 🛡️ Removes tracking on redirects
-- 🧪 (BETA) `/img/` endpoint for generating embed images
+- 🧪 **(BETA)** `/img/` endpoint for generating embed images
 - 💥 No random explosions (fixed!)
 
 ## Caching 🚀
 This project uses a 7-day cache of every URL that it processes to avoid hammering any services. Subject to change.  
 For image embeds, the cache is 1 year since I expect it to be used in more static applications.
-To disable fetching the cached version, append `?noCache` or `&noCache` if your URL already has a param like `?v`
+
+I often clear the cache when I push a new update.
 
 ## Parameters
+- `noCache` - disables fetching the cached version
 - `nothumb` to disable embedding the thumbnail, may help fix video cropping on mobile Discord clients
 - `shorts` - treats the video as shorts
 - `dislikes` - shows dislikes, requests from [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike) and is a bit slow
+- `itag` - forces a specific video quality, only `itag=22` for 720p and `itag=18` for 360p are allowed
 
 Example usage:
 ```
 https://koutu.be/dQw4w9WgXcQ?nothumb&shorts
 ```
-Note: remember URL param syntax, the first param is always defined by a question mark, the subsequent ones - by an apersand.
+Note: remember URL param syntax, the first param is always defined by a question mark, the subsequent ones - by an ampersand.
 
-Usage of `/img/` endpoint:
+## Image Embeds 🖼️
 This is an endpoint to generate embed images, for example for embedding into markdown. It renders the real YouTube embed as an image.
 ```
 https://koutu.be/img/watch?v=dQw4w9WgXcQ
 ```
-Params:
+### Params:
 - `?size=hd720` - preset sizes:
 - - `small` - 320x180
 - - `medium` - 640x360
@@ -63,6 +66,15 @@ Params:
 
 Default is `medium`.
 
+#### Demo:
+```md
+[![Alt Text](https://koutu.be/img/watch?v=CpJSgoOD1-Y&size=small)](https://koutu.be/watch?v=CpJSgoOD1-Y&size=small)
+```
+<div align="center">
+
+  [![KouTube image generation demonstration, "autism creature (yipee)"](https://koutu.be/img/watch?v=CpJSgoOD1-Y&size=small)](https://koutu.be/watch?v=CpJSgoOD1-Y&size=small)
+
+</div>
 
 ## Installation ⚙️
 

@@ -79,6 +79,13 @@ export default {
 						timecode: timecode || 'N/A',
 						expiration: key.expiration,
 						size: url.searchParams.get('size') || 'N/A',
+						itag: function () {
+							const itag = url.searchParams.get('itag')
+							// return 360p if itag is 18 or '18', 720p if itag is 22 or '22'
+							if (itag === '18') return '360p'
+							if (itag === '22') return '720p'
+							return itag || 'N/A'
+						}(),
 					};
 
 					return obj;

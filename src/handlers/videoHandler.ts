@@ -8,6 +8,16 @@ export default {
 		const overrideShorts = new URL(request.url).searchParams.get('shorts') !== null;
 		const overrideNoThumb = new URL(request.url).searchParams.get('nothumb') !== null;
 		const overrideDislikes = new URL(request.url).searchParams.get('dislikes') !== null;
+		let overrideItag = new URL(request.url).searchParams.get('itag');
+
+		if (overrideItag) {
+			if (isNaN(Number(overrideItag))) {
+				overrideItag = null;
+			}
+			if (overrideItag !== '18' && overrideItag !== '22') {
+				overrideItag = null;
+			}
+		}
 
 		const originalPath = request.url.replace(new URL(request.url).origin, '');
 		const isShorts = originalPath.startsWith('/shorts') || overrideShorts;
@@ -67,7 +77,7 @@ export default {
 		const videoResolution = {
 			width: isShorts ? width : Number(formatStream?.size?.split('x')[0]),
 			height: isShorts ? height : Number(formatStream?.size?.split('x')[1]),
-			itag: formatStream?.itag || 18,
+			itag: overrideItag || formatStream?.itag || 18,
 		};
 
 		let rydResponse = undefined;
@@ -131,7 +141,7 @@ function renderTemplate(info: VideoEmbedData) {
 
 		let params = new URL(info.request.url).searchParams;
 		let timecodeParam = params.get('t') || params.get('time_continue');
-		
+
 		if (timecodeParam !== null && timecodeParam !== '') {
 			try {
 				let timeInSeconds = 0;
