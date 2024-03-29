@@ -68,11 +68,11 @@ Default is `medium`.
 
 #### Demo:
 ```md
-[![Alt Text](https://koutu.be/img/watch?v=CpJSgoOD1-Y&size=small)](https://koutu.be/watch?v=CpJSgoOD1-Y&size=small)
+[![Alt Text](https://koutu.be/img/watch?v=CpJSgoOD1-Y&size=small)](https://koutu.be/watch?v=CpJSgoOD1-Y)
 ```
 <div align="center">
 
-  [![KouTube image generation demonstration, "autism creature (yipee)"](https://koutu.be/img/watch?v=CpJSgoOD1-Y&size=small)](https://koutu.be/watch?v=CpJSgoOD1-Y&size=small)
+  [![KouTube image generation demonstration, "autism creature (yipee)"](https://koutu.be/img/watch?v=CpJSgoOD1-Y&size=small)](https://koutu.be/watch?v=CpJSgoOD1-Y)
 
 </div>
 
@@ -159,7 +159,7 @@ The one piece of logging that is present is a "Cache hit" log with no additional
 <details>
   <summary>List of used instances</summary>
 
-|||
+|URL|Privacy Policy|
 |-------------------------------------------------|--------------------------------------------------------------------|
 | [iteroni.com](https://iteroni.com)              | [Privacy Policy](https://iteroni.com/privacy)                      |
 | [invidious.einfachzocken.eu](https://invidious.einfachzocken.eu)  | [Privacy Policy](https://invidious.einfachzocken.eu/privacy)      |
