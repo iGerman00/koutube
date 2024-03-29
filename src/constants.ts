@@ -1,5 +1,8 @@
 export const api_instances = [
-	'https://iteroni.com',  // no trailing slash
+	// no trailing slash
+	'https://iteroni.com',
+	'https://invidious.einfachzocken.eu',
+	'https://iv.nboeck.de',
 ];
 
 export function getRandomApiInstance() {

@@ -156,11 +156,22 @@ Koutube is licensed under the GPL-3.0 License.
 Nothing is logged explicitly, however I have full access to the KV database, meaning I am able to see what links are generated - not that I would have any reason to look through them.  
 The one piece of logging that is present is a "Cache hit" log with no additional information.  
 
-[Iteroni](https://iteroni.com)'s API is used, their [privacy policy](https://iteroni.com/privacy) applies.
+<details>
+  <summary>List of used instances</summary>
+
+|||
+|-------------------------------------------------|--------------------------------------------------------------------|
+| [iteroni.com](https://iteroni.com)              | [Privacy Policy](https://iteroni.com/privacy)                      |
+| [invidious.einfachzocken.eu](https://invidious.einfachzocken.eu)  | [Privacy Policy](https://invidious.einfachzocken.eu/privacy)      |
+| [iv.nboeck.de](https://iv.nboeck.de)            | [Privacy Policy](https://iv.nboeck.de/privacy)                     |
+  
+</details>
+
 
 ## Credits 👏
 
 - [@dylanpdx](https://github.com/dylanpdx)' [vxtiktok](https://github.com/dylanpdx/vxtiktok) for some embed template inspiration and bot user-agent list
-- [Iteroni](https://iteroni.com) Invidious Instance and Invidious team for the easy-to-use API
+- [Invidious](https://invidious.io/) team for the easy-to-use API
+- Every hoster of Invidious Instances that are used
 - [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike) by [@Anarios](https://github.com/Anarios)
 - [Cloudflare](https://cloudflare.com/), for providing the free and easy-to-use serverless architecture and KV database API for this project

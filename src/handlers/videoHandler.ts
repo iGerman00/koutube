@@ -99,7 +99,7 @@ export default {
 			likeCount: info.likeCount.toLocaleString('en-US'),
 			isVerified: await isChannelVerified(info.authorId),
 			ownerProfileUrl: 'https://youtube.com' + info.authorUrl,
-			bestThumbnail: isShorts || overrideNoThumb ? '' : config.api_base + info.videoThumbnails[0].url,
+			bestThumbnail: isShorts || overrideNoThumb ? '' : info.videoThumbnails[0].url,
 			isLive: info.liveNow,
 			directUrl: `${config.api_base}/latest_version?id=${videoId}&itag=${videoResolution.itag}`,
 			formatStreams: info.formatStreams,
