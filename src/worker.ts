@@ -11,8 +11,12 @@ import channelHandler from './handlers/channelHandler';
 import { Buffer } from 'node:buffer';
 
 export default {
-	async fetch(request: Request, env: Env): Promise<Response> {
-		try {
+    async fetch(request: Request, env: Env): Promise<Response> {
+        const MAX_RETRIES = 3;
+        const RETRY_DELAY_MS = 1000;
+
+        for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+			try {
 			const url = stripTracking(request.url);
 			const cache = await env.YT_CACHE_DB.get(url);
 			const shouldCache = new URL(request.url).searchParams.get('noCache') === null;
@@ -103,7 +107,6 @@ export default {
 				});
 			}
 
-			// return Response.redirect('https://github.com/iGerman00/koutube', 302);
 			return getListing(request);
 		}
 
@@ -118,14 +121,30 @@ export default {
 			}
 			return result;
 		} catch (e) {
-			console.error('Error fetching', e);
-			const template = renderGenericTemplate('Could not fetch. This response was not cached', config.appLink, request, 'Error');
-			return new Response(template, {
-				status: 200,
-				headers: {
-					'Content-Type': 'text/html',
-				},
-			});
+			if ((e as Error).message === 'Screw everyone, we are retrying' && attempt < MAX_RETRIES - 1) {
+				console.log(`Retrying request, attempt ${attempt + 1}`);
+				await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+				continue;
+			} else {
+				console.error('Error fetching', e);
+				const template = renderGenericTemplate('Could not fetch. This response was not cached', config.appLink, request, 'Error');
+				return new Response(template, {
+					status: 200,
+					headers: {
+						'Content-Type': 'text/html',
+					},
+				});
+			}
 		}
-	},
+	}
+
+	const errorMessage = 'Could not fetch after several retries. This response was not cached.';
+	const errorTemplate = renderGenericTemplate(errorMessage, config.appLink, request, 'Error');
+	return new Response(errorTemplate, {
+		status: 200,
+		headers: {
+			'Content-Type': 'text/html',
+		},
+	});
+},
 };
