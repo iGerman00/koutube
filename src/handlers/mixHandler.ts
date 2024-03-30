@@ -16,7 +16,15 @@ export default {
 		const mixId = match ? match[3] : null;
 
 		if (!mixId) {
-			return new Response('Mix ID not found!', { status: 400 });
+			const error = 'Invalid Mix ID';
+			const response = renderGenericTemplate(error, getOriginalUrl(), request, 'Parse Error');
+			return new Response(response, {
+				status: 200,
+				headers: {
+					'Content-Type': 'text/html',
+					Location: getOriginalUrl(),
+				},
+			});
 		}
 
 

@@ -42,7 +42,15 @@ export default {
 		const videoId = match ? match[3] : null;
 
 		if (!videoId) {
-			return new Response('Video ID not found!', { status: 400 });
+			const error = 'Invalid Video ID';
+			const response = renderGenericTemplate(error, getOriginalUrl(), request, 'Parse Error');
+			return new Response(response, {
+				status: 200,
+				headers: {
+					'Content-Type': 'text/html',
+					Location: getOriginalUrl(),
+				},
+			});
 		}
 
 		const userAgent = request.headers.get('User-Agent');

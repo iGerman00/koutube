@@ -17,7 +17,15 @@ export default {
 		const playlistId = match ? match[3] : null;
 
 		if (!playlistId) {
-			return new Response('Playlist ID not found!', { status: 400 });
+			const error = 'Invalid Playlist ID';
+			const response = renderGenericTemplate(error, getOriginalUrl(), request, 'Parse Error');
+			return new Response(response, {
+				status: 200,
+				headers: {
+					'Content-Type': 'text/html',
+					Location: getOriginalUrl(),
+				},
+			});
 		}
 
 		if (await isMix(playlistId, request)) {

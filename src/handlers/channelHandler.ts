@@ -33,7 +33,15 @@ export default {
 		}
 
 		if (!channel) {
-			return new Response('Channel not found!', { status: 400 });
+			const error = 'Invalid Channel ID';
+			const response = renderGenericTemplate(error, getOriginalUrl(), request, 'Parse Error');
+			return new Response(response, {
+				status: 200,
+				headers: {
+					'Content-Type': 'text/html',
+					Location: getOriginalUrl(),
+				},
+			});
 		}
 
 		const info = await getChannelInfo(channel);
