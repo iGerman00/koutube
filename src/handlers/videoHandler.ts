@@ -1,5 +1,5 @@
 import { Env, VideoEmbedData, CacheData } from '../types';
-import { embedUserAgents, config } from '../constants';
+import { embedUserAgents, config, getRandomApiInstance } from '../constants';
 import he from 'he';
 import { getDislikes, getVideoInfo, isChannelVerified, renderGenericTemplate, stripTracking } from '../utils';
 
@@ -56,7 +56,18 @@ export default {
 		if (info.error && info.error.startsWith('This live event will begin ')) {
 			const date = info.error.replace('This live event will begin ', '').replace('.', '');
 			const string = `Sorry, there's no info to give you other than the fact that the event will begin ${date}`;
-			const response = renderGenericTemplate(string, getOriginalUrl(), request);
+			const response = renderGenericTemplate(string, getOriginalUrl(), request, 'Scheduled Event');
+			return new Response(response, {
+				status: 200,
+				headers: {
+					'Content-Type': 'text/html',
+					Location: getOriginalUrl(),
+				},
+			});
+		}
+
+		if (info.error) {
+			const response = renderGenericTemplate(info.error, getOriginalUrl(), request, 'Invidious Error');
 			return new Response(response, {
 				status: 200,
 				headers: {

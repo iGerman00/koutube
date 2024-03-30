@@ -1,4 +1,4 @@
-import { config } from "./constants";
+import { config, getRandomApiInstance } from "./constants";
 import { RYDResponse, PlaylistInfo, Video, ChannelInfo } from "./types";
 
 export function getURLType(url: URL): string {
@@ -165,7 +165,7 @@ export function scrapeChannelId(html: string): string | null {
 	return match ? match[1] : null;
 }
 
-export function renderGenericTemplate(info: string, redirectUrl: string, request: Request, title = 'Scheduled event') {
+export function renderGenericTemplate(info: string, redirectUrl: string, request: Request, title: string) {
 	return `
 <!DOCTYPE html>
 <html lang="en">
@@ -175,7 +175,7 @@ export function renderGenericTemplate(info: string, redirectUrl: string, request
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="theme-color" content="#FF0000" />
 <meta property="og:site_name" content="">
-<meta property="og:description" content="${info.substring(0, 160) + '...'}" />
+<meta property="og:description" content="${info.substring(0, 160) + (info.length > 160 ? '...' : '')}" />
 <link rel="alternate" href="${
 		new URL(request.url).origin +
 		'/oembed.json?' +
@@ -189,6 +189,7 @@ export function renderGenericTemplate(info: string, redirectUrl: string, request
 			version: '1.0',
 		}).toString()
 	}" type="application/json+oembed" title="d"/>
+<meta http-equiv="refresh" content="0;url=${redirectUrl}">
 </head>
 <body>
 Please wait...

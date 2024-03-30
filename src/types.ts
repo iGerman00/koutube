@@ -108,6 +108,7 @@ export type PlaylistInfo = {
 	viewCount: number;
 	updated: number;
 	videos: PlaylistVideo[];
+	error?: string;
 };
 
 export type PlaylistEmbedData = {
@@ -146,6 +147,7 @@ export type ChannelInfo = {
 	authorVerified: boolean;
 	latestVideos: Video[];
 	relatedChannels: unknown[];
+	error?: string;
 };
 
 export type ChannelEmbedData = {

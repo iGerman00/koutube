@@ -1,7 +1,7 @@
 import { Env, CacheData, PlaylistEmbedData } from "../types";
 import { embedUserAgents, config } from "../constants";
 import he from 'he';
-import { getPlaylistInfo, isChannelVerified, isMix, stripTracking } from "../utils";
+import { getPlaylistInfo, isChannelVerified, isMix, renderGenericTemplate, stripTracking } from "../utils";
 import mixHandler from "./mixHandler" 
 
 export default {
@@ -31,6 +31,17 @@ export default {
 		if (!isBot) return Response.redirect(getOriginalUrl(), 302);
 
 		const info = await getPlaylistInfo(playlistId);
+
+		if (info.error) {
+			const response = renderGenericTemplate(info.error, getOriginalUrl(), request, 'Invidious Error');
+			return new Response(response, {
+				status: 200,
+				headers: {
+					'Content-Type': 'text/html',
+					Location: getOriginalUrl(),
+				},
+			});
+		}
 
 		const embedData: PlaylistEmbedData = {
 			appTitle: config.appName,

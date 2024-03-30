@@ -1,7 +1,7 @@
 import { Env, CacheData, ChannelEmbedData } from "../types";
 import { embedUserAgents, config } from "../constants";
 import he from 'he';
-import { getChannelInfo, scrapeChannelId, stripTracking } from "../utils";
+import { getChannelInfo, renderGenericTemplate, scrapeChannelId, stripTracking } from "../utils";
 
 export default {
     async handleChannel(request: Request, env: Env): Promise<Response> {
@@ -37,6 +37,17 @@ export default {
 		}
 
 		const info = await getChannelInfo(channel);
+
+		if (info.error) {
+			const response = renderGenericTemplate(info.error, getOriginalUrl(), request, 'Invidious Error');
+			return new Response(response, {
+				status: 200,
+				headers: {
+					'Content-Type': 'text/html',
+					Location: getOriginalUrl(),
+				},
+			});
+		}
 
 		const embedData: ChannelEmbedData = {
 			appTitle: config.appName,

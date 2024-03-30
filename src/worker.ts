@@ -3,7 +3,7 @@ import videoHandler from './handlers/videoHandler';
 import { Env, CacheData, PublicCacheEntry } from './types';
 import { getURLType, renderGenericTemplate, stripTracking } from './utils';
 import template from './templates/db_listing.html';
-import { config } from './constants';
+import { config, getRandomApiInstance } from './constants';
 import embedImageHandler from './handlers/embedImageHandler';
 import channelHandler from './handlers/channelHandler';
 
@@ -32,6 +32,9 @@ export default {
 		} catch (e) {
 			console.error('Cache error', e);
 		}
+
+		// set instance to one of the api instances
+		config.api_base = getRandomApiInstance();
 
 		// if subdomain is img, embedImageHandler
 		if (new URL(request.url).pathname.startsWith('/img/') && config.enableImageEmbeds) {
@@ -115,10 +118,13 @@ export default {
 			}
 			return result;
 		} catch (e) {
-			console.error('Error', e);
-			const template = renderGenericTemplate('Could not fetch. This response was not cached', config.appLink, request);
+			console.error('Error fetching', e);
+			const template = renderGenericTemplate('Could not fetch. This response was not cached', config.appLink, request, 'Error');
 			return new Response(template, {
 				status: 200,
+				headers: {
+					'Content-Type': 'text/html',
+				},
 			});
 		}
 	},
