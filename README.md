@@ -153,11 +153,14 @@ Koutube is licensed under the GPL-3.0 License.
 
 ## Privacy 🔒
 
-Nothing is logged explicitly, however I have full access to the KV database, meaning I am able to see what links are generated - not that I would have any reason to look through them.  
-The one piece of logging that is present is a "Cache hit" log with no additional information.  
+The cache listing, which is a list of the vast majority of links processed by Koutube [is public](https://koutu.be)
+
+I try not to log anything I don't need, but I log some errors here and there and whenever a cached response is returned.  
+
+I have to actively enable log streaming by typing a command or logging into the Cloudflare dashboard. As you can imagine, I don't do that unless I am debugging an error.  
 
 <details>
-  <summary>List of used instances</summary>
+  <summary>List of used instances and their privacy policies</summary>
 
 |URL|Privacy Policy|
 |-------------------------------------------------|--------------------------------------------------------------------|
