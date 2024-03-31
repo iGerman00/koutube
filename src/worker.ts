@@ -15,7 +15,6 @@ export default {
 		config.api_base = getRandomApiInstance();
 
 		if (env.IV_AUTH && env.IV_DOMAIN) {
-			console.log('Using private instance')
 			config.api_base = 'https://' + env.IV_DOMAIN;
 			config.auth = env.IV_AUTH;;
 		}
