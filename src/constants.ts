@@ -18,6 +18,7 @@ export const config = {
 	enableImageEmbeds: true, // requires browser rendering api which is waitlisted as of now
 
 	api_base: getRandomApiInstance(),
+	auth: '',
 
 	viewEmoji: '&#x1F441;&#xFE0E;', // 👁️
 	likeEmoji: '&#x1F44D;&#xFE0E;', // 👍

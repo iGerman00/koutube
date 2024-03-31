@@ -12,33 +12,38 @@ import { Buffer } from 'node:buffer';
 
 export default {
     async fetch(request: Request, env: Env): Promise<Response> {
+		config.api_base = getRandomApiInstance();
+
+		if (env.IV_AUTH && env.IV_DOMAIN) {
+			console.log('Using private instance')
+			config.api_base = 'https://' + env.IV_DOMAIN;
+			config.auth = env.IV_AUTH;;
+		}
+
         const MAX_RETRIES = 3;
         const RETRY_DELAY_MS = 1000;
 
         for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
 			try {
-			const url = stripTracking(request.url);
-			const cache = await env.YT_CACHE_DB.get(url);
-			const shouldCache = new URL(request.url).searchParams.get('noCache') === null;
-			if (cache && shouldCache) {
-				console.info('Cache hit');
-				const cacheData: CacheData = JSON.parse(cache);
-				if (cacheData.headers['Content-Type'] === 'image/png') {
-					const binaryData = Buffer.from(cacheData.response, 'base64');
-					return new Response(binaryData, {
-						headers: cacheData.headers,
+				const url = stripTracking(request.url);
+				const cache = await env.YT_CACHE_DB.get(url);
+				const shouldCache = new URL(request.url).searchParams.get('noCache') === null;
+				if (cache && shouldCache) {
+					console.info('Cache hit');
+					const cacheData: CacheData = JSON.parse(cache);
+					if (cacheData.headers['Content-Type'] === 'image/png') {
+						const binaryData = Buffer.from(cacheData.response, 'base64');
+						return new Response(binaryData, {
+							headers: cacheData.headers,
+						});
+					}
+					return new Response(cacheData.response, {
+						headers: cacheData.headers, 
 					});
 				}
-				return new Response(cacheData.response, {
-					headers: cacheData.headers, 
-				});
+			} catch (e) {
+				console.error('Cache error', e);
 			}
-		} catch (e) {
-			console.error('Cache error', e);
-		}
-
-		// set instance to one of the api instances
-		config.api_base = getRandomApiInstance();
 
 		// if subdomain is img, embedImageHandler
 		if (new URL(request.url).pathname.startsWith('/img/') && config.enableImageEmbeds) {

@@ -1,4 +1,4 @@
-import { config, getRandomApiInstance } from "./constants";
+import { config } from "./constants";
 import { RYDResponse, PlaylistInfo, Video, ChannelInfo } from "./types";
 
 export function getURLType(url: URL): string {
@@ -37,6 +37,7 @@ export async function isChannelVerified(channelId: string): Promise<boolean> {
 			// set language to english
 			'Accept-Language': 'en-US,en;q=0.9',
 			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
+			'Authorization': config.auth,
 		},
 	});
 	const json: { authorVerified: boolean; } = await page.json();
@@ -48,6 +49,7 @@ export async function getVideoInfo(videoId: string): Promise<Video> {
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
 			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
+			'Authorization': config.auth,
 		},
 	});
 
@@ -61,6 +63,7 @@ export async function getPlaylistInfo(playlistId: string): Promise<PlaylistInfo>
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
 			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
+			'Authorization': config.auth,
 		},
 	});
 
@@ -74,6 +77,7 @@ export async function getChannelInfo(channelId: string): Promise<ChannelInfo> {
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
 			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
+			'Authorization': config.auth,
 		},
 	});
 
@@ -93,6 +97,7 @@ export async function isMix(playlistId: string, request: Request): Promise<boole
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
 			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
+			'Authorization': config.auth,
 		},
 	});
 	const url = new URL(page.url);
@@ -142,6 +147,7 @@ export async function getDislikes(videoId: string): Promise<RYDResponse | undefi
 			headers: {
 				'Accept-Language': 'en-US,en;q=0.9',
 				'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0',
+				'Authorization': config.auth,
 			},
 		});
 		const json: RYDResponse = await page.json();

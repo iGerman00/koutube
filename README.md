@@ -1,5 +1,5 @@
 # Koutube (ex YocksTube)
-*pronounced a bit like "cool tube"*
+> pronounced a bit like "cool tube"
 
 Koutube is a web service, running in [Cloudflare Workers](https://workers.cloudflare.com/), that fixes YouTube embeds on messenger platforms like Discord. It allows you to watch YouTube videos directly on Discord without opening a new tab or window.
 
@@ -8,14 +8,12 @@ Koutube is a web service, running in [Cloudflare Workers](https://workers.cloudf
 ```
 s/y/k
 ```
-(sounds like SIKE very funny)
-
-It should work with YouTube Music as well, that includes `music.koutube.com` for easy replacement.
+> (sounds like SIKE very funny)
 
 ## Features 🌟
 - 📊 Displays likes, subscribers, publish/last update date, and view count on videos
 - 📦 Public database listing [on /](https://koutube.com)
-- ⏯️ Supports YouTube Music, including mixes
+- ⏯️ Supports YouTube Music (`music.koutube.com`), including mixes
 - Ⓜ️ Supports `m.youtube.com`
 - 📱 Supports shorts
 - 📺 Supports channels
@@ -116,6 +114,32 @@ Current Deployment ID: 1234abcd-5678-efgh-9012-ijklmnopqrst
 
 Now you can use Koutube by replacing `https://www.youtube.com/watch?v=` with `https://koutube.yourdomain.workers.dev/watch?v=` in any YouTube video URL and sending it to Discord.
 
+---
+
+## Optional: Private Invidious Instance
+
+Koutube is capable of working with a semi-private Invidious instance. All that is required for that is to define the secrets and Koutube will automatically pick your instance over every other.
+
+To configure your own:
+1. Follow the [Invidious installation guide](https://docs.invidious.io/installation/)
+2. Optionally restrict the instance to require an `Authorization header`
+   Sidenote: `/vi*` and `/latest_version*` must be publicly accessible for Discord to validate the embed
+3. Deploy secrets using Wrangler:
+```bash
+npx wrangler secret put IV_AUTH
+# Follow the steps and enter your token value
+npx wrangler secret put IV_DOMAIN
+# Do the same but for your domain. For example, invidious.yourdoma.in
+```
+
+> If you do not want to keep your instance private, you can either just add it in `constants.ts` or specify any authorization token value
+
+If you want your secrets to be accessible during developement, create a file named `.dev.vars` and populate it as such:
+```bash
+IV_DOMAIN=invidious.yourdoma.in
+IV_AUTH=YourTok3n
+```
+
 ## Development 🧑‍💻
 
 To run Koutube locally for development, simply run:
@@ -153,28 +177,17 @@ Koutube is licensed under the GPL-3.0 License.
 
 ## Privacy 🔒
 
-The cache listing, which is a list of the vast majority of links processed by Koutube [is public](https://koutu.be)
+- The cache listing, which is a list of the vast majority of links processed by Koutube [is public](https://koutu.be)
 
-I try not to log anything I don't need, but I log some errors here and there and whenever a cached response is returned.  
+- I try not to log anything I don't need, but I log some errors here and there and whenever a cached response is returned.  
 
-I have to actively enable log streaming by typing a command or logging into the Cloudflare dashboard. As you can imagine, I don't do that unless I am debugging an error.  
+- A private Invidious instance is used for now due to unreliable public ones. No logging is configured  
 
-<details>
-  <summary>List of used instances and their privacy policies</summary>
-
-|URL|Privacy Policy|
-|-------------------------------------------------|--------------------------------------------------------------------|
-| [iteroni.com](https://iteroni.com)              | [Privacy Policy](https://iteroni.com/privacy)                      |
-| [invidious.einfachzocken.eu](https://invidious.einfachzocken.eu)  | [Privacy Policy](https://invidious.einfachzocken.eu/privacy)      |
-| [iv.nboeck.de](https://iv.nboeck.de)            | [Privacy Policy](https://iv.nboeck.de/privacy)                     |
-  
-</details>
-
+> I have to actively enable log streaming by typing a command or logging into the Cloudflare dashboard. As you can imagine, I don't do that unless I am debugging an error.  
 
 ## Credits 👏
 
 - [@dylanpdx](https://github.com/dylanpdx)' [vxtiktok](https://github.com/dylanpdx/vxtiktok) for some embed template inspiration and bot user-agent list
 - [Invidious](https://invidious.io/) team for the easy-to-use API
-- Every hoster of Invidious Instances that are used
 - [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike) by [@Anarios](https://github.com/Anarios)
 - [Cloudflare](https://cloudflare.com/), for providing the free and easy-to-use serverless architecture and KV database API for this project
