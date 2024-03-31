@@ -119,6 +119,7 @@ export function stripTracking(link: string) {
 	url.searchParams.delete('source_ve_path');
 	url.searchParams.delete('iv_load_policy');
 	url.searchParams.delete('rel');
+	url.searchParams.delete('lc');
 	// just to be safe:
 	url.searchParams.delete('utm_source');
 	url.searchParams.delete('utm_medium');
