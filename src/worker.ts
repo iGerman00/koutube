@@ -70,7 +70,7 @@ export default {
 		const isPlaylist = originalPath.startsWith('/playlist');
 		const isChannel =
 			originalPath.startsWith('/channel') ||
-			originalPath.startsWith('/c') ||
+			originalPath.startsWith('/c/') ||
 			originalPath.startsWith('/@') ||
 			originalPath.startsWith('/user/');
 
