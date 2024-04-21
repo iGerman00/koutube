@@ -23,10 +23,11 @@ export default {
 		const isShorts = originalPath.startsWith('/shorts') || overrideShorts;
 		const isWatch = originalPath.startsWith('/watch');
 		const isEmbed = originalPath.startsWith('/embed');
+		const isLive = originalPath.startsWith('/live');
 		const isMusic = request.url.startsWith('https://music') || request.url.startsWith('https://www.music');
 
 		function getOriginalUrl() {
-			if (isShorts || isWatch || isEmbed) {
+			if (isShorts || isWatch || isEmbed || isLive) {
 				return stripTracking(`https://www.youtube.com${originalPath}`);
 			}
 			if (isMusic) {
