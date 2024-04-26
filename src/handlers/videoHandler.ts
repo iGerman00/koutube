@@ -77,7 +77,7 @@ export default {
 
 		if (info.error) {
 			// dirty hack for invidious bug, to be removed when they fix it
-			if (info.error.startsWith("The video returned by YouTube isn't the requested one")) throw new Error('Screw everyone, we are retrying');
+			if (info.error.startsWith("The video returned by YouTube isn't the requested one")) throw new Error('Invidious seems to have died');
 			
 			const response = renderGenericTemplate(info.error, getOriginalUrl(), request, 'Invidious Error');
 			return new Response(response, {

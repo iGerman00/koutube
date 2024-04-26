@@ -125,13 +125,17 @@ export default {
 			}
 			return result;
 		} catch (e) {
-			if ((e as Error).message === 'Screw everyone, we are retrying' && attempt < MAX_RETRIES - 1) {
+			if ((e as Error).message === 'Invidious seems to have died' && attempt < MAX_RETRIES - 1) {
 				console.log(`Retrying request, attempt ${attempt + 1}`);
 				await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
 				continue;
 			} else {
-				console.error('Error fetching', e);
-				const template = renderGenericTemplate('Could not fetch. This response was not cached', config.appLink, request, 'Error');
+				let errorMessage = 'Could not fetch. This response was not cached';
+
+				if ((e as Error).message === 'Invidious seems to have died') 
+					errorMessage = 'Invidious returned an error indicating that YouTube is fighting unofficial access to their API. This response was not cached.'
+
+				const template = renderGenericTemplate(errorMessage, config.appLink, request, 'Error');
 				return new Response(template, {
 					status: 200,
 					headers: {
