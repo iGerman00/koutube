@@ -1,5 +1,5 @@
 import { config } from "./constants";
-import { RYDResponse, PlaylistInfo, Video, ChannelInfo } from "./types";
+import { RYDResponse, PlaylistInfo, Video, ChannelInfo, DeArrowResponse } from "./types/types";
 
 export function getURLType(url: URL): string {
 	const isShorts = url.pathname.startsWith('/shorts');
@@ -40,7 +40,7 @@ export async function isChannelVerified(channelId: string): Promise<boolean> {
 			'Authorization': config.auth,
 		},
 	});
-	const json: { authorVerified: boolean; } = await page.json();
+	const json = await page.json() as { authorVerified: boolean; }
 	return json.authorVerified;
 }
 
@@ -53,7 +53,7 @@ export async function getVideoInfo(videoId: string): Promise<Video> {
 		},
 	});
 
-	const json: Video = await page.json();
+	const json = await page.json() as Video;
 
 	return json;
 }
@@ -67,7 +67,7 @@ export async function getPlaylistInfo(playlistId: string): Promise<PlaylistInfo>
 		},
 	});
 
-	const json: PlaylistInfo = await page.json();
+	const json = await page.json() as PlaylistInfo;
 
 	return json;
 }
@@ -81,7 +81,7 @@ export async function getChannelInfo(channelId: string): Promise<ChannelInfo> {
 		},
 	});
 
-	const json: ChannelInfo = await page.json();
+	const json = await page.json() as ChannelInfo;
 	
 	return json;
 }
@@ -147,13 +147,52 @@ export async function getDislikes(videoId: string): Promise<RYDResponse | undefi
 		const page = await fetch(`https://returnyoutubedislikeapi.com/votes?videoId=${videoId}`, {
 			headers: {
 				'Accept-Language': 'en-US,en;q=0.9',
-				'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0',
-				'Authorization': config.auth,
+				'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
 			},
 		});
-		const json: RYDResponse = await page.json();
+		const json: RYDResponse = await page.json() as RYDResponse;
 		return json;
 	} catch (error: any) {
+		console.error(error)
+		return undefined;
+	}
+}
+
+export async function getDearrowBranding(videoId: string): Promise<DeArrowResponse | undefined> {
+	try {
+		const url = new URL(`https://sponsor.ajay.app/api/branding`);
+		url.searchParams.set('videoID', videoId);
+		const page = await fetch(url, {
+			headers: {
+				'Accept-Language': 'en-US,en;q=0.9',
+				'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
+			},
+		});
+		const json = await page.json() as DeArrowResponse;
+		return json;
+	} catch (error: any) {
+		console.error(error)
+		return undefined;
+	}
+}
+
+export async function getDearrowThumbnail(timestamp: number, videoId: string): Promise<string | undefined> {
+	try {
+		let url = new URL(`https://dearrow-thumb.ajay.app/api/v1/getThumbnail`);
+		url.searchParams.set('videoID', videoId);
+		url.searchParams.set('time', timestamp.toString());
+		const page = await fetch(url, {
+			headers: {
+				'Accept-Language': 'en-US,en;q=0.9',
+				'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
+			},
+		});
+		if (page.status === 204) return undefined;
+		// simply return our input url
+		return page.url;
+		
+	}
+	catch (error: any) {
 		console.error(error)
 		return undefined;
 	}

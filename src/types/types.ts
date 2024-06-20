@@ -1,6 +1,8 @@
+import { BrowserWorker } from "@cloudflare/puppeteer";
+
 export type Env = {
 	YT_CACHE_DB: KVNamespace;
-	BROWSER: Fetcher;
+	BROWSER: BrowserWorker;
 	IV_DOMAIN: string;
 	IV_AUTH: string;
 };
@@ -61,6 +63,38 @@ export type RYDResponse = {
 	deleted: boolean;
 };
 
+export type DeArrowRequest = {
+	videoID: string,
+	service: string, // Optional, default is 'YouTube' [1]
+	returnUserID: boolean, // optional, returns submitter userIDs if true, default false
+	fetchAll: boolean // optional, hides details with negative score if false, default false
+}
+
+export type DeArrowTitle = {
+	title: string, // Note: Titles will sometimes contain > before a word. This tells the auto-formatter to not format a word. If you have no auto-formatter, you can ignore this and replace it with an empty string
+	original: boolean,
+	votes: number,
+	locked: boolean,
+	UUID: string,
+	userID: string // only present if requested
+}
+
+export type DeArrowThumbnail = {
+	timestamp: number, // null if original is true
+	original: boolean,
+	votes: number,
+	locked: boolean,
+	UUID: string,
+	userID: string // only present if requested
+}
+
+export type DeArrowResponse = {
+	titles: DeArrowTitle[],
+	thumbnails: DeArrowThumbnail[],
+	randomTime: number,
+	videoDuration: number | null
+}
+
 export type VideoEmbedData = {
 	appTitle: string;
 	type?: string;
@@ -84,7 +118,7 @@ export type VideoEmbedData = {
 	};
 	youtubeUrl: string;
 	videoId: string;
-	rydResponse?: RYDResponse; 
+	rydResponse?: RYDResponse;
 	request: Request;
 };
 
@@ -115,20 +149,20 @@ export type PlaylistInfo = {
 
 export type PlaylistEmbedData = {
 	appTitle: string;
-    title: string;
-    author: string;
+	title: string;
+	author: string;
 	isVerified: boolean;
-    description: string;
-    viewCount: string;
-    lastUpdated: Date;
-    videoCount: string;
-    ownerProfileUrl: string;
-    bestThumbnail: string;
-    videos: PlaylistVideo[];
-    youtubeUrl: string;
-    videoId?: string;
+	description: string;
+	viewCount: string;
+	lastUpdated: Date;
+	videoCount: string;
+	ownerProfileUrl: string;
+	bestThumbnail: string;
+	videos: PlaylistVideo[];
+	youtubeUrl: string;
+	videoId?: string;
 	playlistId?: string;
-    request: Request;
+	request: Request;
 };
 
 export type ChannelInfo = {
@@ -188,4 +222,5 @@ export type PublicCacheEntry = {
 	expiration?: number;
 	size: string | null;
 	itag: string | null;
+	dearrow: string | null;
 };

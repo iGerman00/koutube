@@ -12,20 +12,20 @@ s/y/k
 
 ## Features 🌟
 - 📊 Displays likes, subscribers, publish/last update date, and view count on videos
-- 📦 Public database listing [on /](https://koutube.com)
+- 📦 [Public database listing](https://koutube.com)
 - ⏯️ Supports YouTube Music (`music.koutube.com`), including mixes
 - Ⓜ️ Supports `m.youtube.com`
 - 📱 Supports shorts
 - 📺 Supports channels
 - 🎶 Supports playlists
 - 🤳 Supports livestreams
-- 👎 Supports dislikes via RYD
+- 👎 Supports [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike)
+- 🧿 Supports [DeArrow](https://dearrow.ajay.app/)
 - 🕔 Displays timecodes, including the format `1h2m3s`
 - ✔️ Displays channel verification
 - 📲 Automatically opens the YouTube app on mobile
 - 🎞️ Natively embeds videos on Discord
 - 🌐 Easily improve `youtu.be` links using [https://koutu.be](https://koutu.be)
-- 🚀 *May* bypass restrictions
 - 🛡️ Removes tracking on redirects
 - 🧪 **(BETA)** `/img/` endpoint for generating embed images
 - 💥 No random explosions (fixed!)
@@ -37,11 +37,15 @@ For image embeds, the cache is 1 year since I expect it to be used in more stati
 I often clear the cache when I push a new update.
 
 ## Parameters
-- `noCache` - disables fetching the cached version
+> Not case-sensitive
+- `nocache` - disables fetching the cached version
 - `nothumb` to disable embedding the thumbnail, may help fix video cropping on mobile Discord clients
 - `shorts` - treats the video as shorts
-- `dislikes` - shows dislikes, requests from [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike) and is a bit slow
+- `dislikes` - shows dislikes, requests from [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike)
 - `itag` - forces a specific video quality, only `itag=22` for 720p and `itag=18` for 360p are allowed
+- `dearrow` - requests the thumbnail and title from [DeArrow](https://dearrow.ajay.app/)
+
+> The `dearrow` parameter uses SponsorBlock data licensed used under CC BY-NC-SA 4.0 from https://sponsor.ajay.app/.
 
 Example usage:
 ```
@@ -190,4 +194,5 @@ Koutube is licensed under the GPL-3.0 License.
 - [@dylanpdx](https://github.com/dylanpdx)' [vxtiktok](https://github.com/dylanpdx/vxtiktok) for some embed template inspiration and bot user-agent list
 - [Invidious](https://invidious.io/) team for the easy-to-use API
 - [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike) by [@Anarios](https://github.com/Anarios)
+- [DeArrow](https://dearrow.ajay.app/) by [@ajayyy](https://github.com/ajayyy)
 - [Cloudflare](https://cloudflare.com/), for providing the free and easy-to-use serverless architecture and KV database API for this project

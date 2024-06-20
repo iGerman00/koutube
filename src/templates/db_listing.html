@@ -125,8 +125,7 @@
     </div>
     <div class="w-full flex content-center justify-center mt-8 pb-10">
       <div class="bg-base-300 shadow-md rounded p-5 w-[calc(100%-10rem)]">
-        <h2 class="text-2xl font-bold mb-4 text-center">Cache entries</h2>
-        <div class="flex flex-col overflow-auto" id="table-container">
+        <div class="flex flex-col overflow-auto h-96" id="table-container">
         </div>
         <div class="grid grid-flow-col" id="buttons"></div>
       </div>
@@ -172,7 +171,7 @@
     window.cache_entries = [];
   }
 
-  var entriesPerPage = 10;
+  var entriesPerPage = 100;
   var currentPage = 1;
 
   var populateEntries = function () {
@@ -181,18 +180,18 @@
     tableContainer.innerHTML = '';
 
     if (window.cache_entries.length === 0) {
-      tableContainer.innerHTML = '<p>Nothing here!</p>';
+      tableContainer.innerHTML = '<div class="flex justify-center items-center h-full text-3xl font-bold"><p>Nothing here but us jackals!</p></div>';
     } else {
       document.querySelector('#entryCount').innerText = window.cache_entries.length;
       var table = document.createElement('table');
-      table.className = 'table table-zebra w-full';
+      table.className = 'table table-zebra table-pin-rows w-full';
 
       // Create table head and body
       var thead = document.createElement('thead');
       var tbody = document.createElement('tbody');
 
       // Define headers based on PublicCacheEntry keys
-      var headers = ['URL', 'Timecode', 'Type', 'Expiration', 'Itag', 'Size'];
+      var headers = ['URL', 'Type', 'Timecode', 'DeArrow', 'Itag', 'Size', 'Expiration'];
       var trHead = document.createElement('tr');
       headers.forEach(header => {
         var th = document.createElement('th');
@@ -255,7 +254,9 @@
             td.innerText = cellValue;
             // else td.innerText = 'N/A';
           } else if (headerKey === 'itag') {
-            td.innerText = cellValue || 'N/A';
+            td.innerText = cellValue || '';
+          } else if (headerKey === 'dearrow') {
+            td.innerText = cellValue || '';
           }
           else {
             td.innerText = cellValue || '';
@@ -314,6 +315,7 @@
   }
 
   function formatTimeCode(timecode) {
+    if (timecode === '') return '';
     try {
 				let timeInSeconds = 0;
 				if (timecode.includes('h')) {
@@ -336,7 +338,7 @@
 				let timeString = date.toISOString().substring(11, 19).replace('00:', '');
         return timeString;
     } catch (e) {
-      return 'N/A';
+      return '';
     }
   }
 </script>

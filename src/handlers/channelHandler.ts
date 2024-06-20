@@ -1,4 +1,4 @@
-import { Env, CacheData, ChannelEmbedData } from "../types";
+import { Env, CacheData, ChannelEmbedData } from "../types/types";
 import { embedUserAgents, config } from "../constants";
 import he from 'he';
 import { getChannelInfo, renderGenericTemplate, scrapeChannelId, stripTracking } from "../utils";

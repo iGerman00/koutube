@@ -1,14 +1,15 @@
-import { Env, VideoEmbedData, CacheData } from '../types';
+import { Env, VideoEmbedData, CacheData } from '../types/types';
 import { embedUserAgents, config, getRandomApiInstance } from '../constants';
 import he from 'he';
-import { getDislikes, getVideoInfo, isChannelVerified, renderGenericTemplate, stripTracking } from '../utils';
+import { getDearrowBranding, getDearrowThumbnail, getDislikes, getVideoInfo, isChannelVerified, renderGenericTemplate, stripTracking } from '../utils';
 
 export default {
 	async handleVideo(request: Request, env: Env): Promise<Response> {
-		const overrideShorts = new URL(request.url).searchParams.get('shorts') !== null;
-		const overrideNoThumb = new URL(request.url).searchParams.get('nothumb') !== null;
-		const overrideDislikes = new URL(request.url).searchParams.get('dislikes') !== null;
-		let overrideItag = new URL(request.url).searchParams.get('itag');
+		const overrideShorts = new URL(request.url).searchParams.getCaseInsensitive('shorts') !== null;
+		const overrideNoThumb = new URL(request.url).searchParams.getCaseInsensitive('nothumb') !== null;
+		const overrideDislikes = new URL(request.url).searchParams.getCaseInsensitive('dislikes') !== null;
+		const enableDeArrow = new URL(request.url).searchParams.getCaseInsensitive('dearrow') !== null;
+		let overrideItag = new URL(request.url).searchParams.getCaseInsensitive('itag');
 
 		if (overrideItag) {
 			if (isNaN(Number(overrideItag))) {
@@ -59,7 +60,7 @@ export default {
 
 		if (!isBot) return Response.redirect(getOriginalUrl(), 302);
 
-		const info = await getVideoInfo(videoId);
+		let info = await getVideoInfo(videoId);
 
 		// TODO: voodoo with some kind of API to get info on scheduled livestreams
 		if (info.error && info.error.startsWith('This live event will begin ')) {
@@ -107,6 +108,30 @@ export default {
 
 		if (config.enableDislikes || overrideDislikes) {
 			rydResponse = await getDislikes(videoId);
+		}
+
+		if (enableDeArrow) {
+			let title = info.title;
+			let thumbnail = info.videoThumbnails[0].url;
+
+			const dearrow = await getDearrowBranding(videoId);
+			let timestamp = undefined;
+
+			if (dearrow) {
+				if (dearrow.titles.length > 0) {
+					if (dearrow.titles[0].votes > 0 || dearrow.titles[0].locked) {
+						title = dearrow.titles[0].title;
+						title = title.replace('>', ''); // we do not have a formatter
+						timestamp = dearrow.thumbnails[0].timestamp;
+					}
+				}
+			}
+			if (timestamp !== undefined) {
+				const _thumbnail = await getDearrowThumbnail(timestamp, videoId);
+				if (_thumbnail) thumbnail = _thumbnail;
+			}
+			info.title = title;
+			info.videoThumbnails[0].url = thumbnail;
 		}
 
 		const embedData: VideoEmbedData = {

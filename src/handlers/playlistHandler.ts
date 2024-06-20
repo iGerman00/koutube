@@ -1,4 +1,4 @@
-import { Env, CacheData, PlaylistEmbedData } from "../types";
+import { Env, CacheData, PlaylistEmbedData } from "../types/types";
 import { embedUserAgents, config } from "../constants";
 import he from 'he';
 import { getPlaylistInfo, isChannelVerified, isMix, renderGenericTemplate, stripTracking } from "../utils";

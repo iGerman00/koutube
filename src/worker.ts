@@ -1,14 +1,29 @@
 import playlistHandler from './handlers/playlistHandler';
 import videoHandler from './handlers/videoHandler';
-import { Env, CacheData, PublicCacheEntry } from './types';
+import { Env, CacheData, PublicCacheEntry } from './types/types';
 import { getURLType, renderGenericTemplate, stripTracking } from './utils';
 import template from './templates/db_listing.html';
 import { config, getRandomApiInstance } from './constants';
 import embedImageHandler from './handlers/embedImageHandler';
 import channelHandler from './handlers/channelHandler';
 
-//@ts-ignore // installing node types messes with cloudflare env type
 import { Buffer } from 'node:buffer';
+
+declare global {
+	interface URLSearchParams {
+		getCaseInsensitive(param: string): string | null;
+	}
+}
+
+URLSearchParams.prototype.getCaseInsensitive = function(param) {
+    const lowercasedParam = param.toLowerCase();
+    for (const [key, value] of this.entries()) {
+        if (key.toLowerCase() === lowercasedParam) {
+            return value;
+        }
+    }
+    return null;
+};
 
 export default {
     async fetch(request: Request, env: Env): Promise<Response> {
@@ -26,7 +41,7 @@ export default {
 			try {
 				const url = stripTracking(request.url);
 				const cache = await env.YT_CACHE_DB.get(url);
-				const shouldCache = new URL(request.url).searchParams.get('noCache') === null;
+				const shouldCache = new URL(request.url).searchParams.getCaseInsensitive('nocache') === null;
 				if (cache && shouldCache) {
 					console.info('Cache hit');
 					const cacheData: CacheData = JSON.parse(cache);
@@ -82,21 +97,22 @@ export default {
 					if (key.name.startsWith('rateLimit:')) return;
 
 					const url = new URL(key.name);
-					const timecode = url.searchParams.get('t') || url.searchParams.get('time_continue')
+					const timecode = url.searchParams.getCaseInsensitive('t') || url.searchParams.getCaseInsensitive('time_continue')
 
 					const obj: PublicCacheEntry = {
 						url: url.href.replace(url.origin, '').replace('/', ''),
 						type: getURLType(url),
-						timecode: timecode || 'N/A',
+						timecode: timecode || '',
 						expiration: key.expiration,
-						size: url.searchParams.get('size') || 'N/A',
+						size: url.searchParams.getCaseInsensitive('size') || '',
 						itag: function () {
-							const itag = url.searchParams.get('itag')
+							const itag = url.searchParams.getCaseInsensitive('itag')
 							// return 360p if itag is 18 or '18', 720p if itag is 22 or '22'
 							if (itag === '18') return '360p'
 							if (itag === '22') return '720p'
-							return itag || 'N/A'
+							return itag || ''
 						}(),
+						dearrow: url.searchParams.getCaseInsensitive('dearrow') || '',
 					};
 
 					return obj;

@@ -1,12 +1,11 @@
-import { CacheData, Env } from '../types';
+import { CacheData, Env } from '../types/types';
 import { stripTracking } from '../utils';
 import puppeteer from '@cloudflare/puppeteer';
 
 export default {
 	async handleEmbedImage(request: Request, env: Env): Promise<Response> {
-		console.log('Handling embed image request');
-		const overrideShorts = new URL(request.url).searchParams.get('shorts') !== null;
-		const overrideSize = new URL(request.url).searchParams.get('size');
+		const overrideShorts = new URL(request.url).searchParams.getCaseInsensitive('shorts') !== null;
+		const overrideSize = new URL(request.url).searchParams.getCaseInsensitive('size');
 
 		const originalPath = request.url.replace(new URL(request.url).origin, '');
 		const isShorts = originalPath.startsWith('/shorts') || overrideShorts;
