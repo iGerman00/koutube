@@ -97,6 +97,7 @@ export default {
 					if (key.name.startsWith('rateLimit:')) return;
 
 					const url = new URL(key.name);
+					if (url.searchParams.getCaseInsensitive('nocache') !== null) return;
 					const timecode = url.searchParams.getCaseInsensitive('t') || url.searchParams.getCaseInsensitive('time_continue')
 
 					const obj: PublicCacheEntry = {
@@ -112,7 +113,8 @@ export default {
 							if (itag === '22') return '720p'
 							return itag || ''
 						}(),
-						dearrow: url.searchParams.getCaseInsensitive('dearrow') || '',
+						dearrow: url.searchParams.getCaseInsensitive('dearrow') !== null ? 'Yes' : '',
+						stock: url.searchParams.getCaseInsensitive('stock') !== null ? 'Yes' : '',
 					};
 
 					return obj;
@@ -146,6 +148,7 @@ export default {
 				await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
 				continue;
 			} else {
+				console.error('Error', e);
 				let errorMessage = 'Could not fetch. This response was not cached';
 
 				if ((e as Error).message === 'Invidious seems to have died') 

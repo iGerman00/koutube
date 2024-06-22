@@ -8,7 +8,9 @@ export default {
 		const overrideShorts = new URL(request.url).searchParams.getCaseInsensitive('shorts') !== null;
 		const overrideNoThumb = new URL(request.url).searchParams.getCaseInsensitive('nothumb') !== null;
 		const overrideDislikes = new URL(request.url).searchParams.getCaseInsensitive('dislikes') !== null;
-		const enableDeArrow = new URL(request.url).searchParams.getCaseInsensitive('dearrow') !== null;
+		let enableDeArrow = new URL(request.url).searchParams.getCaseInsensitive('dearrow') !== null;
+		let overrideStockPlayer = new URL(request.url).searchParams.getCaseInsensitive('stock') !== null;
+
 		let overrideItag = new URL(request.url).searchParams.getCaseInsensitive('itag');
 
 		if (overrideItag) {
@@ -66,7 +68,8 @@ export default {
 		if (info.error && info.error.startsWith('This live event will begin ')) {
 			const date = info.error.replace('This live event will begin ', '').replace('.', '');
 			const string = `Sorry, there's no info to give you other than the fact that the event will begin ${date}`;
-			const response = renderGenericTemplate(string, getOriginalUrl(), request, 'Scheduled Event');
+			overrideStockPlayer = true;
+			const response = renderGenericTemplate(string, getOriginalUrl(), request, 'Scheduled Event', true, videoId);
 			return new Response(response, {
 				status: 200,
 				headers: {
@@ -74,9 +77,7 @@ export default {
 					Location: getOriginalUrl(),
 				},
 			});
-		}
-
-		if (info.error) {
+		} else if (info.error) {
 			// dirty hack for invidious bug, to be removed when they fix it
 			if (info.error.startsWith("The video returned by YouTube isn't the requested one")) throw new Error('Invidious seems to have died');
 			
@@ -156,6 +157,7 @@ export default {
 			videoId,
 			request,
 			rydResponse,
+			isStock: overrideStockPlayer,
 		};
 
 		const html = renderTemplate(embedData);
@@ -253,22 +255,20 @@ function renderTemplate(info: VideoEmbedData) {
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="theme-color" content="#FF0000" />
 <meta property="og:site_name" content="${constructProviderString(info)}">
-<meta name="twitter:card" content="${info.isLive ? 'summary_large_image' : 'player'}" />
+<meta name="twitter:card" content="player" />
 <meta name="twitter:title" content="${info.title}" />
 ${
-	!info.isLive
+	!info.isLive && !info.isStock
 		? `
 <meta name="twitter:player:width" content="${info.resolution.width}" />
 <meta name="twitter:player:height" content="${info.resolution.height}" />
 <meta name="twitter:player:stream" content="${info.directUrl}" />
+<meta name="twitter:player:stream:content_type" content="video/mp4" />
 `
 		: ''
 }
-<meta name="twitter:image" content="${info.bestThumbnail}" />
-<meta name="twitter:player:stream:content_type" content="video/mp4" />
-<meta property="og:url" content="${info.youtubeUrl}" />
 ${
-	!info.isLive
+	!info.isLive && !info.isStock
 		? `
 <meta property="og:video" content="${info.directUrl}" />
 <meta property="og:video:secure_url" content="${info.directUrl}" />
@@ -276,8 +276,18 @@ ${
 <meta property="og:video:width" content="${info.resolution.width}" />
 <meta property="og:video:height" content="${info.resolution.height}" />
 `
-		: ``
+		: ''
 }
+${
+	info.isStock || info.isLive
+		? `
+<meta property="twitter:player" content="https://www.youtube.com/embed/${info.videoId}" />
+<meta property="twitter:player:width" content="${info.resolution.width || 1280}" />
+<meta property="twitter:player:height" content="${info.resolution.height || 720}" />
+` : ''
+}
+<meta name="twitter:image" content="${info.bestThumbnail}" />
+<meta property="og:url" content="${info.youtubeUrl}" />
 <meta property="og:image" content="${info.bestThumbnail}" />
 <meta property="og:description" content="${info.description.substring(0, 160) + '...'}" />
 <script>

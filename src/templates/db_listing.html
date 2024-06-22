@@ -191,7 +191,7 @@
       var tbody = document.createElement('tbody');
 
       // Define headers based on PublicCacheEntry keys
-      var headers = ['URL', 'Type', 'Timecode', 'DeArrow', 'Itag', 'Size', 'Expiration'];
+      var headers = ['URL', 'Type', 'Timecode', 'Stock', 'DeArrow', 'Itag', 'Size', 'Expiration'];
       var trHead = document.createElement('tr');
       headers.forEach(header => {
         var th = document.createElement('th');
@@ -256,6 +256,8 @@
           } else if (headerKey === 'itag') {
             td.innerText = cellValue || '';
           } else if (headerKey === 'dearrow') {
+            td.innerText = cellValue || '';
+          } else if (headerKey === 'stock') {
             td.innerText = cellValue || '';
           }
           else {

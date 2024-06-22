@@ -119,6 +119,7 @@ export type VideoEmbedData = {
 	youtubeUrl: string;
 	videoId: string;
 	rydResponse?: RYDResponse;
+	isStock?: boolean;
 	request: Request;
 };
 
@@ -223,4 +224,5 @@ export type PublicCacheEntry = {
 	size: string | null;
 	itag: string | null;
 	dearrow: string | null;
+	stock: string | null;
 };

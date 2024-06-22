@@ -211,7 +211,7 @@ export function scrapeChannelId(html: string): string | null {
 	return match ? match[1] : null;
 }
 
-export function renderGenericTemplate(info: string, redirectUrl: string, request: Request, title: string) {
+export function renderGenericTemplate(info: string, redirectUrl: string, request: Request, title: string, showStock?: boolean, id?: string) {
 	return `
 <!DOCTYPE html>
 <html lang="en">
@@ -221,12 +221,22 @@ export function renderGenericTemplate(info: string, redirectUrl: string, request
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="theme-color" content="#FF0000" />
 <meta property="og:site_name" content="">
+${
+	showStock && id
+		? `
+<meta name="twitter:card" content="player" />
+<meta name="twitter:image" content="https://i.ytimg.com/vi/${id}/hqdefault.jpg">
+<meta property="twitter:player" content="https://www.youtube.com/embed/${id}" />
+<meta property="twitter:player:width" content="1280" />
+<meta property="twitter:player:height" content="720" />
+` : ''
+}
 <meta property="og:description" content="${info.substring(0, 160) + (info.length > 160 ? '...' : '')}" />
 <link rel="alternate" href="${
 		new URL(request.url).origin +
 		'/oembed.json?' +
 		new URLSearchParams({
-			author_name: '',
+			author_name: showStock && id ? 'Scheduled event - no info supported' : '',
 			author_url: '',
 			provider_name: config.appName,
 			provider_url: config.appLink,

@@ -21,6 +21,7 @@ s/y/k
 - 🤳 Supports livestreams
 - 👎 Supports [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike)
 - 🧿 Supports [DeArrow](https://dearrow.ajay.app/)
+- 📼 Supports embedding with the regular player
 - 🕔 Displays timecodes, including the format `1h2m3s`
 - ✔️ Displays channel verification
 - 📲 Automatically opens the YouTube app on mobile
@@ -44,6 +45,7 @@ I often clear the cache when I push a new update.
 - `dislikes` - shows dislikes, requests from [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike)
 - `itag` - forces a specific video quality, only `itag=22` for 720p and `itag=18` for 360p are allowed
 - `dearrow` - requests the thumbnail and title from [DeArrow](https://dearrow.ajay.app/)
+- `stock` - embed the regular YouTube embed. Automatically set to true for some content like livestreams and premieres
 
 > The `dearrow` parameter uses SponsorBlock data licensed used under CC BY-NC-SA 4.0 from https://sponsor.ajay.app/.
 
