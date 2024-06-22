@@ -43,7 +43,7 @@ const deleteKeys = async (keys) => {
         console.log("File written successfully.");
 
         console.log("Executing wrangler for bulk delete...");
-        const deleteCommand = `wrangler kv:bulk delete ${keysFilePath} --binding=${binding} --preview false --force`;
+        const deleteCommand = `wrangler kv bulk delete ${keysFilePath} --binding=${binding} --preview false --force`;
         const { stdout, stderr } = await exec(deleteCommand);
         console.log(stdout);
         console.error('STDERR:', stderr);
