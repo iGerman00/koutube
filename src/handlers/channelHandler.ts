@@ -44,7 +44,7 @@ export default {
 			});
 		}
 
-		const info = await getChannelInfo(channel);
+		let info = await getChannelInfo(channel);
 
 		if (info.error) {
 			const response = renderGenericTemplate(info.error, getOriginalUrl(), request, 'Invidious Error');
@@ -57,10 +57,13 @@ export default {
 			});
 		}
 
+		// invidious is bugged, encoding is all sorts of messed up. #4256
+		let description = he.decode(info.descriptionHtml.replace(/<\/?[^>]+(>|$)/g, ''));
+		description = description.length > 140 ? description.substring(0, 140) + '...' : description
 		const embedData: ChannelEmbedData = {
 			appTitle: config.appName,
 			author: he.encode(info.author),
-			description: he.encode(info.description),
+			description: he.encode(description),
 			subCount: info.subCount.toLocaleString('en-US'),
 			isVerified: info.authorVerified,
 			latestVideos: info.latestVideos,

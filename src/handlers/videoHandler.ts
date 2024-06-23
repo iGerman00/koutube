@@ -141,7 +141,7 @@ export default {
 			error: info.error,
 			title: he.encode(info.title),
 			author: he.encode(info.author),
-			description: he.encode(info.description),
+			description: he.encode(info.description.length > 140 ? info.description.substring(0, 140) + '...' : info.description),
 			viewCount: info.viewCount.toLocaleString('en-US'),
 			publishedAt: info.liveNow ? '' : `Uploaded ${info.publishedText}`,
 			subscriberCountText: info.subCountText,
@@ -289,7 +289,7 @@ ${
 <meta name="twitter:image" content="${info.bestThumbnail}" />
 <meta property="og:url" content="${info.youtubeUrl}" />
 <meta property="og:image" content="${info.bestThumbnail}" />
-<meta property="og:description" content="${info.description.substring(0, 160) + '...'}" />
+<meta property="og:description" content="${info.description}" />
 <script>
 let url=new URL("${info.youtubeUrl}"),id="${
 		info.videoId

@@ -231,7 +231,7 @@ ${
 <meta property="twitter:player:height" content="720" />
 ` : ''
 }
-<meta property="og:description" content="${info.substring(0, 160) + (info.length > 160 ? '...' : '')}" />
+<meta property="og:description" content="${info.substring(0, 140) + (info.length > 140 ? '...' : '')}" />
 <link rel="alternate" href="${
 		new URL(request.url).origin +
 		'/oembed.json?' +
