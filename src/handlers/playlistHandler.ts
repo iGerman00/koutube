@@ -1,5 +1,5 @@
 import { Env, CacheData, PlaylistEmbedData } from "../types/types";
-import { embedUserAgents, config } from "../constants";
+import { config } from "../constants";
 import he from 'he';
 import { getPlaylistInfo, isChannelVerified, isMix, renderGenericTemplate, stripTracking } from "../utils";
 import mixHandler from "./mixHandler" 
@@ -31,12 +31,6 @@ export default {
 		if (await isMix(playlistId, request)) {
 			return mixHandler.handleMix(request, env);
 		}
-
-
-		const userAgent = request.headers.get('User-Agent');
-		const isBot = embedUserAgents.some((agent) => userAgent?.includes(agent));
-
-		if (!isBot) return Response.redirect(getOriginalUrl(), 302);
 
 		const info = await getPlaylistInfo(playlistId);
 
@@ -135,7 +129,8 @@ function renderTemplate(info: PlaylistEmbedData) {
 <title>${config.appName}</title>
 <style>body{background-color:#1f1f1f;color:white;}a{color:#ff5d5b;}</style>
 <meta http-equiv="Content-Type"content="text/html; charset=UTF-8" />
-<meta name="theme-color" content="#FF0000" />
+<meta name="theme-color" content="#ff5d5b" />
+<meta name="color-scheme" content="dark" />
 <meta property="og:site_name" content="${constructProviderString(info)}">
 <meta name="twitter:card" content="card" />
 <meta name="twitter:title" content="${info.title}" />

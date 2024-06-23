@@ -1,7 +1,15 @@
 import { Env, VideoEmbedData, CacheData } from '../types/types';
-import { embedUserAgents, config, getRandomApiInstance } from '../constants';
+import { config } from '../constants';
 import he from 'he';
-import { getDearrowBranding, getDearrowThumbnail, getDislikes, getVideoInfo, isChannelVerified, renderGenericTemplate, stripTracking } from '../utils';
+import {
+	getDearrowBranding,
+	getDearrowThumbnail,
+	getDislikes,
+	getVideoInfo,
+	isChannelVerified,
+	renderGenericTemplate,
+	stripTracking,
+} from '../utils';
 
 export default {
 	async handleVideo(request: Request, env: Env): Promise<Response> {
@@ -57,11 +65,6 @@ export default {
 			});
 		}
 
-		const userAgent = request.headers.get('User-Agent');
-		const isBot = embedUserAgents.some((agent) => userAgent?.includes(agent));
-
-		if (!isBot) return Response.redirect(getOriginalUrl(), 302);
-
 		let info = await getVideoInfo(videoId);
 
 		// TODO: voodoo with some kind of API to get info on scheduled livestreams
@@ -77,10 +80,22 @@ export default {
 					Location: getOriginalUrl(),
 				},
 			});
+		} else if (info.error && info.error.startsWith('Premieres in')) {
+			const date = info.error.replace('Premieres ', '').replace('.', '');
+			const string = `Sorry, there's no info to give you other than the fact that it's a premiere starting ${date}`;
+			overrideStockPlayer = true;
+			const response = renderGenericTemplate(string, getOriginalUrl(), request, 'Premiering Event', true, videoId);
+			return new Response(response, {
+				status: 200,
+				headers: {
+					'Content-Type': 'text/html',
+					Location: getOriginalUrl(),
+				},
+			});
 		} else if (info.error) {
 			// dirty hack for invidious bug, to be removed when they fix it
 			if (info.error.startsWith("The video returned by YouTube isn't the requested one")) throw new Error('Invidious seems to have died');
-			
+
 			const response = renderGenericTemplate(info.error, getOriginalUrl(), request, 'Invidious Error');
 			return new Response(response, {
 				status: 200,
@@ -253,7 +268,8 @@ function renderTemplate(info: VideoEmbedData) {
 <title>${config.appName}</title>
 <style>body{background-color:#1f1f1f;color:white;}a{color:#ff5d5b;}</style>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="theme-color" content="#FF0000" />
+<meta name="theme-color" content="#ff5d5b" />
+<meta name="color-scheme" content="dark" />
 <meta property="og:site_name" content="${constructProviderString(info)}">
 <meta name="twitter:card" content="player" />
 <meta name="twitter:title" content="${info.title}" />
@@ -284,7 +300,8 @@ ${
 <meta property="twitter:player" content="https://www.youtube.com/embed/${info.videoId}" />
 <meta property="twitter:player:width" content="${info.resolution.width || 1280}" />
 <meta property="twitter:player:height" content="${info.resolution.height || 720}" />
-` : ''
+`
+		: ''
 }
 <meta name="twitter:image" content="${info.bestThumbnail}" />
 <meta property="og:url" content="${info.youtubeUrl}" />

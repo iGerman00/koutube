@@ -219,7 +219,8 @@ export function renderGenericTemplate(info: string, redirectUrl: string, request
 <title>${config.appName}</title>
 <style>body{background-color:#1f1f1f;color:white;}a{color:#ff5d5b;}</style>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="theme-color" content="#FF0000" />
+<meta name="theme-color" content="#ff5d5b" />
+<meta name="color-scheme" content="dark" />
 <meta property="og:site_name" content="">
 ${
 	showStock && id
@@ -236,7 +237,7 @@ ${
 		new URL(request.url).origin +
 		'/oembed.json?' +
 		new URLSearchParams({
-			author_name: showStock && id ? 'Scheduled event - no info supported' : '',
+			author_name: showStock && id ? 'No info supported' : '',
 			author_url: '',
 			provider_name: config.appName,
 			provider_url: config.appLink,
