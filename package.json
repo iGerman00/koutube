@@ -5,7 +5,8 @@
   "scripts": {
     "deploy": "wrangler deploy",
     "start": "wrangler dev",
-    "purge-db": "node scripts/purgeDb.js"
+    "init-db": "wrangler d1 execute koutube-db --local --file=./schema.sql",
+    "init-remote-db": "wrangler d1 execute koutube-db --remote --file=./schema.sql"
   },
   "devDependencies": {
     "@cloudflare/puppeteer": "^0.0.5",

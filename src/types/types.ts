@@ -1,7 +1,7 @@
 import { BrowserWorker } from "@cloudflare/puppeteer";
 
 export type Env = {
-	YT_CACHE_DB: KVNamespace;
+	D1_DB: D1Database;
 	BROWSER: BrowserWorker;
 	IV_DOMAIN: string;
 	IV_AUTH: string;

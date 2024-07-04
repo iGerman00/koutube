@@ -1,7 +1,7 @@
 import playlistHandler from './handlers/playlistHandler';
 import videoHandler from './handlers/videoHandler';
 import { Env, CacheData, PublicCacheEntry } from './types/types';
-import { getURLType, renderGenericTemplate, stripTracking } from './utils';
+import { deleteCacheEntry, getCacheEntry, getURLType, listCacheEntries, renderGenericTemplate, stripTracking } from './utils';
 import template from './templates/db_listing.html';
 import { config, getRandomApiInstance } from './constants';
 import embedImageHandler from './handlers/embedImageHandler';
@@ -26,6 +26,16 @@ URLSearchParams.prototype.getCaseInsensitive = function(param) {
 };
 
 export default {
+	async scheduled(event: ScheduledEvent, env: Env) {
+		const entries = await listCacheEntries(env.D1_DB);
+		console.log(entries)
+		for (const entry of entries) {
+			if (entry.expired) {
+				await deleteCacheEntry(env.D1_DB, entry.name);
+			}
+		}
+	},
+
     async fetch(request: Request, env: Env): Promise<Response> {
 		config.api_base = getRandomApiInstance();
 
@@ -40,19 +50,18 @@ export default {
         for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
 			try {
 				const url = stripTracking(request.url);
-				const cache = await env.YT_CACHE_DB.get(url);
+				const cache = await getCacheEntry(env.D1_DB, url);
 				const shouldCache = new URL(request.url).searchParams.getCaseInsensitive('nocache') === null;
 				if (cache && shouldCache) {
 					console.info('Cache hit');
-					const cacheData: CacheData = JSON.parse(cache);
-					if (cacheData.headers['Content-Type'] === 'image/png') {
-						const binaryData = Buffer.from(cacheData.response, 'base64');
+					if (cache.headers['Content-Type'] === 'image/png') {
+						const binaryData = Buffer.from(cache.response, 'base64');
 						return new Response(binaryData, {
-							headers: cacheData.headers,
+							headers: cache.headers,
 						});
 					}
-					return new Response(cacheData.response, {
-						headers: cacheData.headers, 
+					return new Response(cache.response, {
+						headers: cache.headers, 
 					});
 				}
 			} catch (e) {
@@ -90,10 +99,9 @@ export default {
 			originalPath.startsWith('/user/');
 
 		if (new URL(request.url).pathname === '/') {
-			const listCache = () => env.YT_CACHE_DB.list();
 			async function getListing(_request: Request) {
-				const list = await listCache();
-				let obj = list.keys.map((key) => {
+				const list = await listCacheEntries(env.D1_DB);
+				let obj = list.map((key) => {
 					if (key.name.startsWith('rateLimit:')) return;
 
 					const url = new URL(key.name);

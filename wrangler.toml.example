@@ -6,8 +6,10 @@ compatibility_date = "2023-09-23"
 compatibility_flags = [ "nodejs_compat" ]
 browser = { binding = "BROWSER" }
 
-# Bind a KV Namespace. Use KV as persistent storage for small key-value pairs.
-# Docs: https://developers.cloudflare.com/workers/runtime-apis/kv
-[[kv_namespaces]]
-binding = "YT_CACHE_DB"
-id = "your KV namespace ID" # Replace with your KV namespace ID
+[[d1_databases]]
+binding = "D1_DB"
+database_id = "1234abcd-5678-ef90-1234-5678ef901234" # Replace with your D1 database ID
+database_name = "koutube-db"
+
+[triggers]
+crons = ["0 * * * *"] # Set the frequency at which the DB will be purged of expired keys

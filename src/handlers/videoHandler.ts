@@ -7,6 +7,7 @@ import {
 	getDislikes,
 	getVideoInfo,
 	isChannelVerified,
+	putCacheEntry,
 	renderGenericTemplate,
 	stripTracking,
 } from '../utils';
@@ -185,7 +186,7 @@ export default {
 			},
 		};
 		try {
-			await env.YT_CACHE_DB.put(stripTracking(request.url), JSON.stringify(cacheEntry), { expirationTtl: 60 * 60 * 24 * 7 });
+			await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry);
 		} catch (e) {
 			console.error('Cache saving error', e);
 		}

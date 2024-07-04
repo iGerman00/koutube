@@ -1,5 +1,5 @@
 import { CacheData, Env } from '../types/types';
-import { stripTracking } from '../utils';
+import { putCacheEntry, stripTracking } from '../utils';
 import puppeteer from '@cloudflare/puppeteer';
 
 export default {
@@ -99,7 +99,7 @@ export default {
 			};
 
 			try {
-				await env.YT_CACHE_DB.put(`${stripTracking(request.url)}`, JSON.stringify(cacheEntry), { expirationTtl: 60 * 60 * 24 * 365 }); // 1 year cache
+				await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry);
 			} catch (e) {
 				console.error('Cache saving error', e);
 			}

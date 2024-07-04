@@ -40,7 +40,7 @@ I often clear the cache when I push a new update.
 ## Parameters
 > Not case-sensitive
 - `nocache` - disables fetching the cached version
-- `nothumb` to disable embedding the thumbnail, may help fix video cropping on mobile Discord clients
+- `nothumb` - disable embedding the thumbnail, may help fix video cropping on mobile Discord clients
 - `shorts` - treats the video as shorts
 - `dislikes` - shows dislikes, requests from [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike)
 - `itag` - forces a specific video quality, only `itag=22` for 720p and `itag=18` for 360p are allowed
@@ -62,11 +62,11 @@ https://koutu.be/img/watch?v=dQw4w9WgXcQ
 ```
 ### Params:
 - `?size=hd720` - preset sizes:
-- - `small` - 320x180
-- - `medium` - 640x360
-- - `large` - 854x480
-- - `hd720` - 1280x720
-- - `hd1080` - 1920x1080
+  - `small` - 320x180
+  - `medium` - 640x360
+  - `large` - 854x480
+  - `hd720` - 1280x720
+  - `hd1080` - 1920x1080
 
 Default is `medium`.
 
@@ -82,7 +82,7 @@ Default is `medium`.
 
 ## Installation ⚙️
 
-To install Koutube, you need to have Node and [Cloudflare's wrangler tool](https://developers.cloudflare.com/workers/wrangler/) installed on your system. You also need to have a Cloudflare account and enabled Workers, as well as a [Workers KV database](https://developers.cloudflare.com/workers/wrangler/workers-kv/) in Cloudflare. The [Browser Rendering API](https://developers.cloudflare.com/browser-rendering/) is used for the image embed function.
+To install Koutube, you need to have Node and [Cloudflare's wrangler tool](https://developers.cloudflare.com/workers/wrangler/) installed on your system. You also need to have a Cloudflare account and enabled Workers, as well as a [Workers D1 database](https://developers.cloudflare.com/d1/) in Cloudflare. The [Browser Rendering API](https://developers.cloudflare.com/browser-rendering/) is used for the image embed function.
 
 To install wrangler, run the following command in your terminal:
 
@@ -92,9 +92,15 @@ npm install -g wrangler
 
 Replace the binding in `wrangler.toml` with your own ID:
 ```yaml
-[[kv_namespaces]]
-binding = "YT_CACHE_DB"
-id = "your KV namespace ID" # <-- Replace This
+[[d1_databases]]
+binding = "D1_DB"
+database_id = "1234abcd-5678-ef90-1234-5678ef901234" # <-- Replace with your D1 database ID
+database_name = "koutube-db"
+```
+
+You will need to initialize the database with the following command:
+```bash
+npm run init-remote-db
 ```
 
 Once you have everything set up, you can clone this repository and deploy Koutube to your own Workers domain.
@@ -169,13 +175,17 @@ To run an edge preview session for your Worker, use wrangler dev --remote
 ╰─────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-To **manually purge** the database, run:
+To **manually purge** the production database, run:
 ```bash
-npm run purge-db
+npm run init-remote-db
 ```
-This will remove all keys from the cache KV database
 
-Note: if you have changed the binding name, you will also need to change it in `scripts/purgeDb.js`
+To purge the local database, run:
+```bash
+npm run init-db
+```
+
+This will remove everything and initialize an empty D1 database.
 
 ## License 📄
 
@@ -197,4 +207,4 @@ Koutube is licensed under the GPL-3.0 License.
 - [Invidious](https://invidious.io/) team for the easy-to-use API
 - [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike) by [@Anarios](https://github.com/Anarios)
 - [DeArrow](https://dearrow.ajay.app/) by [@ajayyy](https://github.com/ajayyy)
-- [Cloudflare](https://cloudflare.com/), for providing the free and easy-to-use serverless architecture and KV database API for this project
+- [Cloudflare](https://cloudflare.com/), for providing the free and easy-to-use serverless architecture and D1 database API for this project

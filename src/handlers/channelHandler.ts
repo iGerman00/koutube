@@ -1,7 +1,7 @@
 import { Env, CacheData, ChannelEmbedData } from "../types/types";
 import { config } from "../constants";
 import he from 'he';
-import { getChannelInfo, renderGenericTemplate, scrapeChannelId, stripTracking } from "../utils";
+import { getChannelInfo, putCacheEntry, renderGenericTemplate, scrapeChannelId, stripTracking } from "../utils";
 
 export default {
     async handleChannel(request: Request, env: Env): Promise<Response> {
@@ -78,7 +78,7 @@ export default {
 			},
 		}
 		try {
-			await env.YT_CACHE_DB.put(stripTracking(request.url), JSON.stringify(cacheEntry), { expirationTtl: 60 * 60 * 24 * 7 });
+			await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry);
 		}
 		catch (e) {
 			console.error('Cache saving error', e);

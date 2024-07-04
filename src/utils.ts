@@ -1,5 +1,5 @@
 import { config } from "./constants";
-import { RYDResponse, PlaylistInfo, Video, ChannelInfo, DeArrowResponse } from "./types/types";
+import { RYDResponse, PlaylistInfo, Video, ChannelInfo, DeArrowResponse, CacheData } from "./types/types";
 
 export function getURLType(url: URL): string {
 	const isShorts = url.pathname.startsWith('/shorts');
@@ -271,4 +271,71 @@ export function escapeHtml(html: any) {
 		match => escaped[match]
 	);
 }
-  
+
+// D1 DB functions
+
+type CacheDataEntry = {
+	Entry: string;
+};
+
+export async function getCacheEntry(db: D1Database, key: string): Promise<CacheData | undefined> {
+	if (!db) {
+		console.error('No database');
+		return undefined;
+	};
+	const row = await db.prepare('SELECT Entry FROM CacheEntries WHERE EntryKey = ?')
+	.bind(key)
+	.first() as CacheDataEntry;
+	if (!row) return undefined;
+	try {
+		return JSON.parse(row.Entry);
+	} catch (error: any) {
+		console.error(error);
+		return undefined;
+	}
+}
+
+export async function listCacheEntries(db: D1Database) {
+	if (!db) {
+		console.error('No database');
+		return [];
+	}
+	const rows = await db.prepare('SELECT EntryKey, Entry FROM CacheEntries').all();
+	try {
+		return rows.results.map(row => {
+			const entryKey = row.EntryKey;
+			const entry: CacheData = JSON.parse(row.Entry as string);
+			const timestamp = new Date(entry.headers['Cached-On']).valueOf() / 1000;
+			const isImage = entry.headers['Content-Type'].startsWith('image/');
+			const expiration = timestamp + (isImage ? 365 * 24 * 60 * 60 : 7 * 24 * 60 * 60); // 7 days for non-images, 1 year for images
+			const now = Date.now() / 1000;
+			const expired = now > expiration;
+
+
+			return { name: entryKey as string, value: entry, expiration, expired };
+		});
+	} catch (error: any) {
+		console.error(error);
+		return [];
+	}
+}
+
+export async function putCacheEntry(db: D1Database, key: string, value: CacheData) {
+	if (!db) {
+		console.error('No database');
+		return;
+	}
+	await db.prepare('INSERT INTO CacheEntries (EntryKey, Entry) VALUES (?, ?)')
+	.bind(key, JSON.stringify(value))
+	.run();
+}
+
+export async function deleteCacheEntry(db: D1Database, key: string) {
+	if (!db) {
+		console.error('No database');
+		return;
+	}
+	await db.prepare('DELETE FROM CacheEntries WHERE EntryKey = ?')
+	.bind(key)
+	.run();
+}
