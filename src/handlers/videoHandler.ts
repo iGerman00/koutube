@@ -136,7 +136,7 @@ export default {
 
 			if (dearrow) {
 				if (dearrow.titles.length > 0) {
-					if (dearrow.titles[0].votes > 0 || dearrow.titles[0].locked) {
+					if (dearrow.titles[0].votes >= 0 || dearrow.titles[0].locked) {
 						title = dearrow.titles[0].title;
 						title = title.replace('>', ''); // we do not have a formatter
 						timestamp = dearrow.thumbnails[0].timestamp;
