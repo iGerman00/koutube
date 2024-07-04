@@ -6,7 +6,7 @@
 	
 </div>
 
-# Koutube (ex YocksTube)
+# Koutube
 > pronounced a bit like "cool tube"
 
 
