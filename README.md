@@ -1,5 +1,14 @@
+<div align="center">
+
+  [![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fkoutube.com%2Fstatus&query=%24.count&style=for-the-badge&label=Videos%20cached&color=%23ff5d5b)](https://koutube.com)
+	[![GitHub License](https://img.shields.io/github/license/iGerman00/koutube?style=for-the-badge&color=%233d843b)](https://github.com/iGerman00/koutube)
+  [![GitHub Sponsors](https://img.shields.io/github/sponsors/iGerman00?style=for-the-badge)](https://github.com/sponsors/iGerman00)
+	
+</div>
+
 # Koutube (ex YocksTube)
 > pronounced a bit like "cool tube"
+
 
 Koutube is a web service, running in [Cloudflare Workers](https://workers.cloudflare.com/), that fixes YouTube embeds on messenger platforms like Discord. It allows you to watch YouTube videos directly on Discord without opening a new tab or window.
 
