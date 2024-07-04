@@ -37,6 +37,14 @@ export default {
 	},
 
     async fetch(request: Request, env: Env): Promise<Response> {
+		if (new URL(request.url).pathname === '/status') {
+			const count = (await listCacheEntries(env.D1_DB)).length;
+			const body = JSON.stringify({ count, status: 'ok' });
+			return new Response(body, {
+				headers: { 'Content-Type': 'application/json' },
+			});
+		}
+
 		config.api_base = getRandomApiInstance();
 
 		if (env.IV_AUTH && env.IV_DOMAIN) {
