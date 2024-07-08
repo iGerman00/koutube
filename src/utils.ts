@@ -82,7 +82,7 @@ export async function getChannelInfo(channelId: string): Promise<ChannelInfo> {
 	});
 
 	const json = await page.json() as ChannelInfo;
-	
+
 	return json;
 }
 
@@ -120,6 +120,7 @@ export function stripTracking(link: string) {
 	url.searchParams.delete('iv_load_policy');
 	url.searchParams.delete('rel');
 	url.searchParams.delete('lc');
+	url.searchParams.delete('ab_channel');
 	// just to be safe:
 	url.searchParams.delete('utm_source');
 	url.searchParams.delete('utm_medium');
@@ -190,7 +191,7 @@ export async function getDearrowThumbnail(timestamp: number, videoId: string): P
 		if (page.status === 204) return undefined;
 		// simply return our input url
 		return page.url;
-		
+
 	}
 	catch (error: any) {
 		console.error(error)
@@ -222,19 +223,17 @@ export function renderGenericTemplate(info: string, redirectUrl: string, request
 <meta name="theme-color" content="#ff5d5b" />
 <meta name="color-scheme" content="dark" />
 <meta property="og:site_name" content="">
-${
-	showStock && id
-		? `
+${showStock && id
+			? `
 <meta name="twitter:card" content="player" />
 <meta name="twitter:image" content="https://i.ytimg.com/vi/${id}/hqdefault.jpg">
 <meta property="twitter:player" content="https://www.youtube.com/embed/${id}" />
 <meta property="twitter:player:width" content="1280" />
 <meta property="twitter:player:height" content="720" />
 ` : ''
-}
+		}
 <meta property="og:description" content="${info.substring(0, 140) + (info.length > 140 ? '...' : '')}" />
-<link rel="alternate" href="${
-		new URL(request.url).origin +
+<link rel="alternate" href="${new URL(request.url).origin +
 		'/oembed.json?' +
 		new URLSearchParams({
 			author_name: showStock && id ? 'No info supported' : '',
@@ -245,7 +244,7 @@ ${
 			type: 'video',
 			version: '1.0',
 		}).toString()
-	}" type="application/json+oembed" title="d"/>
+		}" type="application/json+oembed" title="d"/>
 <meta http-equiv="refresh" content="0;url=${redirectUrl}">
 </head>
 <body>
@@ -284,8 +283,8 @@ export async function getCacheEntry(db: D1Database, key: string): Promise<CacheD
 		return undefined;
 	};
 	const row = await db.prepare('SELECT Entry FROM CacheEntries WHERE EntryKey = ?')
-	.bind(key)
-	.first() as CacheDataEntry;
+		.bind(key)
+		.first() as CacheDataEntry;
 	if (!row) return undefined;
 	try {
 		return JSON.parse(row.Entry);
@@ -320,14 +319,58 @@ export async function listCacheEntries(db: D1Database) {
 	}
 }
 
+export async function listCacheEntriesPaginated(db: D1Database, page: number = 1, limit: number = 10) {
+	if (!db) {
+		console.error('No database');
+		return [];
+	}
+	const offset = (page - 1) * limit;
+
+	try {
+		const rows = await db.prepare('SELECT EntryKey, Entry FROM CacheEntries LIMIT ? OFFSET ?')
+			.bind(limit, offset)
+			.all();
+
+		const entries = rows.results.map(row => {
+			const entryKey = row.EntryKey;
+			const entry: CacheData = JSON.parse(row.Entry as string);
+			const timestamp = new Date(entry.headers['Cached-On']).valueOf() / 1000;
+			const isImage = entry.headers['Content-Type'].startsWith('image/');
+			const expiration = timestamp + (isImage ? 365 * 24 * 60 * 60 : 7 * 24 * 60 * 60); // 7 days for non-images, 1 year for images
+			const now = Date.now() / 1000;
+			const expired = now > expiration;
+			return { name: entryKey as string, value: entry, expiration, expired };
+		});
+
+		return entries;
+	} catch (error: any) {
+		console.error(error);
+		return [];
+	}
+}
+
+export async function getCountCacheEntries(db: D1Database) {
+	if (!db) {
+		console.error('No database');
+		return 0;
+	}
+	try {
+		const row = await db.prepare('SELECT COUNT(*) AS total FROM CacheEntries').first();
+		return row ? row.total : 0;
+	} catch (error: any) {
+		console.error(error);
+		return 0;
+	}
+}
+
 export async function putCacheEntry(db: D1Database, key: string, value: CacheData) {
 	if (!db) {
 		console.error('No database');
 		return;
 	}
 	await db.prepare('INSERT INTO CacheEntries (EntryKey, Entry) VALUES (?, ?)')
-	.bind(key, JSON.stringify(value))
-	.run();
+		.bind(key, JSON.stringify(value))
+		.run();
 }
 
 export async function deleteCacheEntry(db: D1Database, key: string) {
@@ -336,6 +379,6 @@ export async function deleteCacheEntry(db: D1Database, key: string) {
 		return;
 	}
 	await db.prepare('DELETE FROM CacheEntries WHERE EntryKey = ?')
-	.bind(key)
-	.run();
+		.bind(key)
+		.run();
 }

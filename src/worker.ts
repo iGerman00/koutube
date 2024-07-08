@@ -1,7 +1,7 @@
 import playlistHandler from './handlers/playlistHandler';
 import videoHandler from './handlers/videoHandler';
 import { Env, CacheData, PublicCacheEntry } from './types/types';
-import { deleteCacheEntry, getCacheEntry, getURLType, listCacheEntries, renderGenericTemplate, stripTracking } from './utils';
+import { deleteCacheEntry, getCacheEntry, getCountCacheEntries, getURLType, listCacheEntries, listCacheEntriesPaginated, renderGenericTemplate, stripTracking } from './utils';
 import template from './templates/db_listing.html';
 import { config, getRandomApiInstance } from './constants';
 import embedImageHandler from './handlers/embedImageHandler';
@@ -15,20 +15,19 @@ declare global {
 	}
 }
 
-URLSearchParams.prototype.getCaseInsensitive = function(param) {
-    const lowercasedParam = param.toLowerCase();
-    for (const [key, value] of this.entries()) {
-        if (key.toLowerCase() === lowercasedParam) {
-            return value;
-        }
-    }
-    return null;
+URLSearchParams.prototype.getCaseInsensitive = function (param) {
+	const lowercasedParam = param.toLowerCase();
+	for (const [key, value] of this.entries()) {
+		if (key.toLowerCase() === lowercasedParam) {
+			return value;
+		}
+	}
+	return null;
 };
 
 export default {
 	async scheduled(event: ScheduledEvent, env: Env) {
 		const entries = await listCacheEntries(env.D1_DB);
-		console.log(entries)
 		for (const entry of entries) {
 			if (entry.expired) {
 				await deleteCacheEntry(env.D1_DB, entry.name);
@@ -36,9 +35,9 @@ export default {
 		}
 	},
 
-    async fetch(request: Request, env: Env): Promise<Response> {
+	async fetch(request: Request, env: Env): Promise<Response> {
 		if (new URL(request.url).pathname === '/status') {
-			const count = (await listCacheEntries(env.D1_DB)).length;
+			const count = await getCountCacheEntries(env.D1_DB);
 			const body = JSON.stringify({ count, status: 'ok' });
 			return new Response(body, {
 				headers: { 'Content-Type': 'application/json' },
@@ -52,10 +51,10 @@ export default {
 			config.auth = env.IV_AUTH;;
 		}
 
-        const MAX_RETRIES = 3;
-        const RETRY_DELAY_MS = 1000;
+		const MAX_RETRIES = 3;
+		const RETRY_DELAY_MS = 1000;
 
-        for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+		for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
 			try {
 				const url = stripTracking(request.url);
 				const cache = await getCacheEntry(env.D1_DB, url);
@@ -69,125 +68,129 @@ export default {
 						});
 					}
 					return new Response(cache.response, {
-						headers: cache.headers, 
+						headers: cache.headers,
 					});
 				}
 			} catch (e) {
 				console.error('Cache error', e);
 			}
 
-		// if subdomain is img, embedImageHandler
-		if (new URL(request.url).pathname.startsWith('/img/') && config.enableImageEmbeds) {
-			return embedImageHandler.handleEmbedImage(request, env);
-		}
-
-		// if we fetch oembed, get all params and return them as json
-		if (request.url.includes('oembed.json')) {
-			let params: { [key: string]: string } = {};
-
-			// get all params
-			new URL(request.url).searchParams.forEach((value, key) => {
-				params[key] = value;
-			});
-
-			// return them as json
-			return new Response(JSON.stringify(params), {
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			});
-		}
-
-		const originalPath = request.url.replace(new URL(request.url).origin, '');
-		const isPlaylist = originalPath.startsWith('/playlist');
-		const isChannel =
-			originalPath.startsWith('/channel') ||
-			originalPath.startsWith('/c/') ||
-			originalPath.startsWith('/@') ||
-			originalPath.startsWith('/user/');
-
-		if (new URL(request.url).pathname === '/') {
-			async function getListing(_request: Request) {
-				const list = await listCacheEntries(env.D1_DB);
-				let obj = list.map((key) => {
-					if (key.name.startsWith('rateLimit:')) return;
-
-					const url = new URL(key.name);
-					if (url.searchParams.getCaseInsensitive('nocache') !== null) return;
-					const timecode = url.searchParams.getCaseInsensitive('t') || url.searchParams.getCaseInsensitive('time_continue')
-
-					const obj: PublicCacheEntry = {
-						url: url.href.replace(url.origin, '').replace('/', ''),
-						type: getURLType(url),
-						timecode: timecode || '',
-						expiration: key.expiration,
-						size: url.searchParams.getCaseInsensitive('size') || '',
-						itag: function () {
-							const itag = url.searchParams.getCaseInsensitive('itag')
-							// return 360p if itag is 18 or '18', 720p if itag is 22 or '22'
-							if (itag === '18') return '360p'
-							if (itag === '22') return '720p'
-							return itag || ''
-						}(),
-						dearrow: url.searchParams.getCaseInsensitive('dearrow') !== null ? 'Yes' : '',
-						stock: url.searchParams.getCaseInsensitive('stock') !== null ? 'Yes' : '',
-					};
-
-					return obj;
-				});
-
-				obj = obj.filter(Boolean);
-
-				const body = template.replace('$CACHE_ENTRIES', JSON.stringify(obj));
-
-				return new Response(body, {
-					headers: { 'Content-Type': 'text/html' },
-				});
+			// if subdomain is img, embedImageHandler
+			if (new URL(request.url).pathname.startsWith('/img/') && config.enableImageEmbeds) {
+				return embedImageHandler.handleEmbedImage(request, env);
 			}
 
-			return getListing(request);
-		}
+			// if we fetch oembed, get all params and return them as json
+			if (request.url.includes('oembed.json')) {
+				let params: { [key: string]: string } = {};
 
-		try {
-			let result;
-			if (isPlaylist) {
-				result = await playlistHandler.handlePlaylist(request, env);
-			} else if (isChannel) {
-				result = await channelHandler.handleChannel(request, env);
-			} else {
-				result = await videoHandler.handleVideo(request, env);
-			}
-			return result;
-		} catch (e) {
-			if ((e as Error).message === 'Invidious seems to have died' && attempt < MAX_RETRIES - 1) {
-				console.log(`Retrying request, attempt ${attempt + 1}`);
-				await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
-				continue;
-			} else {
-				console.error('Error', e);
-				let errorMessage = 'Could not fetch. This response was not cached';
+				// get all params
+				new URL(request.url).searchParams.forEach((value, key) => {
+					params[key] = value;
+				});
 
-				if ((e as Error).message === 'Invidious seems to have died') 
-					errorMessage = 'Invidious returned an error indicating that YouTube is fighting unofficial access to their API. This response was not cached.'
-
-				const template = renderGenericTemplate(errorMessage, config.appLink, request, 'Error');
-				return new Response(template, {
-					status: 200,
+				// return them as json
+				return new Response(JSON.stringify(params), {
 					headers: {
-						'Content-Type': 'text/html',
+						'Content-Type': 'application/json',
 					},
 				});
 			}
-		}
-	}
 
-	const errorMessage = 'Could not fetch after several retries. This response was not cached.';
-	const errorTemplate = renderGenericTemplate(errorMessage, config.appLink, request, 'Error');
-	return new Response(errorTemplate, {
-		status: 200,
-		headers: {
-			'Content-Type': 'text/html',
-		},
-	});
-},
+			const originalPath = request.url.replace(new URL(request.url).origin, '');
+			const isPlaylist = originalPath.startsWith('/playlist');
+			const isChannel =
+				originalPath.startsWith('/channel') ||
+				originalPath.startsWith('/c/') ||
+				originalPath.startsWith('/@') ||
+				originalPath.startsWith('/user/');
+
+			if (new URL(request.url).pathname === '/') {
+				async function getListing(_request: Request) {
+					const page = new URL(_request.url).searchParams.getCaseInsensitive('page') || '1';
+					const count = await getCountCacheEntries(env.D1_DB);
+					const list = await listCacheEntriesPaginated(env.D1_DB, parseInt(page), 100);
+					let obj = list.map((key) => {
+						if (key.name.startsWith('rateLimit:')) return;
+
+						const url = new URL(key.name);
+						if (url.searchParams.getCaseInsensitive('nocache') !== null) return;
+						const timecode = url.searchParams.getCaseInsensitive('t') || url.searchParams.getCaseInsensitive('time_continue')
+
+						const obj: PublicCacheEntry = {
+							url: url.href.replace(url.origin, '').replace('/', ''),
+							type: getURLType(url),
+							timecode: timecode || '',
+							expiration: key.expiration,
+							size: url.searchParams.getCaseInsensitive('size') || '',
+							itag: function () {
+								const itag = url.searchParams.getCaseInsensitive('itag')
+								// return 360p if itag is 18 or '18', 720p if itag is 22 or '22'
+								if (itag === '18') return '360p'
+								if (itag === '22') return '720p'
+								return itag || ''
+							}(),
+							dearrow: url.searchParams.getCaseInsensitive('dearrow') !== null ? 'Yes' : '',
+							stock: url.searchParams.getCaseInsensitive('stock') !== null ? 'Yes' : '',
+						};
+
+						return obj;
+					});
+
+					obj = obj.filter(Boolean);
+
+					const body = template
+						.replace('$CACHE_ENTRIES', JSON.stringify(obj))
+						.replace('$COUNT_ENTRIES', (count as number).toString())
+
+					return new Response(body, {
+						headers: { 'Content-Type': 'text/html' },
+					});
+				}
+
+				return getListing(request);
+			}
+
+			try {
+				let result;
+				if (isPlaylist) {
+					result = await playlistHandler.handlePlaylist(request, env);
+				} else if (isChannel) {
+					result = await channelHandler.handleChannel(request, env);
+				} else {
+					result = await videoHandler.handleVideo(request, env);
+				}
+				return result;
+			} catch (e) {
+				if ((e as Error).message === 'Invidious seems to have died' && attempt < MAX_RETRIES - 1) {
+					console.log(`Retrying request, attempt ${attempt + 1}`);
+					await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+					continue;
+				} else {
+					console.error('Error', e);
+					let errorMessage = 'Could not fetch. This response was not cached';
+
+					if ((e as Error).message === 'Invidious seems to have died')
+						errorMessage = 'Invidious returned an error indicating that YouTube is fighting unofficial access to their API. This response was not cached.'
+
+					const template = renderGenericTemplate(errorMessage, config.appLink, request, 'Error');
+					return new Response(template, {
+						status: 200,
+						headers: {
+							'Content-Type': 'text/html',
+						},
+					});
+				}
+			}
+		}
+
+		const errorMessage = 'Could not fetch after several retries. This response was not cached.';
+		const errorTemplate = renderGenericTemplate(errorMessage, config.appLink, request, 'Error');
+		return new Response(errorTemplate, {
+			status: 200,
+			headers: {
+				'Content-Type': 'text/html',
+			},
+		});
+	},
 };

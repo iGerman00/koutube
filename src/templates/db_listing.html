@@ -12,9 +12,11 @@
 <body>
   <div class="flex flex-col h-screen justify-between">
     <div class="navbar bg-primary text-primary-content">
-      <div class="flex-1">
-        <a class="btn btn-ghost text-xl">Koutube cache database
+      <div class="flex-1" id="headerContainer">
+        <a class="btn btn-ghost text-xl" onclick="window.location.search='';">
+          Koutube
           <div class="badge badge-accent badge-lg" id="entryCount">0</div>
+          <div class="badge badge-lg hidden" id="pageCount"></div>
         </a>
       </div>
       <div class="dropdown dropdown-end">
@@ -171,8 +173,14 @@
     window.cache_entries = [];
   }
 
+  try {
+    window.count_entries = $COUNT_ENTRIES;
+  } catch (e) {
+    window.count_entries = 0;
+  }
+
   var entriesPerPage = 100;
-  var currentPage = 1;
+  var currentPage = new URLSearchParams(window.location.search).get('page') || 1;
 
   var populateEntries = function () {
     var tableContainer = document.querySelector('#table-container');
@@ -182,7 +190,7 @@
     if (window.cache_entries.length === 0) {
       tableContainer.innerHTML = '<div class="flex justify-center items-center h-full text-3xl font-bold"><p>Nothing here but us jackals!</p></div>';
     } else {
-      document.querySelector('#entryCount').innerText = window.cache_entries.length;
+      document.querySelector('#entryCount').innerText = window.count_entries;
       var table = document.createElement('table');
       table.className = 'table table-zebra table-pin-rows w-full';
 
@@ -202,7 +210,7 @@
 
       var start = (currentPage - 1) * entriesPerPage;
       var end = start + entriesPerPage;
-      var entriesToShow = window.cache_entries.slice(start, end);
+      var entriesToShow = window.cache_entries;
 
       // Populate table rows
       entriesToShow.forEach(entry => {
@@ -216,27 +224,16 @@
           if (headerKey === 'url') {
             const baseUrl = entry['type'] === 'music' ? 'https://music.koutube.com/' : window.location.origin + '/';
             const a = document.createElement('a');
-            let cleanedUrl = cellValue.replace(/(\?t=\w+&?)|(&t=\w+)/g, function (match, group1) {
-              if (group1) { // If the match is at the beginning (?t=...&)
-                return match.endsWith('&') ? '?' : ''; // Replace with '?' if followed by another param, else remove
-              }
-              return ''; // For &t=... just remove it
-            });
-            if (cleanedUrl.startsWith('img/')) {
-              cleanedUrl = cleanedUrl.substr(4);
-              cleanedUrl = cleanedUrl.replace(/(\?size=\w+)|(&size=\w+)/g, function (match, group1) {
-                if (group1) { // If the match is at the beginning (?size=...&)
-                  return match.endsWith('&') ? '?' : ''; // Replace with '?' if followed by another param, else remove
-                }
-                return ''; // For &size=... just remove it
-              });
-            }
-            cleanedUrl = cleanedUrl.replace(/(\?itag=\w+)|(&itag=\w+)/g, function (match, group1) {
-              if (group1) { // If the match is at the beginning (?itag=...&)
-                return match.endsWith('&') ? '?' : ''; // Replace with '?' if followed by another param, else remove
-              }
-              return ''; // For &itag=... just remove it
-            });
+            let cleanedUrl = cellValue;
+
+            const paramsToRemove = ['t', 'nocache', 'nothumb', 'shorts', 'dislikes', 'itag', 'dearrow', 'stock', 'size'];
+            cleanedUrl = removeParamsFromUrl(cleanedUrl, paramsToRemove);
+
+            cleanedUrl = cleanedUrl.replace('img/', '');
+
+            const prefixes = ['shorts/', 'watch?v=', 'music/', 'channel/', 'user/', 'playlist/', 'playlist?list=', '/c/'];
+            cleanedUrl = trimUrlPrefix(cleanedUrl, prefixes);
+
             if (cleanedUrl.length > 50) {
               cleanedUrl = cleanedUrl.substr(0, 50) + '...';
             }
@@ -283,21 +280,28 @@
       prevPageButton.className = 'btn btn-primary m-2';
       prevPageButton.innerText = 'Previous Page';
       prevPageButton.addEventListener('click', function () {
-        currentPage--;
-        populateEntries();
+        window.location.search = `?page=${currentPage - 1}`;
       });
       buttonContainer.appendChild(prevPageButton);
     }
 
-    if (end < window.cache_entries.length) {
+    if (end <= window.count_entries) {
       var nextPageButton = document.createElement('button');
       nextPageButton.className = 'btn btn-primary m-2';
       nextPageButton.innerText = 'Next Page';
       nextPageButton.addEventListener('click', function () {
-        currentPage++;
-        populateEntries();
+        window.location.search = `?page=${Number(currentPage) + 1}`;
       });
       buttonContainer.appendChild(nextPageButton);
+    }
+
+    if (currentPage > 1) {
+      var pageCounter = document.getElementById('pageCount');
+      pageCounter.classList.remove('hidden');
+      pageCounter.innerText = `${currentPage} of ${Math.ceil(window.count_entries / entriesPerPage)}`;
+      pageCounter.onclick = function () {
+        window.location.search = `?page=` + Math.ceil(window.count_entries / entriesPerPage);
+      };
     }
   };
 
@@ -319,29 +323,51 @@
   function formatTimeCode(timecode) {
     if (timecode === '') return '';
     try {
-				let timeInSeconds = 0;
-				if (timecode.includes('h')) {
-					const hours = Number(timecode.split('h')[0]);
-					timeInSeconds += hours * 3600;
-					timecode = timecode.split('h')[1];
-				}
-				if (timecode.includes('m')) {
-					const minutes = Number(timecode.split('m')[0]);
-					timeInSeconds += minutes * 60;
-					timecode = timecode.split('m')[1];
-				}
-				if (timecode.includes('s')) {
-					const seconds = Number(timecode.split('s')[0]);
-					timeInSeconds += seconds;
-				}
+      let timeInSeconds = 0;
+      if (timecode.includes('h')) {
+        const hours = Number(timecode.split('h')[0]);
+        timeInSeconds += hours * 3600;
+        timecode = timecode.split('h')[1];
+      }
+      if (timecode.includes('m')) {
+        const minutes = Number(timecode.split('m')[0]);
+        timeInSeconds += minutes * 60;
+        timecode = timecode.split('m')[1];
+      }
+      if (timecode.includes('s')) {
+        const seconds = Number(timecode.split('s')[0]);
+        timeInSeconds += seconds;
+      }
 
-				const date = new Date(0);
-				date.setSeconds(timeInSeconds == 0 ? Number(timecode) : timeInSeconds);
-				let timeString = date.toISOString().substring(11, 19).replace('00:', '');
-        return timeString;
+      const date = new Date(0);
+      date.setSeconds(timeInSeconds == 0 ? Number(timecode) : timeInSeconds);
+      let timeString = date.toISOString().substring(11, 19).replace('00:', '');
+      return timeString;
     } catch (e) {
       return '';
     }
+  }
+
+  function removeParamsFromUrl(url, paramsToRemove) {
+    const urlObj = new URL(window.location.origin + '/' + url);
+    const searchParams = urlObj.searchParams;
+
+    paramsToRemove.forEach(param => {
+      searchParams.delete(param);
+    });
+
+    urlObj.search = searchParams.toString();
+    let path = urlObj.toString().substr(window.location.origin.length + 1);
+    return path;
+  }
+
+  function trimUrlPrefix(url, prefixes) {
+    for (let i = 0; i < prefixes.length; i++) {
+      if (url.startsWith(prefixes[i])) {
+        return url.substr(prefixes[i].length);
+      }
+    }
+    return url;
   }
 </script>
 
