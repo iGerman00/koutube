@@ -1,5 +1,5 @@
 import { config } from "./constants";
-import { RYDResponse, PlaylistInfo, Video, ChannelInfo, DeArrowResponse, CacheData } from "./types/types";
+import { RYDResponse, PlaylistInfo, Video, ChannelInfo, DeArrowResponse, CacheData, CacheDataEntry } from "./types/types";
 
 export function getURLType(url: URL): string {
 	const isShorts = url.pathname.startsWith('/shorts');
@@ -273,10 +273,6 @@ export function escapeHtml(html: any) {
 
 // D1 DB functions
 
-type CacheDataEntry = {
-	Entry: string;
-};
-
 export async function getCacheEntry(db: D1Database, key: string): Promise<CacheData | undefined> {
 	if (!db) {
 		console.error('No database');
@@ -317,6 +313,21 @@ export async function listCacheEntries(db: D1Database) {
 		console.error(error);
 		return [];
 	}
+}
+
+export async function deleteExpiredCacheEntries(db: D1Database) {
+    if (!db) {
+        console.error('No database');
+        return 0;
+    }
+    try {
+        const result = await db.prepare('DELETE FROM CacheEntries WHERE Expiration < strftime(\'%s\', \'now\')').run();
+        console.log(`${result.meta.changes} expired cache entries deleted.`);
+        return result.meta.changes;
+    } catch (error: any) {
+        console.error(error);
+        return 0;
+    }
 }
 
 export async function listCacheEntriesPaginated(db: D1Database, page: number = 1, limit: number = 10) {
@@ -363,13 +374,14 @@ export async function getCountCacheEntries(db: D1Database) {
 	}
 }
 
-export async function putCacheEntry(db: D1Database, key: string, value: CacheData) {
+export async function putCacheEntry(db: D1Database, key: string, value: CacheData, expiration: number) {
 	if (!db) {
 		console.error('No database');
 		return;
 	}
-	await db.prepare('INSERT INTO CacheEntries (EntryKey, Entry) VALUES (?, ?)')
-		.bind(key, JSON.stringify(value))
+	expiration = Math.floor(Date.now() / 1000) + expiration; // expiration is relative in seconds
+	await db.prepare('INSERT INTO CacheEntries (EntryKey, Entry, Expiration) VALUES (?, ?, ?)')
+		.bind(key, JSON.stringify(value), expiration)
 		.run();
 }
 

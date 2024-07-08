@@ -1,3 +1,4 @@
+import { config } from '../constants';
 import { CacheData, Env } from '../types/types';
 import { putCacheEntry, stripTracking } from '../utils';
 import puppeteer from '@cloudflare/puppeteer';
@@ -99,7 +100,7 @@ export default {
 			};
 
 			try {
-				await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry);
+				await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.imageExpireTime);
 			} catch (e) {
 				console.error('Cache saving error', e);
 			}

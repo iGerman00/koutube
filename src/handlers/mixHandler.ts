@@ -61,7 +61,7 @@ export default {
 			},
 		}
 		try {
-			await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry);
+			await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.mixExpireTime);
 		}
 		catch (e) {
 			console.error('Cache saving error', e);

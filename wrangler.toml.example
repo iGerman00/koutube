@@ -12,4 +12,4 @@ database_id = "1234abcd-5678-ef90-1234-5678ef901234" # Replace with your D1 data
 database_name = "koutube-db"
 
 [triggers]
-crons = ["0 * * * *"] # Set the frequency at which the DB will be purged of expired keys
+crons = ["0 0 * * *"] # Set the frequency at which the DB will be purged of expired keys

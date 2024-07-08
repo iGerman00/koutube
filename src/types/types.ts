@@ -15,6 +15,11 @@ export type CacheData = {
 	};
 };
 
+export type CacheDataEntry = {
+	Entry: string;
+	Expiration: number;
+};
+
 type ThumbnailObject = {
 	url: string;
 	width: number;

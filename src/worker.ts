@@ -1,7 +1,7 @@
 import playlistHandler from './handlers/playlistHandler';
 import videoHandler from './handlers/videoHandler';
-import { Env, CacheData, PublicCacheEntry } from './types/types';
-import { deleteCacheEntry, getCacheEntry, getCountCacheEntries, getURLType, listCacheEntries, listCacheEntriesPaginated, renderGenericTemplate, stripTracking } from './utils';
+import { Env, PublicCacheEntry } from './types/types';
+import { deleteExpiredCacheEntries, getCacheEntry, getCountCacheEntries, getURLType, listCacheEntriesPaginated, renderGenericTemplate, stripTracking } from './utils';
 import template from './templates/db_listing.html';
 import { config, getRandomApiInstance } from './constants';
 import embedImageHandler from './handlers/embedImageHandler';
@@ -27,12 +27,8 @@ URLSearchParams.prototype.getCaseInsensitive = function (param) {
 
 export default {
 	async scheduled(event: ScheduledEvent, env: Env) {
-		const entries = await listCacheEntries(env.D1_DB);
-		for (const entry of entries) {
-			if (entry.expired) {
-				await deleteCacheEntry(env.D1_DB, entry.name);
-			}
-		}
+		const deleted = deleteExpiredCacheEntries(env.D1_DB);
+		console.log(`Deleted ${deleted} expired cache entries at ${new Date().toISOString()}`);
 	},
 
 	async fetch(request: Request, env: Env): Promise<Response> {

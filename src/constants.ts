@@ -31,6 +31,12 @@ export const config = {
 	tvEmoji: '&#x1F4FA;&#xFE0E;', // 📺
 
 	emptyString: '&#xFEFF;', // zero width no-break space
+
+	channelExpireTime: 60 * 60 * 24 * 7, // 1 week
+	videoExpireTime: 60 * 60 * 24 * 7, // 1 week
+	playlistExpireTime: 60 * 60 * 24 * 7, // 1 week
+	mixExpireTime: 60 * 60 * 24 * 7, // 1 week
+	imageExpireTime: 60 * 60 * 24 * 365, // 1 year
 };
 
 export const embedUserAgents = [
