@@ -57,3 +57,9 @@ export const embedUserAgents = [
 	'Mozilla/5.0 (compatible; January/1.0; +https://gitlab.insrt.uk/revolt/january)',
 	'test'
 ];
+
+export const robots = 
+`
+User-agent: dotbot
+Disallow: /
+`

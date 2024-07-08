@@ -3,9 +3,11 @@ import videoHandler from './handlers/videoHandler';
 import { Env, PublicCacheEntry } from './types/types';
 import { deleteExpiredCacheEntries, getCacheEntry, getCountCacheEntries, getURLType, listCacheEntriesPaginated, renderGenericTemplate, stripTracking } from './utils';
 import template from './templates/db_listing.html';
-import { config, getRandomApiInstance } from './constants';
+import { config, getRandomApiInstance, robots } from './constants';
 import embedImageHandler from './handlers/embedImageHandler';
 import channelHandler from './handlers/channelHandler';
+
+
 
 import { Buffer } from 'node:buffer';
 
@@ -32,6 +34,12 @@ export default {
 	},
 
 	async fetch(request: Request, env: Env): Promise<Response> {
+		if (new URL(request.url).pathname === '/robots.txt') {
+			return new Response(robots, {
+				headers: { 'Content-Type': 'text/plain' },
+			});
+		}
+
 		if (new URL(request.url).pathname === '/status') {
 			const count = await getCountCacheEntries(env.D1_DB);
 			const body = JSON.stringify({ count, status: 'ok' });
