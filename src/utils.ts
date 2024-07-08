@@ -322,7 +322,6 @@ export async function deleteExpiredCacheEntries(db: D1Database) {
     }
     try {
         const result = await db.prepare('DELETE FROM CacheEntries WHERE Expiration < strftime(\'%s\', \'now\')').run();
-        console.log(`${result.meta.changes} expired cache entries deleted.`);
         return result.meta.changes;
     } catch (error: any) {
         console.error(error);
