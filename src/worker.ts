@@ -27,7 +27,7 @@ URLSearchParams.prototype.getCaseInsensitive = function (param) {
 
 export default {
 	async scheduled(event: ScheduledEvent, env: Env) {
-		const deleted = deleteExpiredCacheEntries(env.D1_DB);
+		const deleted = await deleteExpiredCacheEntries(env.D1_DB);
 		console.log(`Deleted ${deleted} expired cache entries at ${new Date().toISOString()}`);
 	},
 
