@@ -15,7 +15,7 @@ import {
 export default {
 	async handleVideo(request: Request, env: Env): Promise<Response> {
 		const overrideShorts = new URL(request.url).searchParams.getCaseInsensitive('shorts') !== null;
-		const overrideNoThumb = new URL(request.url).searchParams.getCaseInsensitive('nothumb') !== null;
+		let overrideNoThumb = new URL(request.url).searchParams.getCaseInsensitive('nothumb') !== null;
 		const overrideDislikes = new URL(request.url).searchParams.getCaseInsensitive('dislikes') !== null;
 		let enableDeArrow = new URL(request.url).searchParams.getCaseInsensitive('dearrow') !== null;
 		let overrideStockPlayer = new URL(request.url).searchParams.getCaseInsensitive('stock') !== null;
@@ -47,8 +47,6 @@ export default {
 			}
 			return stripTracking(`https://youtu.be${originalPath}`);
 		}
-
-		const [width, height] = isShorts ? [720, 1280] : [1280, 720];
 
 		const parserRe = /(.*?)(^|\/|v=)([a-z0-9_-]{11})(.*)?/gim;
 		const match = parserRe.exec(getOriginalUrl());
@@ -112,14 +110,19 @@ export default {
 			formatStream =
 				info.formatStreams.find((stream) => stream.itag === '22') || info.formatStreams.find((stream) => stream.itag === '18') || null;
 		} catch (e) {
-			// console.error('Failed to get format stream', e);
+			console.error('Failed to get format stream', e);
 		}
 
 		const videoResolution = {
-			width: isShorts ? width : Number(formatStream?.size?.split('x')[0]),
-			height: isShorts ? height : Number(formatStream?.size?.split('x')[1]),
+			width: Number(formatStream?.size?.split('x')[0]) || 1280,
+			height: Number(formatStream?.size?.split('x')[1]) || 720,
 			itag: overrideItag || formatStream?.itag || 18,
 		};
+
+		// discord takes the thumbnail's aspect ratio over the video's, get rid of it for non-16:9 videos
+		if (videoResolution.width / videoResolution.height !== 16 / 9) {
+			overrideNoThumb = true;
+		}
 
 		let rydResponse = undefined;
 
