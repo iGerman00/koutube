@@ -56,7 +56,9 @@ I often clear the cache when I push a new update.
 - `dearrow` - requests the thumbnail and title from [DeArrow](https://dearrow.ajay.app/)
 - `stock` - embed the regular YouTube embed. Automatically set to true for some content like livestreams and premieres
 
-> The `dearrow` parameter uses SponsorBlock data licensed used under CC BY-NC-SA 4.0 from https://sponsor.ajay.app/.
+> The `dearrow` parameter uses SponsorBlock data licensed used under CC BY-NC-SA 4.0 from https://sponsor.ajay.app/.  
+
+> Shorts and non-16:9 videos are not going to have a thumbnail in the embed due to the Discord embed prioritizing the image's aspect ratio over the video and cropping it incorrectly on mobile.
 
 Example usage:
 ```
