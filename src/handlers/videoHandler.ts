@@ -92,8 +92,7 @@ export default {
 				},
 			});
 		} else if (info.error) {
-			// dirty hack for invidious bug, to be removed when they fix it
-			if (info.error.startsWith("The video returned by YouTube isn't the requested one")) throw new Error('Invidious seems to have died');
+			if (info.error.startsWith("Please sign in")) throw new Error('Invidious seems to have died');
 
 			const response = renderGenericTemplate(info.error, getOriginalUrl(), request, 'Invidious Error');
 			return new Response(response, {
@@ -185,7 +184,7 @@ export default {
 			response: html,
 			headers: {
 				'Content-Type': 'text/html',
-				'Cached-On': new Date().toUTCString(),
+				'Cached-On': new Date().toISOString(),
 			},
 		};
 		try {

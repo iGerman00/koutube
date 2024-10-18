@@ -57,7 +57,7 @@ export default {
 			response: html,
 			headers: {
 				'Content-Type': 'text/html',
-				'Cached-On': new Date().toUTCString(),
+				'Cached-On': new Date().toISOString(),
 			},
 		}
 		try {

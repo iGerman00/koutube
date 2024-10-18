@@ -292,28 +292,53 @@ export async function getCacheEntry(db: D1Database, key: string): Promise<CacheD
 
 export async function listCacheEntries(db: D1Database) {
 	if (!db) {
-		console.error('No database');
-		return [];
+	  console.error('No database');
+	  return [];
 	}
-	const rows = await db.prepare('SELECT EntryKey, Entry FROM CacheEntries').all();
+	
 	try {
-		return rows.results.map(row => {
-			const entryKey = row.EntryKey;
-			const entry: CacheData = JSON.parse(row.Entry as string);
-			const timestamp = new Date(entry.headers['Cached-On']).valueOf() / 1000;
-			const isImage = entry.headers['Content-Type'].startsWith('image/');
-			const expiration = timestamp + (isImage ? 365 * 24 * 60 * 60 : 7 * 24 * 60 * 60); // 7 days for non-images, 1 year for images
-			const now = Date.now() / 1000;
-			const expired = now > expiration;
-
-
-			return { name: entryKey as string, value: entry, expiration, expired };
-		});
+	  const query = `
+		SELECT 
+		  EntryKey,
+		  json_extract(Entry, '$.headers.Cached-On') as CachedOn,
+		  json_extract(Entry, '$.headers.Content-Type') as ContentType,
+		  Entry,
+		  (
+			strftime('%s', json_extract(Entry, '$.headers.Cached-On')) + 
+			CASE 
+			  WHEN json_extract(Entry, '$.headers.Content-Type') LIKE 'image/%' THEN 365*24*60*60
+			  ELSE 7*24*60*60
+			END
+		  ) as Expiration,
+		  (
+			strftime('%s', 'now') > (
+			  strftime('%s', json_extract(Entry, '$.headers.Cached-On')) + 
+			  CASE 
+				WHEN json_extract(Entry, '$.headers.Content-Type') LIKE 'image/%' THEN 365*24*60*60
+				ELSE 7*24*60*60
+			  END
+			)
+		  ) as Expired
+		FROM CacheEntries
+	  `;
+  
+	  const rows = await db.prepare(query).all();
+  
+	  return rows.results.map(row => {
+		const entryKey = row.EntryKey as string;
+		const entry = JSON.parse(row.Entry as string);
+		return { 
+		  name: entryKey,
+		  value: entry,
+		  expiration: Number(row.Expiration),
+		  expired: Boolean(row.Expired)
+		};
+	  });
 	} catch (error: any) {
-		console.error(error);
-		return [];
+	  console.error(error);
+	  return [];
 	}
-}
+  }
 
 export async function deleteExpiredCacheEntries(db: D1Database) {
     if (!db) {
@@ -331,33 +356,66 @@ export async function deleteExpiredCacheEntries(db: D1Database) {
 
 export async function listCacheEntriesPaginated(db: D1Database, page: number = 1, limit: number = 10) {
 	if (!db) {
-		console.error('No database');
-		return [];
+	  console.error('No database');
+	  return { entries: [], total: 0 };
 	}
 	const offset = (page - 1) * limit;
-
+  
 	try {
-		const rows = await db.prepare('SELECT EntryKey, Entry FROM CacheEntries LIMIT ? OFFSET ?')
-			.bind(limit, offset)
-			.all();
+	  const query = `
+		SELECT 
+		  EntryKey, 
+		  json_extract(Entry, '$.headers.Cached-On') as CachedOn,
+		  json_extract(Entry, '$.headers.Content-Type') as ContentType,
+		  (
+			strftime('%s', json_extract(Entry, '$.headers.Cached-On')) + 
+			CASE 
+			  WHEN json_extract(Entry, '$.headers.Content-Type') LIKE 'image/%' THEN 365*24*60*60
+			  ELSE 7*24*60*60
+			END
+		  ) as Expiration,
+		  (
+			strftime('%s', 'now') > (
+			  strftime('%s', json_extract(Entry, '$.headers.Cached-On')) + 
+			  CASE 
+				WHEN json_extract(Entry, '$.headers.Content-Type') LIKE 'image/%' THEN 365*24*60*60
+				ELSE 7*24*60*60
+			  END
+			)
+		  ) as Expired
+		FROM CacheEntries
+		ORDER BY EntryKey
+		LIMIT ? OFFSET ?
+	  `;
+  
+	  const countQuery = 'SELECT COUNT(*) as total FROM CacheEntries';
+  
+	  const [rows, countResult] = await Promise.all([
+		db.prepare(query).bind(limit, offset).all(),
+		db.prepare(countQuery).first()
+	  ]);
 
-		const entries = rows.results.map(row => {
-			const entryKey = row.EntryKey;
-			const entry: CacheData = JSON.parse(row.Entry as string);
-			const timestamp = new Date(entry.headers['Cached-On']).valueOf() / 1000;
-			const isImage = entry.headers['Content-Type'].startsWith('image/');
-			const expiration = timestamp + (isImage ? 365 * 24 * 60 * 60 : 7 * 24 * 60 * 60); // 7 days for non-images, 1 year for images
-			const now = Date.now() / 1000;
-			const expired = now > expiration;
-			return { name: entryKey as string, value: entry, expiration, expired };
-		});
-
-		return entries;
+	  console.log(rows)
+  
+	  const entries = rows.results.map(row => {
+		return {
+		  name: row.EntryKey as string,
+		  cachedOn: row.CachedOn as string,
+		  contentType: row.ContentType as string,
+		  expiration: Number(row.Expiration),
+		  expired: Boolean(row.Expired)
+		};
+	  });
+  
+	  return { 
+		entries,
+		total: countResult ? (countResult.total as number) : 0
+	  };
 	} catch (error: any) {
-		console.error(error);
-		return [];
+	  console.error(error);
+	  return { entries: [], total: 0 };
 	}
-}
+  }
 
 export async function getCountCacheEntries(db: D1Database) {
 	if (!db) {

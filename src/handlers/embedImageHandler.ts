@@ -95,7 +95,7 @@ export default {
 				response: base64Image,
 				headers: {
 					'Content-Type': 'image/png',
-					'Cached-On': new Date().toUTCString(),
+					'Cached-On': new Date().toISOString(),
 				},
 			};
 

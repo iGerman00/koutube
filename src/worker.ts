@@ -109,43 +109,42 @@ export default {
 				originalPath.startsWith('/@') ||
 				originalPath.startsWith('/user/');
 
-			if (new URL(request.url).pathname === '/') {
-				async function getListing(_request: Request) {
-					const page = new URL(_request.url).searchParams.getCaseInsensitive('page') || '1';
-					const count = await getCountCacheEntries(env.D1_DB);
-					const list = await listCacheEntriesPaginated(env.D1_DB, parseInt(page), 100);
-					let obj = list.map((key) => {
-						if (key.name.startsWith('rateLimit:')) return;
-
+				if (new URL(request.url).pathname === '/') {
+					async function getListing(_request: Request) {
+					  const page = new URL(_request.url).searchParams.get('page') || '1';
+					  const { entries, total } = await listCacheEntriesPaginated(env.D1_DB, parseInt(page), 100);
+				  
+					  let obj = entries.map((key) => {
+						if (typeof key.name !== 'string' || key.name.startsWith('rateLimit:')) return;
+				  
 						const url = new URL(key.name);
-						if (url.searchParams.getCaseInsensitive('nocache') !== null) return;
-						const timecode = url.searchParams.getCaseInsensitive('t') || url.searchParams.getCaseInsensitive('time_continue')
-
+						if (url.searchParams.get('nocache') !== null) return;
+						
+						const timecode = url.searchParams.get('t') || url.searchParams.get('time_continue');
 						const obj: PublicCacheEntry = {
-							url: url.href.replace(url.origin, '').replace('/', ''),
-							type: getURLType(url),
-							timecode: timecode || '',
-							expiration: key.expiration,
-							size: url.searchParams.getCaseInsensitive('size') || '',
-							itag: function () {
-								const itag = url.searchParams.getCaseInsensitive('itag')
-								// return 360p if itag is 18 or '18', 720p if itag is 22 or '22'
-								if (itag === '18') return '360p'
-								if (itag === '22') return '720p'
-								return itag || ''
-							}(),
-							dearrow: url.searchParams.getCaseInsensitive('dearrow') !== null ? 'Yes' : '',
-							stock: url.searchParams.getCaseInsensitive('stock') !== null ? 'Yes' : '',
+						  url: url.href.replace(url.origin, '').replace('/', ''),
+						  type: getURLType(url),
+						  timecode: timecode || '',
+						  expiration: key?.expiration || 0,
+						  size: url.searchParams.get('size') || '',
+						  itag: function () {
+							const itag = url.searchParams.get('itag');
+							if (itag === '18') return '360p';
+							if (itag === '22') return '720p';
+							return itag || '';
+						  }(),
+						  dearrow: url.searchParams.get('dearrow') !== null ? 'Yes' : '',
+						  stock: url.searchParams.get('stock') !== null ? 'Yes' : '',
 						};
-
+				  
 						return obj;
-					});
+					  })
 
 					obj = obj.filter(Boolean);
 
 					const body = template
 						.replace('$CACHE_ENTRIES', JSON.stringify(obj))
-						.replace('$COUNT_ENTRIES', (count as number).toString())
+						.replace('$COUNT_ENTRIES', (total as number).toString())
 
 					return new Response(body, {
 						headers: { 'Content-Type': 'text/html' },
