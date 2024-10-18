@@ -10,7 +10,7 @@ export function getRandomApiInstance() {
 }
 
 export const config = {
-    appName: 'Koutube - use s/y/k',
+	appName: 'Koutube - use s/y/k',
 	appLink: 'https://koutube.com',
 
 	enableTickCheck: false, // costs an extra request to the iteroni api
@@ -55,11 +55,10 @@ export const embedUserAgents = [
 	'Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)',
 	'TelegramBot (like TwitterBot)',
 	'Mozilla/5.0 (compatible; January/1.0; +https://gitlab.insrt.uk/revolt/january)',
-	'test'
+	'test',
 ];
 
-export const robots = 
-`
+export const robots = `
 User-agent: dotbot
 Disallow: /
-`
+`;

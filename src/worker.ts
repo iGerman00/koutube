@@ -1,13 +1,19 @@
 import playlistHandler from './handlers/playlistHandler';
 import videoHandler from './handlers/videoHandler';
 import { Env, PublicCacheEntry } from './types/types';
-import { deleteExpiredCacheEntries, getCacheEntry, getCountCacheEntries, getURLType, listCacheEntriesPaginated, renderGenericTemplate, stripTracking } from './utils';
+import {
+	deleteExpiredCacheEntries,
+	getCacheEntry,
+	getCountCacheEntries,
+	getURLType,
+	listCacheEntriesPaginated,
+	renderGenericTemplate,
+	stripTracking,
+} from './utils';
 import template from './templates/db_listing.html';
 import { config, getRandomApiInstance, robots } from './constants';
 import embedImageHandler from './handlers/embedImageHandler';
 import channelHandler from './handlers/channelHandler';
-
-
 
 import { Buffer } from 'node:buffer';
 
@@ -34,6 +40,49 @@ export default {
 	},
 
 	async fetch(request: Request, env: Env): Promise<Response> {
+		if (new URL(request.url).pathname === '/') {
+			async function getListing(_request: Request) {
+				const page = new URL(_request.url).searchParams.get('page') || '1';
+				const { entries, total } = await listCacheEntriesPaginated(env.D1_DB, parseInt(page), 100);
+
+				let obj = entries.map((key) => {
+					if (typeof key.name !== 'string' || key.name.startsWith('rateLimit:')) return;
+
+					const url = new URL(key.name);
+					if (url.searchParams.get('nocache') !== null) return;
+
+					const timecode = url.searchParams.get('t') || url.searchParams.get('time_continue');
+					const obj: PublicCacheEntry = {
+						url: url.href.replace(url.origin, '').replace('/', ''),
+						type: getURLType(url),
+						timecode: timecode || '',
+						expiration: key?.expiration || 0,
+						size: url.searchParams.get('size') || '',
+						itag: (function () {
+							const itag = url.searchParams.get('itag');
+							if (itag === '18') return '360p';
+							if (itag === '22') return '720p';
+							return itag || '';
+						})(),
+						dearrow: url.searchParams.get('dearrow') !== null ? 'Yes' : '',
+						stock: url.searchParams.get('stock') !== null ? 'Yes' : '',
+					};
+
+					return obj;
+				});
+
+				obj = obj.filter(Boolean);
+
+				const body = template.replace('$CACHE_ENTRIES', JSON.stringify(obj)).replace('$COUNT_ENTRIES', (total as number).toString());
+
+				return new Response(body, {
+					headers: { 'Content-Type': 'text/html' },
+				});
+			}
+
+			return getListing(request);
+		}
+
 		if (new URL(request.url).pathname === '/robots.txt') {
 			return new Response(robots, {
 				headers: { 'Content-Type': 'text/plain' },
@@ -52,7 +101,7 @@ export default {
 
 		if (env.IV_AUTH && env.IV_DOMAIN) {
 			config.api_base = 'https://' + env.IV_DOMAIN;
-			config.auth = env.IV_AUTH;;
+			config.auth = env.IV_AUTH;
 		}
 
 		const MAX_RETRIES = 3;
@@ -109,51 +158,6 @@ export default {
 				originalPath.startsWith('/@') ||
 				originalPath.startsWith('/user/');
 
-				if (new URL(request.url).pathname === '/') {
-					async function getListing(_request: Request) {
-					  const page = new URL(_request.url).searchParams.get('page') || '1';
-					  const { entries, total } = await listCacheEntriesPaginated(env.D1_DB, parseInt(page), 100);
-				  
-					  let obj = entries.map((key) => {
-						if (typeof key.name !== 'string' || key.name.startsWith('rateLimit:')) return;
-				  
-						const url = new URL(key.name);
-						if (url.searchParams.get('nocache') !== null) return;
-						
-						const timecode = url.searchParams.get('t') || url.searchParams.get('time_continue');
-						const obj: PublicCacheEntry = {
-						  url: url.href.replace(url.origin, '').replace('/', ''),
-						  type: getURLType(url),
-						  timecode: timecode || '',
-						  expiration: key?.expiration || 0,
-						  size: url.searchParams.get('size') || '',
-						  itag: function () {
-							const itag = url.searchParams.get('itag');
-							if (itag === '18') return '360p';
-							if (itag === '22') return '720p';
-							return itag || '';
-						  }(),
-						  dearrow: url.searchParams.get('dearrow') !== null ? 'Yes' : '',
-						  stock: url.searchParams.get('stock') !== null ? 'Yes' : '',
-						};
-				  
-						return obj;
-					  })
-
-					obj = obj.filter(Boolean);
-
-					const body = template
-						.replace('$CACHE_ENTRIES', JSON.stringify(obj))
-						.replace('$COUNT_ENTRIES', (total as number).toString())
-
-					return new Response(body, {
-						headers: { 'Content-Type': 'text/html' },
-					});
-				}
-
-				return getListing(request);
-			}
-
 			try {
 				let result;
 				if (isPlaylist) {
@@ -167,14 +171,15 @@ export default {
 			} catch (e) {
 				if ((e as Error).message === 'Invidious seems to have died' && attempt < MAX_RETRIES - 1) {
 					console.log(`Retrying request, attempt ${attempt + 1}`);
-					await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+					await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
 					continue;
 				} else {
 					console.error('Error', e);
 					let errorMessage = 'Could not fetch. This response was not cached';
 
 					if ((e as Error).message === 'Invidious seems to have died')
-						errorMessage = 'Invidious returned an error indicating that YouTube is fighting unofficial access to their API. This response was not cached.'
+						errorMessage =
+							'Invidious returned an error indicating that YouTube is fighting unofficial access to their API. This response was not cached.';
 
 					const template = renderGenericTemplate(errorMessage, config.appLink, request, 'Error');
 					return new Response(template, {

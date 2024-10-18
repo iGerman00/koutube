@@ -92,7 +92,7 @@ export default {
 				},
 			});
 		} else if (info.error) {
-			if (info.error.startsWith("Please sign in")) throw new Error('Invidious seems to have died');
+			if (info.error.startsWith('Please sign in')) throw new Error('Invidious seems to have died');
 
 			const response = renderGenericTemplate(info.error, getOriginalUrl(), request, 'Invidious Error');
 			return new Response(response, {

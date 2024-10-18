@@ -1,10 +1,10 @@
-import { Env, CacheData, ChannelEmbedData } from "../types/types";
-import { config } from "../constants";
+import { Env, CacheData, ChannelEmbedData } from '../types/types';
+import { config } from '../constants';
 import he from 'he';
-import { getChannelInfo, putCacheEntry, renderGenericTemplate, scrapeChannelId, stripTracking } from "../utils";
+import { getChannelInfo, putCacheEntry, renderGenericTemplate, scrapeChannelId, stripTracking } from '../utils';
 
 export default {
-    async handleChannel(request: Request, env: Env): Promise<Response> {
+	async handleChannel(request: Request, env: Env): Promise<Response> {
 		const originalPath = request.url.replace(new URL(request.url).origin, '');
 		let channel = null;
 
@@ -21,7 +21,6 @@ export default {
 			});
 			const text = await page.text();
 			channel = scrapeChannelId(text);
-			
 		} else if (originalPath.startsWith('/channel/')) {
 			// already have the channel id
 			channel = originalPath.split('/channel/')[1].split('/')[0];
@@ -54,7 +53,7 @@ export default {
 
 		// invidious is bugged, encoding is all sorts of messed up. #4256
 		let description = he.decode(info.descriptionHtml.replace(/<\/?[^>]+(>|$)/g, ''));
-		description = description.length > 140 ? description.substring(0, 140) + '...' : description
+		description = description.length > 140 ? description.substring(0, 140) + '...' : description;
 		const embedData: ChannelEmbedData = {
 			appTitle: config.appName,
 			author: he.encode(info.author),
@@ -76,11 +75,10 @@ export default {
 				'Content-Type': 'text/html',
 				'Cached-On': new Date().toISOString(),
 			},
-		}
+		};
 		try {
 			await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.channelExpireTime);
-		}
-		catch (e) {
+		} catch (e) {
 			console.error('Cache saving error', e);
 		}
 
@@ -95,11 +93,11 @@ export default {
 };
 
 function renderTemplate(info: ChannelEmbedData) {
-    function constructProviderString(info: ChannelEmbedData) {
-        let string = `${config.appName}\n`;
-        string += `${config.subscriberEmoji} ${info.subCount}`;
-        return string;
-    }
+	function constructProviderString(info: ChannelEmbedData) {
+		let string = `${config.appName}\n`;
+		string += `${config.subscriberEmoji} ${info.subCount}`;
+		return string;
+	}
 
 	function constructVideoList(max: number) {
 		let string = '';
@@ -121,7 +119,7 @@ function renderTemplate(info: ChannelEmbedData) {
 			if (info.description.length > 170) description += '...\n\n';
 			else description += '\n\n';
 		}
-		description += 'Latest videos:\n'
+		description += 'Latest videos:\n';
 		description += constructVideoList(5);
 		return description;
 	}
@@ -143,7 +141,9 @@ function renderTemplate(info: ChannelEmbedData) {
 <meta property="og:image" content="${info.bestThumbnail}" />
 <meta property="og:description" content="${constructDescription(info)}" />
 <script>
-let url=new URL("${info.youtubeUrl}"),id="${info.authorId}",ws="/channel/"+id;window.location="youtube:"+ws,setTimeout(function(){window.location="vnd.youtube:"+ws},25),setTimeout(function(){window.location=url.href},50);
+let url=new URL("${info.youtubeUrl}"),id="${
+		info.authorId
+	}",ws="/channel/"+id;window.location="youtube:"+ws,setTimeout(function(){window.location="vnd.youtube:"+ws},25),setTimeout(function(){window.location=url.href},50);
 </script>
 <link rel="alternate" href="${
 		new URL(info.request.url).origin +

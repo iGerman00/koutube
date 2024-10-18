@@ -1,5 +1,5 @@
-import { config } from "./constants";
-import { RYDResponse, PlaylistInfo, Video, ChannelInfo, DeArrowResponse, CacheData, CacheDataEntry } from "./types/types";
+import { config } from './constants';
+import { RYDResponse, PlaylistInfo, Video, ChannelInfo, DeArrowResponse, CacheData, CacheDataEntry } from './types/types';
 
 export function getURLType(url: URL): string {
 	const isShorts = url.pathname.startsWith('/shorts');
@@ -7,7 +7,11 @@ export function getURLType(url: URL): string {
 	const isEmbed = url.pathname.startsWith('/embed');
 	const isPlaylist = url.pathname.startsWith('/playlist');
 	const isMusic = url.origin.startsWith('https://music') || url.origin.startsWith('https://www.music');
-	const isChannel = url.pathname.startsWith('/channel') || url.pathname.startsWith('/c') || url.pathname.startsWith('/@') || url.pathname.startsWith('/user/');
+	const isChannel =
+		url.pathname.startsWith('/channel') ||
+		url.pathname.startsWith('/c') ||
+		url.pathname.startsWith('/@') ||
+		url.pathname.startsWith('/user/');
 	const isImage = url.pathname.startsWith('/img');
 
 	switch (true) {
@@ -37,10 +41,10 @@ export async function isChannelVerified(channelId: string): Promise<boolean> {
 			// set language to english
 			'Accept-Language': 'en-US,en;q=0.9',
 			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
-			'Authorization': config.auth,
+			Authorization: config.auth,
 		},
 	});
-	const json = await page.json() as { authorVerified: boolean; }
+	const json = (await page.json()) as { authorVerified: boolean };
 	return json.authorVerified;
 }
 
@@ -49,11 +53,11 @@ export async function getVideoInfo(videoId: string): Promise<Video> {
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
 			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
-			'Authorization': config.auth,
+			Authorization: config.auth,
 		},
 	});
 
-	const json = await page.json() as Video;
+	const json = (await page.json()) as Video;
 
 	return json;
 }
@@ -63,11 +67,11 @@ export async function getPlaylistInfo(playlistId: string): Promise<PlaylistInfo>
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
 			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
-			'Authorization': config.auth,
+			Authorization: config.auth,
 		},
 	});
 
-	const json = await page.json() as PlaylistInfo;
+	const json = (await page.json()) as PlaylistInfo;
 
 	return json;
 }
@@ -77,11 +81,11 @@ export async function getChannelInfo(channelId: string): Promise<ChannelInfo> {
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
 			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
-			'Authorization': config.auth,
+			Authorization: config.auth,
 		},
 	});
 
-	const json = await page.json() as ChannelInfo;
+	const json = (await page.json()) as ChannelInfo;
 
 	return json;
 }
@@ -97,11 +101,11 @@ export async function isMix(playlistId: string, request: Request): Promise<boole
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
 			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
-			'Authorization': config.auth,
+			Authorization: config.auth,
 		},
 	});
 	const url = new URL(page.url);
-	const isMix = url.pathname.startsWith('/api/v1/mixes')
+	const isMix = url.pathname.startsWith('/api/v1/mixes');
 	return isMix;
 }
 
@@ -151,10 +155,10 @@ export async function getDislikes(videoId: string): Promise<RYDResponse | undefi
 				'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
 			},
 		});
-		const json: RYDResponse = await page.json() as RYDResponse;
+		const json: RYDResponse = (await page.json()) as RYDResponse;
 		return json;
 	} catch (error: any) {
-		console.error(error)
+		console.error(error);
 		return undefined;
 	}
 }
@@ -169,10 +173,10 @@ export async function getDearrowBranding(videoId: string): Promise<DeArrowRespon
 				'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
 			},
 		});
-		const json = await page.json() as DeArrowResponse;
+		const json = (await page.json()) as DeArrowResponse;
 		return json;
 	} catch (error: any) {
-		console.error(error)
+		console.error(error);
 		return undefined;
 	}
 }
@@ -191,10 +195,8 @@ export async function getDearrowThumbnail(timestamp: number, videoId: string): P
 		if (page.status === 204) return undefined;
 		// simply return our input url
 		return page.url;
-
-	}
-	catch (error: any) {
-		console.error(error)
+	} catch (error: any) {
+		console.error(error);
 		return undefined;
 	}
 }
@@ -212,7 +214,14 @@ export function scrapeChannelId(html: string): string | null {
 	return match ? match[1] : null;
 }
 
-export function renderGenericTemplate(info: string, redirectUrl: string, request: Request, title: string, showStock?: boolean, id?: string) {
+export function renderGenericTemplate(
+	info: string,
+	redirectUrl: string,
+	request: Request,
+	title: string,
+	showStock?: boolean,
+	id?: string
+) {
 	return `
 <!DOCTYPE html>
 <html lang="en">
@@ -223,17 +232,20 @@ export function renderGenericTemplate(info: string, redirectUrl: string, request
 <meta name="theme-color" content="#ff5d5b" />
 <meta name="color-scheme" content="dark" />
 <meta property="og:site_name" content="">
-${showStock && id
-			? `
+${
+	showStock && id
+		? `
 <meta name="twitter:card" content="player" />
 <meta name="twitter:image" content="https://i.ytimg.com/vi/${id}/hqdefault.jpg">
 <meta property="twitter:player" content="https://www.youtube.com/embed/${id}" />
 <meta property="twitter:player:width" content="1280" />
 <meta property="twitter:player:height" content="720" />
-` : ''
-		}
+`
+		: ''
+}
 <meta property="og:description" content="${info.substring(0, 140) + (info.length > 140 ? '...' : '')}" />
-<link rel="alternate" href="${new URL(request.url).origin +
+<link rel="alternate" href="${
+		new URL(request.url).origin +
 		'/oembed.json?' +
 		new URLSearchParams({
 			author_name: showStock && id ? 'No info supported' : '',
@@ -244,7 +256,7 @@ ${showStock && id
 			type: 'video',
 			version: '1.0',
 		}).toString()
-		}" type="application/json+oembed" title="d"/>
+	}" type="application/json+oembed" title="d"/>
 <meta http-equiv="refresh" content="0;url=${redirectUrl}">
 </head>
 <body>
@@ -262,13 +274,10 @@ export function escapeHtml(html: any) {
 		"'": '&#39;',
 		'&': '&amp;',
 		'<': '&lt;',
-		'>': '&gt;'
+		'>': '&gt;',
 	};
 
-	return String(html).replace(
-		regex_html_characters_to_escape,
-		match => escaped[match]
-	);
+	return String(html).replace(regex_html_characters_to_escape, (match) => escaped[match]);
 }
 
 // D1 DB functions
@@ -277,10 +286,8 @@ export async function getCacheEntry(db: D1Database, key: string): Promise<CacheD
 	if (!db) {
 		console.error('No database');
 		return undefined;
-	};
-	const row = await db.prepare('SELECT Entry FROM CacheEntries WHERE EntryKey = ?')
-		.bind(key)
-		.first() as CacheDataEntry;
+	}
+	const row = (await db.prepare('SELECT Entry FROM CacheEntries WHERE EntryKey = ?').bind(key).first()) as CacheDataEntry;
 	if (!row) return undefined;
 	try {
 		return JSON.parse(row.Entry);
@@ -292,12 +299,12 @@ export async function getCacheEntry(db: D1Database, key: string): Promise<CacheD
 
 export async function listCacheEntries(db: D1Database) {
 	if (!db) {
-	  console.error('No database');
-	  return [];
+		console.error('No database');
+		return [];
 	}
-	
+
 	try {
-	  const query = `
+		const query = `
 		SELECT 
 		  EntryKey,
 		  json_extract(Entry, '$.headers.Cached-On') as CachedOn,
@@ -321,48 +328,48 @@ export async function listCacheEntries(db: D1Database) {
 		  ) as Expired
 		FROM CacheEntries
 	  `;
-  
-	  const rows = await db.prepare(query).all();
-  
-	  return rows.results.map(row => {
-		const entryKey = row.EntryKey as string;
-		const entry = JSON.parse(row.Entry as string);
-		return { 
-		  name: entryKey,
-		  value: entry,
-		  expiration: Number(row.Expiration),
-		  expired: Boolean(row.Expired)
-		};
-	  });
+
+		const rows = await db.prepare(query).all();
+
+		return rows.results.map((row) => {
+			const entryKey = row.EntryKey as string;
+			const entry = JSON.parse(row.Entry as string);
+			return {
+				name: entryKey,
+				value: entry,
+				expiration: Number(row.Expiration),
+				expired: Boolean(row.Expired),
+			};
+		});
 	} catch (error: any) {
-	  console.error(error);
-	  return [];
+		console.error(error);
+		return [];
 	}
-  }
+}
 
 export async function deleteExpiredCacheEntries(db: D1Database) {
-    if (!db) {
-        console.error('No database');
-        return 0;
-    }
-    try {
-        const result = await db.prepare('DELETE FROM CacheEntries WHERE Expiration < strftime(\'%s\', \'now\')').run();
-        return result.meta.changes;
-    } catch (error: any) {
-        console.error(error);
-        return 0;
-    }
+	if (!db) {
+		console.error('No database');
+		return 0;
+	}
+	try {
+		const result = await db.prepare("DELETE FROM CacheEntries WHERE Expiration < strftime('%s', 'now')").run();
+		return result.meta.changes;
+	} catch (error: any) {
+		console.error(error);
+		return 0;
+	}
 }
 
 export async function listCacheEntriesPaginated(db: D1Database, page: number = 1, limit: number = 10) {
 	if (!db) {
-	  console.error('No database');
-	  return { entries: [], total: 0 };
+		console.error('No database');
+		return { entries: [], total: 0 };
 	}
 	const offset = (page - 1) * limit;
-  
+
 	try {
-	  const query = `
+		const query = `
 		SELECT 
 		  EntryKey, 
 		  json_extract(Entry, '$.headers.Cached-On') as CachedOn,
@@ -387,35 +394,30 @@ export async function listCacheEntriesPaginated(db: D1Database, page: number = 1
 		ORDER BY EntryKey
 		LIMIT ? OFFSET ?
 	  `;
-  
-	  const countQuery = 'SELECT COUNT(*) as total FROM CacheEntries';
-  
-	  const [rows, countResult] = await Promise.all([
-		db.prepare(query).bind(limit, offset).all(),
-		db.prepare(countQuery).first()
-	  ]);
 
-	  console.log(rows)
-  
-	  const entries = rows.results.map(row => {
+		const countQuery = 'SELECT COUNT(*) as total FROM CacheEntries';
+
+		const [rows, countResult] = await Promise.all([db.prepare(query).bind(limit, offset).all(), db.prepare(countQuery).first()]);
+
+		const entries = rows.results.map((row) => {
+			return {
+				name: row.EntryKey as string,
+				cachedOn: row.CachedOn as string,
+				contentType: row.ContentType as string,
+				expiration: Number(row.Expiration),
+				expired: Boolean(row.Expired),
+			};
+		});
+
 		return {
-		  name: row.EntryKey as string,
-		  cachedOn: row.CachedOn as string,
-		  contentType: row.ContentType as string,
-		  expiration: Number(row.Expiration),
-		  expired: Boolean(row.Expired)
+			entries,
+			total: countResult ? (countResult.total as number) : 0,
 		};
-	  });
-  
-	  return { 
-		entries,
-		total: countResult ? (countResult.total as number) : 0
-	  };
 	} catch (error: any) {
-	  console.error(error);
-	  return { entries: [], total: 0 };
+		console.error(error);
+		return { entries: [], total: 0 };
 	}
-  }
+}
 
 export async function getCountCacheEntries(db: D1Database) {
 	if (!db) {
@@ -437,7 +439,8 @@ export async function putCacheEntry(db: D1Database, key: string, value: CacheDat
 		return;
 	}
 	expiration = Math.floor(Date.now() / 1000) + expiration; // expiration is relative in seconds
-	await db.prepare('INSERT INTO CacheEntries (EntryKey, Entry, Expiration) VALUES (?, ?, ?)')
+	await db
+		.prepare('INSERT INTO CacheEntries (EntryKey, Entry, Expiration) VALUES (?, ?, ?)')
 		.bind(key, JSON.stringify(value), expiration)
 		.run();
 }
@@ -447,7 +450,5 @@ export async function deleteCacheEntry(db: D1Database, key: string) {
 		console.error('No database');
 		return;
 	}
-	await db.prepare('DELETE FROM CacheEntries WHERE EntryKey = ?')
-		.bind(key)
-		.run();
+	await db.prepare('DELETE FROM CacheEntries WHERE EntryKey = ?').bind(key).run();
 }

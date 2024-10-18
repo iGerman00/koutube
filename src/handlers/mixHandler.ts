@@ -1,17 +1,17 @@
-import { Env, CacheData, MixEmbedData } from "../types/types";
-import { config } from "../constants";
+import { Env, CacheData, MixEmbedData } from '../types/types';
+import { config } from '../constants';
 import he from 'he';
-import { getPlaylistInfo as getMixInfo, putCacheEntry, renderGenericTemplate, stripTracking } from "../utils";
+import { getPlaylistInfo as getMixInfo, putCacheEntry, renderGenericTemplate, stripTracking } from '../utils';
 
 export default {
-    async handleMix(request: Request, env: Env): Promise<Response> {
+	async handleMix(request: Request, env: Env): Promise<Response> {
 		const originalPath = request.url.replace(new URL(request.url).origin, '');
 
 		function getOriginalUrl() {
 			return stripTracking(`https://music.youtube.com${originalPath}`);
 		}
 
-        const parserRe = /(.*?)(^|\/|list=)([a-zA-Z0-9_-]{18,})(.*)?/gim;
+		const parserRe = /(.*?)(^|\/|list=)([a-zA-Z0-9_-]{18,})(.*)?/gim;
 		const match = parserRe.exec(getOriginalUrl());
 		const mixId = match ? match[3] : null;
 
@@ -59,11 +59,10 @@ export default {
 				'Content-Type': 'text/html',
 				'Cached-On': new Date().toISOString(),
 			},
-		}
+		};
 		try {
 			await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.mixExpireTime);
-		}
-		catch (e) {
+		} catch (e) {
 			console.error('Cache saving error', e);
 		}
 
@@ -78,11 +77,11 @@ export default {
 };
 
 function renderTemplate(info: MixEmbedData) {
-    function constructProviderString() {
-        let string = `${config.appName} - Mix\n`;
+	function constructProviderString() {
+		let string = `${config.appName} - Mix\n`;
 		string += `${config.songEmoji} ${info.songCount}`;
-        return string;
-    }
+		return string;
+	}
 
 	function constructVideoList(max: number) {
 		let string = '';
@@ -120,7 +119,9 @@ function renderTemplate(info: MixEmbedData) {
 <meta property="og:image" content="" />
 <meta property="og:description" content="${constructDescription()}" />
 <script>
-let url=new URL("${info.youtubeUrl}"),id="${info.mixId}",ws="playlist?list="+id;window.location="youtube:"+ws,setTimeout(function(){window.location="vnd.youtube:"+ws},25),setTimeout(function(){window.location=url.href},50);
+let url=new URL("${info.youtubeUrl}"),id="${
+		info.mixId
+	}",ws="playlist?list="+id;window.location="youtube:"+ws,setTimeout(function(){window.location="vnd.youtube:"+ws},25),setTimeout(function(){window.location=url.href},50);
 </script>
 <link rel="alternate" href="${
 		new URL(info.request.url).origin +
