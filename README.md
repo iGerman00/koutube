@@ -1,9 +1,15 @@
+<div align="center">	
+
+  [![Badge indicating Invidious instance status](https://status.igerman.cc/api/badge/40/status?upColor=%233d843b&pendingColor=b57602&style=for-the-badge&label=Invidious)](https://koutube.com)
+  [![Badge indicating count of items cached](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fkoutube.com%2Fstatus&query=%24.count&style=for-the-badge&label=Items%20cached&color=%23ff5d5b)](https://koutube.com)
+
+</div>
+
 <div align="center">
 
-  [![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fkoutube.com%2Fstatus&query=%24.count&style=for-the-badge&label=Items%20cached&color=%23ff5d5b)](https://koutube.com)
-	[![GitHub License](https://img.shields.io/github/license/iGerman00/koutube?style=for-the-badge&color=%233d843b)](https://github.com/iGerman00/koutube)
-  [![GitHub Sponsors](https://img.shields.io/github/sponsors/iGerman00?style=for-the-badge)](https://github.com/sponsors/iGerman00)
-	
+  [![GitHub License](https://img.shields.io/github/license/iGerman00/koutube?style=for-the-badge&color=%233d843b)](https://github.com/iGerman00/koutube)
+	[![GitHub Sponsors](https://img.shields.io/github/sponsors/iGerman00?style=for-the-badge)](https://github.com/sponsors/iGerman00)
+
 </div>
 
 # Koutube
