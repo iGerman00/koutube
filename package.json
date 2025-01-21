@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "deploy": "wrangler deploy",
-    "start": "wrangler dev",
+    "start": "wrangler dev --remote",
     "init-db": "wrangler d1 execute koutube-db --local --file=./schema.sql",
     "init-remote-db": "wrangler d1 execute koutube-db --remote --file=./schema.sql"
   },

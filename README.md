@@ -212,7 +212,7 @@ Koutube is licensed under the GPL-3.0 License.
 
 - The cache listing, which is a list of the vast majority of links processed by Koutube [is public](https://koutu.be)
 
-- I try not to log anything I don't need, but I log some errors here and there and whenever a cached response is returned.  
+- I try not to log anything I don't need, but I log some errors here and there and whenever a cached response is returned. The time of the request is also logged, for me to debug any anomalies.  
 
 - A private Invidious instance is used for now due to unreliable public ones. No logging is configured  
 
