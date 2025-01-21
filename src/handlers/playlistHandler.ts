@@ -32,7 +32,10 @@ export default {
 			return mixHandler.handleMix(request, env);
 		}
 
-		const info = await getPlaylistInfo(playlistId);
+		const [info, channelVerified] = await Promise.all([
+			getPlaylistInfo(playlistId),
+			isChannelVerified(playlistId),
+		]);
 
 		if (info.error) {
 			const response = renderGenericTemplate(info.error, getOriginalUrl(), request, 'Invidious Error');
@@ -57,7 +60,7 @@ export default {
 			ownerProfileUrl: 'https://youtube.com' + info.authorUrl,
 			bestThumbnail: info.playlistThumbnail,
 			videos: info.videos,
-			isVerified: await isChannelVerified(info.authorId),
+			isVerified: channelVerified,
 			youtubeUrl: getOriginalUrl(),
 			playlistId: playlistId,
 			request: request,

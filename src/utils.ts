@@ -305,22 +305,22 @@ export async function listCacheEntries(db: D1Database) {
 
 	try {
 		const query = `
-		SELECT 
+		SELECT
 		  EntryKey,
 		  json_extract(Entry, '$.headers.Cached-On') as CachedOn,
 		  json_extract(Entry, '$.headers.Content-Type') as ContentType,
 		  Entry,
 		  (
-			strftime('%s', json_extract(Entry, '$.headers.Cached-On')) + 
-			CASE 
+			strftime('%s', json_extract(Entry, '$.headers.Cached-On')) +
+			CASE
 			  WHEN json_extract(Entry, '$.headers.Content-Type') LIKE 'image/%' THEN 365*24*60*60
 			  ELSE 7*24*60*60
 			END
 		  ) as Expiration,
 		  (
 			strftime('%s', 'now') > (
-			  strftime('%s', json_extract(Entry, '$.headers.Cached-On')) + 
-			  CASE 
+			  strftime('%s', json_extract(Entry, '$.headers.Cached-On')) +
+			  CASE
 				WHEN json_extract(Entry, '$.headers.Content-Type') LIKE 'image/%' THEN 365*24*60*60
 				ELSE 7*24*60*60
 			  END
@@ -370,21 +370,21 @@ export async function listCacheEntriesPaginated(db: D1Database, page: number = 1
 
 	try {
 		const query = `
-		SELECT 
-		  EntryKey, 
+		SELECT
+		  EntryKey,
 		  json_extract(Entry, '$.headers.Cached-On') as CachedOn,
 		  json_extract(Entry, '$.headers.Content-Type') as ContentType,
 		  (
-			strftime('%s', json_extract(Entry, '$.headers.Cached-On')) + 
-			CASE 
+			strftime('%s', json_extract(Entry, '$.headers.Cached-On')) +
+			CASE
 			  WHEN json_extract(Entry, '$.headers.Content-Type') LIKE 'image/%' THEN 365*24*60*60
 			  ELSE 7*24*60*60
 			END
 		  ) as Expiration,
 		  (
 			strftime('%s', 'now') > (
-			  strftime('%s', json_extract(Entry, '$.headers.Cached-On')) + 
-			  CASE 
+			  strftime('%s', json_extract(Entry, '$.headers.Cached-On')) +
+			  CASE
 				WHEN json_extract(Entry, '$.headers.Content-Type') LIKE 'image/%' THEN 365*24*60*60
 				ELSE 7*24*60*60
 			  END

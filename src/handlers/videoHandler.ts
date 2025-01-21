@@ -104,6 +104,15 @@ export default {
 			});
 		}
 
+		// Parallelize optional fetches
+		const [channelVerified, rydResponse, dearrow] = await Promise.all([
+			isChannelVerified(info.authorId),
+			(config.enableDislikes || overrideDislikes) ? getDislikes(videoId) : Promise.resolve(undefined),
+			enableDeArrow ? getDearrowBranding(videoId) : Promise.resolve(undefined),
+		]);
+
+		info.isAuthorVerified = channelVerified || false;
+
 		let formatStream = null;
 		try {
 			formatStream =
@@ -123,17 +132,10 @@ export default {
 			overrideNoThumb = true;
 		}
 
-		let rydResponse = undefined;
-
-		if (config.enableDislikes || overrideDislikes) {
-			rydResponse = await getDislikes(videoId);
-		}
-
-		if (enableDeArrow) {
+		if (dearrow) {
 			let title = info.title;
 			let thumbnail = info.videoThumbnails[0].url;
 
-			const dearrow = await getDearrowBranding(videoId);
 			let timestamp = undefined;
 
 			if (dearrow) {
@@ -164,7 +166,7 @@ export default {
 			publishedAt: info.liveNow ? '' : `Uploaded ${info.publishedText}`,
 			subscriberCountText: info.subCountText,
 			likeCount: info.likeCount.toLocaleString('en-US'),
-			isVerified: await isChannelVerified(info.authorId),
+			isVerified: info.isAuthorVerified,
 			ownerProfileUrl: 'https://youtube.com' + info.authorUrl,
 			bestThumbnail: isShorts || overrideNoThumb ? '' : info.videoThumbnails[0].url,
 			isLive: info.liveNow,
