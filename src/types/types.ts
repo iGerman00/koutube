@@ -56,6 +56,7 @@ export type Video = {
 	liveNow: boolean;
 	isUpcoming: boolean;
 	formatStreams: FormatStream[];
+	isAuthorVerified: boolean;
 };
 
 export type RYDResponse = {

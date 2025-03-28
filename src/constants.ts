@@ -59,6 +59,6 @@ export const embedUserAgents = [
 ];
 
 export const robots = `
-User-agent: dotbot
+User-agent: *
 Disallow: /
 `;

@@ -1,9 +1,15 @@
+<div align="center">	
+
+  [![Badge indicating Invidious instance status](https://status.igerman.cc/api/badge/40/status?upColor=%233d843b&pendingColor=b57602&style=for-the-badge&label=Invidious)](https://koutube.com)
+  [![Badge indicating count of items cached](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fkoutube.com%2Fstatus&query=%24.count&style=for-the-badge&label=Items%20cached&color=%23ff5d5b)](https://koutube.com)
+
+</div>
+
 <div align="center">
 
-  [![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fkoutube.com%2Fstatus&query=%24.count&style=for-the-badge&label=Items%20cached&color=%23ff5d5b)](https://koutube.com)
-	[![GitHub License](https://img.shields.io/github/license/iGerman00/koutube?style=for-the-badge&color=%233d843b)](https://github.com/iGerman00/koutube)
-  [![GitHub Sponsors](https://img.shields.io/github/sponsors/iGerman00?style=for-the-badge)](https://github.com/sponsors/iGerman00)
-	
+  [![GitHub License](https://img.shields.io/github/license/iGerman00/koutube?style=for-the-badge&color=%233d843b)](https://github.com/iGerman00/koutube)
+	[![GitHub Sponsors](https://img.shields.io/github/sponsors/iGerman00?style=for-the-badge)](https://github.com/sponsors/iGerman00)
+
 </div>
 
 # Koutube
@@ -145,7 +151,7 @@ Koutube is capable of working with a semi-private Invidious instance. All that i
 
 To configure your own:
 1. Follow the [Invidious installation guide](https://docs.invidious.io/installation/)
-2. Optionally restrict the instance to require an `Authorization header`
+2. Optionally restrict the instance to require an `Authorization` header  
    Sidenote: `/vi*` and `/latest_version*` must be publicly accessible for Discord to validate the embed
 3. Deploy secrets using Wrangler:
 ```bash
@@ -206,9 +212,9 @@ Koutube is licensed under the GPL-3.0 License.
 
 - The cache listing, which is a list of the vast majority of links processed by Koutube [is public](https://koutu.be)
 
-- I try not to log anything I don't need, but I log some errors here and there and whenever a cached response is returned.  
+- I try not to log anything I don't need, but I log some errors here and there and whenever a cached response is returned. The processing time of the request is also logged, for me to debug any anomalies.  
 
-- A private Invidious instance is used for now due to unreliable public ones. No logging is configured  
+- A private Invidious instance that I host is used. No logging is configured on it. 
 
 > I have to actively enable log streaming by typing a command or logging into the Cloudflare dashboard. As you can imagine, I don't do that unless I am debugging an error.  
 

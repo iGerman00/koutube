@@ -1,7 +1,7 @@
 import { Env, CacheData, ChannelEmbedData } from '../types/types';
 import { config } from '../constants';
 import he from 'he';
-import { getChannelInfo, putCacheEntry, renderGenericTemplate, resolveUrl, stripTracking } from '../utils';
+import { getChannelInfo, putCacheEntry, renderGenericTemplate, resolveUrl, isChannelVerified, stripTracking } from '../utils';
 
 export default {
 	async handleChannel(request: Request, env: Env): Promise<Response> {
@@ -17,7 +17,6 @@ export default {
 			const resolved = await resolveUrl(getOriginalUrl());
 			channel = resolved.ucid;
 		} else if (originalPath.startsWith('/channel/')) {
-			// already have the channel id
 			channel = originalPath.split('/channel/')[1].split('/')[0];
 		}
 
@@ -33,7 +32,11 @@ export default {
 			});
 		}
 
-		let info = await getChannelInfo(channel);
+		// Once we have channel ID, fetch info and verification status in parallel
+		const [info, isVerified] = await Promise.all([
+			getChannelInfo(channel),
+			isChannelVerified(channel)
+		]);
 
 		if (info.error) {
 			const response = renderGenericTemplate(info.error, getOriginalUrl(), request, 'Invidious Error');
@@ -54,7 +57,7 @@ export default {
 			author: he.encode(info.author),
 			description: he.encode(description),
 			subCount: info.subCount.toLocaleString('en-US'),
-			isVerified: info.authorVerified,
+			isVerified,
 			latestVideos: info.latestVideos,
 			youtubeUrl: info.authorUrl,
 			authorId: info.authorId,
