@@ -1,5 +1,5 @@
 import { config } from './constants';
-import { RYDResponse, PlaylistInfo, Video, ChannelInfo, DeArrowResponse, CacheData, CacheDataEntry } from './types/types';
+import { RYDResponse, PlaylistInfo, Video, ChannelInfo, DeArrowResponse, CacheData, CacheDataEntry, ResolvedURL } from './types/types';
 
 export function getURLType(url: URL): string {
 	const isShorts = url.pathname.startsWith('/shorts');
@@ -89,6 +89,19 @@ export async function getChannelInfo(channelId: string): Promise<ChannelInfo> {
 
 	return json;
 }
+
+export async function resolveUrl(url: string): Promise<ResolvedURL> {
+	const page = await fetch(`${config.api_base}/api/v1/resolveurl?url=${encodeURIComponent(url)}`, {
+		headers: {
+			'Accept-Language': 'en-US,en;q=0.9',
+			'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
+			Authorization: config.auth,
+		},
+	});
+	const json = (await page.json()) as ResolvedURL;
+	return json;
+}
+
 
 export async function isMix(playlistId: string, request: Request): Promise<boolean> {
 	// return true; // for testing
@@ -207,13 +220,6 @@ export function userAgentType(userAgent: string | null): string {
 	return mobileRegex.test(userAgent) ? 'mobile' : 'desktop';
 }
 
-export function scrapeChannelId(html: string): string | null {
-	// <link rel="canonical" href="https://www.youtube.com/channel/UC_x5XG1OV2P6uZZ5FSM9Ttw">
-	// need to get the id from the link tag
-	const match = html.match(/<link rel="canonical" href="https:\/\/www.youtube.com\/channel\/(.*?)">/);
-	return match ? match[1] : null;
-}
-
 export function renderGenericTemplate(
 	info: string,
 	redirectUrl: string,
@@ -305,22 +311,22 @@ export async function listCacheEntries(db: D1Database) {
 
 	try {
 		const query = `
-		SELECT 
+		SELECT
 		  EntryKey,
 		  json_extract(Entry, '$.headers.Cached-On') as CachedOn,
 		  json_extract(Entry, '$.headers.Content-Type') as ContentType,
 		  Entry,
 		  (
-			strftime('%s', json_extract(Entry, '$.headers.Cached-On')) + 
-			CASE 
+			strftime('%s', json_extract(Entry, '$.headers.Cached-On')) +
+			CASE
 			  WHEN json_extract(Entry, '$.headers.Content-Type') LIKE 'image/%' THEN 365*24*60*60
 			  ELSE 7*24*60*60
 			END
 		  ) as Expiration,
 		  (
 			strftime('%s', 'now') > (
-			  strftime('%s', json_extract(Entry, '$.headers.Cached-On')) + 
-			  CASE 
+			  strftime('%s', json_extract(Entry, '$.headers.Cached-On')) +
+			  CASE
 				WHEN json_extract(Entry, '$.headers.Content-Type') LIKE 'image/%' THEN 365*24*60*60
 				ELSE 7*24*60*60
 			  END
@@ -370,21 +376,21 @@ export async function listCacheEntriesPaginated(db: D1Database, page: number = 1
 
 	try {
 		const query = `
-		SELECT 
-		  EntryKey, 
+		SELECT
+		  EntryKey,
 		  json_extract(Entry, '$.headers.Cached-On') as CachedOn,
 		  json_extract(Entry, '$.headers.Content-Type') as ContentType,
 		  (
-			strftime('%s', json_extract(Entry, '$.headers.Cached-On')) + 
-			CASE 
+			strftime('%s', json_extract(Entry, '$.headers.Cached-On')) +
+			CASE
 			  WHEN json_extract(Entry, '$.headers.Content-Type') LIKE 'image/%' THEN 365*24*60*60
 			  ELSE 7*24*60*60
 			END
 		  ) as Expiration,
 		  (
 			strftime('%s', 'now') > (
-			  strftime('%s', json_extract(Entry, '$.headers.Cached-On')) + 
-			  CASE 
+			  strftime('%s', json_extract(Entry, '$.headers.Cached-On')) +
+			  CASE
 				WHEN json_extract(Entry, '$.headers.Content-Type') LIKE 'image/%' THEN 365*24*60*60
 				ELSE 7*24*60*60
 			  END

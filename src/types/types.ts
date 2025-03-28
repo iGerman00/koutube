@@ -1,4 +1,4 @@
-import { BrowserWorker } from "@cloudflare/puppeteer";
+import { BrowserWorker } from '@cloudflare/puppeteer';
 
 export type Env = {
 	D1_DB: D1Database;
@@ -63,42 +63,42 @@ export type RYDResponse = {
 	dateCreated: string;
 	likes: number;
 	dislikes: number;
-	rating: number
+	rating: number;
 	viewCount: number;
 	deleted: boolean;
 };
 
 export type DeArrowRequest = {
-	videoID: string,
-	service: string, // Optional, default is 'YouTube' [1]
-	returnUserID: boolean, // optional, returns submitter userIDs if true, default false
-	fetchAll: boolean // optional, hides details with negative score if false, default false
-}
+	videoID: string;
+	service: string; // Optional, default is 'YouTube' [1]
+	returnUserID: boolean; // optional, returns submitter userIDs if true, default false
+	fetchAll: boolean; // optional, hides details with negative score if false, default false
+};
 
 export type DeArrowTitle = {
-	title: string, // Note: Titles will sometimes contain > before a word. This tells the auto-formatter to not format a word. If you have no auto-formatter, you can ignore this and replace it with an empty string
-	original: boolean,
-	votes: number,
-	locked: boolean,
-	UUID: string,
-	userID: string // only present if requested
-}
+	title: string; // Note: Titles will sometimes contain > before a word. This tells the auto-formatter to not format a word. If you have no auto-formatter, you can ignore this and replace it with an empty string
+	original: boolean;
+	votes: number;
+	locked: boolean;
+	UUID: string;
+	userID: string; // only present if requested
+};
 
 export type DeArrowThumbnail = {
-	timestamp: number, // null if original is true
-	original: boolean,
-	votes: number,
-	locked: boolean,
-	UUID: string,
-	userID: string // only present if requested
-}
+	timestamp: number; // null if original is true
+	original: boolean;
+	votes: number;
+	locked: boolean;
+	UUID: string;
+	userID: string; // only present if requested
+};
 
 export type DeArrowResponse = {
-	titles: DeArrowTitle[],
-	thumbnails: DeArrowThumbnail[],
-	randomTime: number,
-	videoDuration: number | null
-}
+	titles: DeArrowTitle[];
+	thumbnails: DeArrowThumbnail[];
+	randomTime: number;
+	videoDuration: number | null;
+};
 
 export type VideoEmbedData = {
 	appTitle: string;
@@ -192,6 +192,15 @@ export type ChannelInfo = {
 	error?: string;
 };
 
+export type ResolvedURL = {
+	ucid?: string;
+	videoId?: string;
+	playlistId?: string;
+	startTimeSeconds?: string;
+	params?: string;
+	pageType: string;
+};
+
 export type ChannelEmbedData = {
 	appTitle: string;
 	description: string;
@@ -203,7 +212,7 @@ export type ChannelEmbedData = {
 	youtubeUrl: string;
 	authorId: string;
 	request: Request;
-}
+};
 
 export type MixInfo = {
 	title: string;

@@ -1,7 +1,7 @@
 import { Env, CacheData, ChannelEmbedData } from '../types/types';
 import { config } from '../constants';
 import he from 'he';
-import { getChannelInfo, putCacheEntry, renderGenericTemplate, scrapeChannelId, stripTracking } from '../utils';
+import { getChannelInfo, putCacheEntry, renderGenericTemplate, resolveUrl, stripTracking } from '../utils';
 
 export default {
 	async handleChannel(request: Request, env: Env): Promise<Response> {
@@ -13,14 +13,9 @@ export default {
 		}
 
 		if (originalPath.startsWith('/c/') || originalPath.startsWith('/@') || originalPath.startsWith('/user/')) {
-			// need to get the channel id
-			const page = await fetch(getOriginalUrl(), {
-				headers: {
-					'User-Agent': 'Mozilla/5.0',
-				},
-			});
-			const text = await page.text();
-			channel = scrapeChannelId(text);
+			// use Invidious' resolve API
+			const resolved = await resolveUrl(getOriginalUrl());
+			channel = resolved.ucid;
 		} else if (originalPath.startsWith('/channel/')) {
 			// already have the channel id
 			channel = originalPath.split('/channel/')[1].split('/')[0];
