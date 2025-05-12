@@ -445,10 +445,22 @@ export async function putCacheEntry(db: D1Database, key: string, value: CacheDat
 		return;
 	}
 	expiration = Math.floor(Date.now() / 1000) + expiration; // expiration is relative in seconds
-	await db
-		.prepare('INSERT INTO CacheEntries (EntryKey, Entry, Expiration) VALUES (?, ?, ?)')
-		.bind(key, JSON.stringify(value), expiration)
-		.run();
+	try {
+		await db
+			.prepare('INSERT INTO CacheEntries (EntryKey, Entry, Expiration) VALUES (?, ?, ?)')
+			.bind(key, JSON.stringify(value), expiration)
+			.run();
+	} catch (error: any) {
+		if (error.message.includes('UNIQUE constraint failed')) {
+			console.log('Cache entry already exists, updating instead');
+			await db
+				.prepare('UPDATE CacheEntries SET Entry = ?, Expiration = ? WHERE EntryKey = ?')
+				.bind(JSON.stringify(value), expiration, key)
+				.run();
+		} else {
+			console.error('Error inserting cache entry:', error);
+		}
+	}
 }
 
 export async function deleteCacheEntry(db: D1Database, key: string) {
@@ -457,4 +469,30 @@ export async function deleteCacheEntry(db: D1Database, key: string) {
 		return;
 	}
 	await db.prepare('DELETE FROM CacheEntries WHERE EntryKey = ?').bind(key).run();
+}
+
+export async function getDirectUrl(videoId: string, itag: string | number): Promise<string> {
+	const baseUrl = `${config.api_base}/latest_version?id=${videoId}&itag=${itag}`;
+
+	if (!config.enableInvidiousProxying) {
+		return baseUrl;
+	}
+
+	const urlWithLocal = `${baseUrl}&local=true`;
+	try {
+		const response = await fetch(urlWithLocal, {
+			method: 'HEAD',
+			redirect: 'manual' // don't follow redirects
+		});
+
+		if (response.status === 302 && response.headers.has('location')) {
+			const path = response.headers.get('location') as string;
+			const url = new URL(config.api_base + path); // sanity, will throw if something is wrong
+			return url.toString();
+		}
+		return urlWithLocal;
+	} catch (error) {
+		console.error('Error resolving redirect:', error);
+		return urlWithLocal;
+	}
 }

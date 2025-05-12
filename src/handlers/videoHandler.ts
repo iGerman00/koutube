@@ -10,6 +10,7 @@ import {
 	putCacheEntry,
 	renderGenericTemplate,
 	stripTracking,
+	getDirectUrl,
 } from '../utils';
 
 export default {
@@ -92,7 +93,7 @@ export default {
 				},
 			});
 		} else if (info.error) {
-			if (info.error.startsWith('Please sign in')) throw new Error('Invidious seems to have died');
+			if (info.error.startsWith('Please sign in') || info.error.includes("our community")) throw new Error('Invidious seems to have died');
 
 			const response = renderGenericTemplate(info.error, getOriginalUrl(), request, 'Invidious Error');
 			return new Response(response, {
@@ -170,7 +171,7 @@ export default {
 			ownerProfileUrl: 'https://youtube.com' + info.authorUrl,
 			bestThumbnail: isShorts || overrideNoThumb ? '' : info.videoThumbnails[0].url,
 			isLive: info.liveNow,
-			directUrl: `${config.api_base}/latest_version?id=${videoId}&itag=${videoResolution.itag}`,
+			directUrl: await getDirectUrl(videoId, videoResolution.itag),
 			formatStreams: info.formatStreams,
 			resolution: videoResolution,
 			youtubeUrl: getOriginalUrl(),
