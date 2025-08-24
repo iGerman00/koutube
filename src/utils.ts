@@ -479,6 +479,11 @@ export async function getDirectUrl(videoId: string, itag: string | number): Prom
 	}
 
 	const urlWithLocal = `${baseUrl}&local=true`;
+
+	if (!config.shouldResolveRedirect) {
+		return urlWithLocal;
+	}
+
 	try {
 		const response = await fetch(urlWithLocal, {
 			method: 'HEAD',
