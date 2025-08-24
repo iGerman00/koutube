@@ -14,7 +14,7 @@
     "@types/he": "^1.2.1",
     "@types/node": "^20.14.6",
     "typescript": "^5.0.4",
-    "wrangler": "^4.6.0"
+    "wrangler": "^4.32.0"
   },
   "dependencies": {
     "he": "^1.2.0"
