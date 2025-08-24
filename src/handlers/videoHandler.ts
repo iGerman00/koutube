@@ -22,6 +22,7 @@ export default {
 		let overrideStockPlayer = new URL(request.url).searchParams.getCaseInsensitive('stock') !== null;
 
 		let overrideItag = new URL(request.url).searchParams.getCaseInsensitive('itag');
+		let useDirectMode = new URL(request.url).searchParams.getCaseInsensitive('direct') !== null;
 
 		if (overrideItag) {
 			if (isNaN(Number(overrideItag))) {
@@ -63,6 +64,28 @@ export default {
 					Location: getOriginalUrl(),
 				},
 			});
+		}
+
+		if (useDirectMode) {
+			// no caching - just a simple redirect to Invidious
+			const directUrl = await getDirectUrl(videoId, overrideItag ? Number(overrideItag) : 18);
+			if (directUrl) {
+				return new Response(null, {
+					status: 302,
+					headers: {
+						Location: directUrl,
+					},
+				});
+			} else {
+				const response = renderGenericTemplate('Failed to get direct URL', getOriginalUrl(), request, 'Direct URL Error');
+				return new Response(response, {
+					status: 500,
+					headers: {
+						'Content-Type': 'text/html',
+						Location: getOriginalUrl(),
+					},
+				});
+			}
 		}
 
 		let info = await getVideoInfo(videoId);

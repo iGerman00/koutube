@@ -1,4 +1,4 @@
-<div align="center">	
+<div align="center">
 
   [![Badge indicating Invidious instance status](https://status.igerman.cc/api/badge/40/status?upColor=%233d843b&pendingColor=b57602&style=for-the-badge&label=Invidious)](https://koutube.com)
   [![Badge indicating count of items cached](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fkoutube.com%2Fstatus&query=%24.count&style=for-the-badge&label=Items%20cached&color=%23ff5d5b)](https://koutube.com)
@@ -47,22 +47,23 @@ s/y/k
 - 💥 No random explosions (fixed!)
 
 ## Caching 🚀
-This project uses a 7-day cache of every URL that it processes to avoid hammering any services. Subject to change.  
+This project uses a 7-day cache of every URL that it processes to avoid hammering any services. Subject to change.
 For image embeds, the cache is 1 year since I expect it to be used in more static applications.
 
 I often clear the cache when I push a new update.
 
 ## Parameters
 > Not case-sensitive
+- `dearrow` - requests the thumbnail and title from [DeArrow](https://dearrow.ajay.app/)
+- `direct` - bypasses cache and all metadata, only returns a direct link to the video
+- `dislikes` - shows dislikes, requests from [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike)
+- `itag` - forces a specific video quality, only `itag=22` for 720p and `itag=18` for 360p are allowed
 - `nocache` - disables fetching the cached version
 - `nothumb` - disable embedding the thumbnail, may help fix video cropping on mobile Discord clients
 - `shorts` - treats the video as shorts
-- `dislikes` - shows dislikes, requests from [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike)
-- `itag` - forces a specific video quality, only `itag=22` for 720p and `itag=18` for 360p are allowed
-- `dearrow` - requests the thumbnail and title from [DeArrow](https://dearrow.ajay.app/)
 - `stock` - embed the regular YouTube embed. Automatically set to true for some content like livestreams and premieres
 
-> The `dearrow` parameter uses SponsorBlock data licensed used under CC BY-NC-SA 4.0 from https://sponsor.ajay.app/.  
+> The `dearrow` parameter uses SponsorBlock data licensed used under CC BY-NC-SA 4.0 from https://sponsor.ajay.app/.
 
 > Shorts and non-16:9 videos are not going to have a thumbnail in the embed due to the Discord embed prioritizing the image's aspect ratio over the video and cropping it incorrectly on mobile.
 
@@ -151,7 +152,7 @@ Koutube is capable of working with a semi-private Invidious instance. All that i
 
 To configure your own:
 1. Follow the [Invidious installation guide](https://docs.invidious.io/installation/)
-2. Optionally restrict the instance to require an `Authorization` header  
+2. Optionally restrict the instance to require an `Authorization` header
    Sidenote: `/vi*` and `/latest_version*` must be publicly accessible for Discord to validate the embed
 3. Deploy secrets using Wrangler:
 ```bash
@@ -212,11 +213,11 @@ Koutube is licensed under the GPL-3.0 License.
 
 - The cache listing, which is a list of the vast majority of links processed by Koutube [is public](https://koutu.be)
 
-- I try not to log anything I don't need, but I log some errors here and there and whenever a cached response is returned. The processing time of the request is also logged, for me to debug any anomalies.  
+- I try not to log anything I don't need, but I log some errors here and there and whenever a cached response is returned. The processing time of the request is also logged, for me to debug any anomalies.
 
-- A private Invidious instance that I host is used. No logging is configured on it. 
+- A private Invidious instance that I host is used. No logging is configured on it.
 
-> I have to actively enable log streaming by typing a command or logging into the Cloudflare dashboard. As you can imagine, I don't do that unless I am debugging an error.  
+> I have to actively enable log streaming by typing a command or logging into the Cloudflare dashboard. As you can imagine, I don't do that unless I am debugging an error.
 
 ## Credits 👏
 
