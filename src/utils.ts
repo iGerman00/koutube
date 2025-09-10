@@ -475,7 +475,8 @@ export async function getDirectUrl(videoId: string, itag: string | number): Prom
 	const baseUrl = `${config.api_base}/latest_version?id=${videoId}&itag=${itag}`;
 
 	if (!config.enableInvidiousProxying) {
-		return baseUrl;
+		const urlWithoutLocal = `${config.api_base}/latest_version?id=${videoId}&itag=${itag}&local=false`;
+		return urlWithoutLocal;
 	}
 
 	const urlWithLocal = `${baseUrl}&local=true`;
