@@ -33,9 +33,13 @@ The API supports the same parameters as the main service:
 - `shorts`: Treats the video as shorts.
 - `stock`: Embed the regular YouTube embed.
 
-## Response Schema
+## Schema
 
-The API returns a JSON object with the following fields. Note that fields may be `null` if not applicable to the content type or not available. Additionally, fields might be like when YouTube Music links return no image URL. A lot of fields are strings, not numbers - check types on your side because it's too much effort to fix all that 🤷‍♂️.
+The API returns a JSON object with the following fields. Note that fields may be `null` if not applicable to the content type or not available.
+
+Fields might be empty strings ("") like when YouTube Music links return no image URL.
+
+A lot of fields are strings, not numbers - check types on your side because it's too much effort to fix all that 🤷‍♂️.
 
 Real example:
 ```json
@@ -63,23 +67,6 @@ Real example:
 }
 ```
 
-<details>
-<summary>Real example response</summary>
-```json
-
-```
-</details>
-
-### Error Response
-
-If an error occurs, the `error` field will contain a description, and other fields may be null.
-
-```json
-{
-  "error": "Invalid Video ID"
-}
-```
-
 ## Caching
 
 API responses are cached separately from the HTML responses. The cache duration depends on the content type (typically 1 week).
@@ -88,7 +75,7 @@ They **do not** appear in the public cache listing, but are still stored in the 
 
 All requests (normal and API) that were returned from the cache will include a `Cached-On` header. If it is not present, the response was generated fresh.
 
-## Rate Limiting
+## Rate limiting
 
 All API requests are subject to rate limiting to prevent abuse and overwhelming my tiny Invidious instance. Please be respectful and avoid making excessive requests, otherwise I may have to implement authentication or disable the API altogether.
 
@@ -96,7 +83,7 @@ All API requests are subject to rate limiting to prevent abuse and overwhelming 
 - Exceeding the limit results in a temporary block of 10 seconds, Cloudflare-side
 - After the block period, requests are allowed again
 
-| Time (s) | Request Count | Result |
+| Time (s) | Request count | Result |
 |-----------|----------------|--------|
 | 0–1       | 10             | ✅ OK |
 | 1–2       | +5 (total 15)  | ❌ Blocked |
