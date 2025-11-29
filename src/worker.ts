@@ -59,6 +59,7 @@ export default {
 
 						const url = new URL(key.name);
 						if (url.searchParams.get('nocache') !== null) return;
+						if (url.pathname.startsWith('/api')) return; // skip api entries, they are still in the db just not publicly listed
 
 						const timecode = url.searchParams.get('t') || url.searchParams.get('time_continue');
 						const obj: PublicCacheEntry = {
@@ -98,7 +99,7 @@ export default {
 				});
 			}
 
-			if (new URL(request.url).pathname === '/status') {
+			if (new URL(request.url).pathname === '/status' || new URL(request.url).pathname === '/api/status') {
 				const count = await getCountCacheEntries(env.D1_DB);
 				const body = JSON.stringify({ count, status: 'ok' });
 				return new Response(body, {
@@ -137,9 +138,12 @@ export default {
 					console.error('Cache error', e);
 				}
 
+				const urlObj = new URL(request.url);
+				const isApi = urlObj.pathname.startsWith('/api');
+
 				// if subdomain is img, embedImageHandler
-				if (new URL(request.url).pathname.startsWith('/img/') && config.enableImageEmbeds) {
-					return embedImageHandler.handleEmbedImage(request, env);
+				if ((urlObj.pathname.startsWith('/img/') || (isApi && urlObj.pathname.startsWith('/api/img/'))) && config.enableImageEmbeds) {
+					return embedImageHandler.handleEmbedImage(request, env, isApi);
 				}
 
 				// if we fetch oembed, get all params and return them as json
@@ -159,7 +163,11 @@ export default {
 					});
 				}
 
-				const originalPath = request.url.replace(new URL(request.url).origin, '');
+				let originalPath = request.url.replace(new URL(request.url).origin, '');
+				if (isApi && originalPath.startsWith('/api')) {
+					originalPath = originalPath.substring(4);
+				}
+
 				const isPlaylist = originalPath.startsWith('/playlist');
 				const isChannel =
 					originalPath.startsWith('/channel') ||
@@ -170,11 +178,11 @@ export default {
 				try {
 					let result;
 					if (isPlaylist) {
-						result = await playlistHandler.handlePlaylist(request, env);
+						result = await playlistHandler.handlePlaylist(request, env, isApi);
 					} else if (isChannel) {
-						result = await channelHandler.handleChannel(request, env);
+						result = await channelHandler.handleChannel(request, env, isApi);
 					} else {
-						result = await videoHandler.handleVideo(request, env);
+						result = await videoHandler.handleVideo(request, env, isApi);
 					}
 					return result;
 				} catch (e) {
@@ -189,6 +197,13 @@ export default {
 						if ((e as Error).message === 'Invidious seems to have died')
 							errorMessage =
 								'Invidious returned an error indicating that YouTube is fighting unofficial access to their API. This response was not cached.';
+
+						if (isApi) {
+							return new Response(JSON.stringify({ error: errorMessage }), {
+								status: 200,
+								headers: { 'Content-Type': 'application/json' },
+							});
+						}
 
 						const template = renderGenericTemplate(errorMessage, config.appLink, request, 'Error');
 						return new Response(template, {

@@ -5,8 +5,11 @@ import { getPlaylistInfo, isChannelVerified, isMix, putCacheEntry, renderGeneric
 import mixHandler from './mixHandler';
 
 export default {
-	async handlePlaylist(request: Request, env: Env): Promise<Response> {
-		const originalPath = request.url.replace(new URL(request.url).origin, '');
+	async handlePlaylist(request: Request, env: Env, isApi: boolean = false): Promise<Response> {
+		let originalPath = request.url.replace(new URL(request.url).origin, '');
+		if (isApi && originalPath.startsWith('/api')) {
+			originalPath = originalPath.substring(4);
+		}
 
 		function getOriginalUrl() {
 			return stripTracking(`https://www.youtube.com${originalPath}`);
@@ -18,6 +21,12 @@ export default {
 
 		if (!playlistId) {
 			const error = 'Invalid Playlist ID';
+			if (isApi) {
+				return new Response(JSON.stringify({ error }), {
+					status: 200,
+					headers: { 'Content-Type': 'application/json' },
+				});
+			}
 			const response = renderGenericTemplate(error, getOriginalUrl(), request, 'Parse Error');
 			return new Response(response, {
 				status: 200,
@@ -29,7 +38,7 @@ export default {
 		}
 
 		if (await isMix(playlistId, request)) {
-			return mixHandler.handleMix(request, env);
+			return mixHandler.handleMix(request, env, isApi);
 		}
 
 		const [info, channelVerified] = await Promise.all([
@@ -38,6 +47,12 @@ export default {
 		]);
 
 		if (info.error) {
+			if (isApi) {
+				return new Response(JSON.stringify({ error: info.error }), {
+					status: 200,
+					headers: { 'Content-Type': 'application/json' },
+				});
+			}
 			const response = renderGenericTemplate(info.error, getOriginalUrl(), request, 'Invidious Error');
 			return new Response(response, {
 				status: 200,
@@ -65,6 +80,51 @@ export default {
 			playlistId: playlistId,
 			request: request,
 		};
+
+		if (isApi) {
+			const apiResponse = {
+				siteName: embedData.appTitle,
+				contentType: 'playlist',
+				themeColor: '#ff5d5b',
+				playerStreamUrl: null,
+				videoWidth: null,
+				videoHeight: null,
+				image: embedData.bestThumbnail,
+				description: embedData.description,
+				originalUrl: embedData.youtubeUrl,
+				authorName: embedData.author,
+				uploadDate: embedData.lastUpdated.toISOString(),
+				likeCount: null,
+				dislikeCount: null,
+				subscriberCount: null,
+				followersCount: null,
+				viewCount: embedData.viewCount,
+				videoCount: embedData.videoCount,
+				songCount: null,
+				imageData: null,
+				error: null,
+			};
+
+			const json = JSON.stringify(apiResponse);
+			const cacheEntry: CacheData = {
+				response: json,
+				headers: {
+					'Content-Type': 'application/json',
+					'Cached-On': new Date().toISOString(),
+				},
+			};
+			try {
+				await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.playlistExpireTime);
+			} catch (e) {
+				console.error('Cache saving error', e);
+			}
+			return new Response(json, {
+				status: 200,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+		}
 
 		const html = renderTemplate(embedData);
 

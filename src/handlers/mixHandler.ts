@@ -4,8 +4,11 @@ import he from 'he';
 import { getPlaylistInfo as getMixInfo, putCacheEntry, renderGenericTemplate, stripTracking } from '../utils';
 
 export default {
-	async handleMix(request: Request, env: Env): Promise<Response> {
-		const originalPath = request.url.replace(new URL(request.url).origin, '');
+	async handleMix(request: Request, env: Env, isApi: boolean = false): Promise<Response> {
+		let originalPath = request.url.replace(new URL(request.url).origin, '');
+		if (isApi && originalPath.startsWith('/api')) {
+			originalPath = originalPath.substring(4);
+		}
 
 		function getOriginalUrl() {
 			return stripTracking(`https://music.youtube.com${originalPath}`);
@@ -17,6 +20,12 @@ export default {
 
 		if (!mixId) {
 			const error = 'Invalid Mix ID';
+			if (isApi) {
+				return new Response(JSON.stringify({ error }), {
+					status: 200,
+					headers: { 'Content-Type': 'application/json' },
+				});
+			}
 			const response = renderGenericTemplate(error, getOriginalUrl(), request, 'Parse Error');
 			return new Response(response, {
 				status: 200,
@@ -30,6 +39,12 @@ export default {
 		const info = await getMixInfo(mixId);
 
 		if (info.error) {
+			if (isApi) {
+				return new Response(JSON.stringify({ error: info.error }), {
+					status: 200,
+					headers: { 'Content-Type': 'application/json' },
+				});
+			}
 			const response = renderGenericTemplate(info.error, getOriginalUrl(), request, 'Invidious Error');
 			return new Response(response, {
 				status: 200,
@@ -50,6 +65,51 @@ export default {
 			request: request,
 			songCount: info.videos.length.toLocaleString('en-US'),
 		};
+
+		if (isApi) {
+			const apiResponse = {
+				siteName: embedData.appTitle,
+				contentType: 'mix',
+				themeColor: '#ff5d5b',
+				playerStreamUrl: null,
+				videoWidth: null,
+				videoHeight: null,
+				image: null,
+				description: null,
+				originalUrl: embedData.youtubeUrl,
+				authorName: null,
+				uploadDate: null,
+				likeCount: null,
+				dislikeCount: null,
+				subscriberCount: null,
+				followersCount: null,
+				viewCount: null,
+				videoCount: null,
+				songCount: embedData.songCount,
+				imageData: null,
+				error: null,
+			};
+
+			const json = JSON.stringify(apiResponse);
+			const cacheEntry: CacheData = {
+				response: json,
+				headers: {
+					'Content-Type': 'application/json',
+					'Cached-On': new Date().toISOString(),
+				},
+			};
+			try {
+				await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.mixExpireTime);
+			} catch (e) {
+				console.error('Cache saving error', e);
+			}
+			return new Response(json, {
+				status: 200,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+		}
 
 		const html = renderTemplate(embedData);
 

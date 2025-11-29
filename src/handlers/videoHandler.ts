@@ -14,7 +14,7 @@ import {
 } from '../utils';
 
 export default {
-	async handleVideo(request: Request, env: Env): Promise<Response> {
+	async handleVideo(request: Request, env: Env, isApi: boolean = false): Promise<Response> {
 		const overrideShorts = new URL(request.url).searchParams.getCaseInsensitive('shorts') !== null;
 		let overrideNoThumb = new URL(request.url).searchParams.getCaseInsensitive('nothumb') !== null;
 		const overrideDislikes = new URL(request.url).searchParams.getCaseInsensitive('dislikes') !== null;
@@ -33,7 +33,10 @@ export default {
 			}
 		}
 
-		const originalPath = request.url.replace(new URL(request.url).origin, '');
+		let originalPath = request.url.replace(new URL(request.url).origin, '');
+		if (isApi && originalPath.startsWith('/api')) {
+			originalPath = originalPath.substring(4);
+		}
 		const isShorts = originalPath.startsWith('/shorts') || overrideShorts;
 		const isWatch = originalPath.startsWith('/watch');
 		const isEmbed = originalPath.startsWith('/embed');
@@ -95,6 +98,12 @@ export default {
 			const date = info.error.replace('This live event will begin ', '').replace('.', '');
 			const string = `Sorry, there's no info to give you other than the fact that the event will begin ${date}`;
 			overrideStockPlayer = true;
+			if (isApi) {
+				return new Response(JSON.stringify({ error: string }), {
+					status: 200,
+					headers: { 'Content-Type': 'application/json' },
+				});
+			}
 			const response = renderGenericTemplate(string, getOriginalUrl(), request, 'Scheduled Event', true, videoId);
 			return new Response(response, {
 				status: 200,
@@ -107,6 +116,12 @@ export default {
 			const date = info.error.replace('Premieres ', '').replace('.', '');
 			const string = `Sorry, there's no info to give you other than the fact that it's a premiere starting ${date}`;
 			overrideStockPlayer = true;
+			if (isApi) {
+				return new Response(JSON.stringify({ error: string }), {
+					status: 200,
+					headers: { 'Content-Type': 'application/json' },
+				});
+			}
 			const response = renderGenericTemplate(string, getOriginalUrl(), request, 'Premiering Event', true, videoId);
 			return new Response(response, {
 				status: 200,
@@ -118,6 +133,12 @@ export default {
 		} else if (info.error) {
 			if (info.error.startsWith('Please sign in') || info.error.includes("our community")) throw new Error('Invidious seems to have died');
 
+			if (isApi) {
+				return new Response(JSON.stringify({ error: info.error }), {
+					status: 200,
+					headers: { 'Content-Type': 'application/json' },
+				});
+			}
 			const response = renderGenericTemplate(info.error, getOriginalUrl(), request, 'Invidious Error');
 			return new Response(response, {
 				status: 200,
@@ -203,6 +224,51 @@ export default {
 			rydResponse,
 			isStock: overrideStockPlayer,
 		};
+
+		if (isApi) {
+			const apiResponse = {
+				siteName: embedData.appTitle,
+				contentType: 'video',
+				themeColor: '#ff5d5b',
+				playerStreamUrl: embedData.directUrl,
+				videoWidth: embedData.resolution.width,
+				videoHeight: embedData.resolution.height,
+				image: embedData.bestThumbnail,
+				description: embedData.description,
+				originalUrl: embedData.youtubeUrl,
+				authorName: embedData.author,
+				uploadDate: embedData.publishedAt,
+				likeCount: embedData.likeCount,
+				dislikeCount: embedData.rydResponse?.dislikes ?? null,
+				subscriberCount: embedData.subscriberCountText,
+				followersCount: embedData.subscriberCountText,
+				viewCount: embedData.viewCount,
+				videoCount: null,
+				songCount: null,
+				imageData: null,
+				error: embedData.error ?? null,
+			};
+
+			const json = JSON.stringify(apiResponse);
+			const cacheEntry: CacheData = {
+				response: json,
+				headers: {
+					'Content-Type': 'application/json',
+					'Cached-On': new Date().toISOString(),
+				},
+			};
+			try {
+				await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.videoExpireTime);
+			} catch (e) {
+				console.error('Cache saving error', e);
+			}
+			return new Response(json, {
+				status: 200,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+		}
 
 		const html = renderTemplate(embedData);
 

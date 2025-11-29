@@ -20,6 +20,7 @@ Koutube is a web service, running in [Cloudflare Workers](https://workers.cloudf
 
 ## Usage 💡
 
+Replace the 'y' in 'youtube.com' with 'k' to use Koutube. With sed, you can do:
 ```
 s/y/k
 ```
@@ -50,7 +51,13 @@ s/y/k
 This project uses a 7-day cache of every URL that it processes to avoid hammering any services. Subject to change.
 For image embeds, the cache is 1 year since I expect it to be used in more static applications.
 
-I often clear the cache when I push a new update.
+I sometimes clear the cache when I push a new update.
+
+## API Documentation 📚
+> [!WARNING]
+> The API is a work in progress. Please report any issues you encounter that do not occur on the main service. Do not report Invidious problems here.
+
+See [API.md](API.md).
 
 ## Parameters
 > Not case-sensitive

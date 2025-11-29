@@ -4,11 +4,14 @@ import { putCacheEntry, stripTracking } from '../utils';
 import puppeteer from '@cloudflare/puppeteer';
 
 export default {
-	async handleEmbedImage(request: Request, env: Env): Promise<Response> {
+	async handleEmbedImage(request: Request, env: Env, isApi: boolean = false): Promise<Response> {
 		const overrideShorts = new URL(request.url).searchParams.getCaseInsensitive('shorts') !== null;
 		const overrideSize = new URL(request.url).searchParams.getCaseInsensitive('size');
 
-		const originalPath = request.url.replace(new URL(request.url).origin, '');
+		let originalPath = request.url.replace(new URL(request.url).origin, '');
+		if (isApi && originalPath.startsWith('/api')) {
+			originalPath = originalPath.substring(4);
+		}
 		const isShorts = originalPath.startsWith('/shorts') || overrideShorts;
 		const isWatch = originalPath.startsWith('/watch');
 		const isEmbed = originalPath.startsWith('/embed');
@@ -90,6 +93,51 @@ export default {
 			await browser.close();
 
 			const base64Image = screenshot.toString('base64');
+
+			if (isApi) {
+				const apiResponse = {
+					siteName: config.appName,
+					contentType: 'image',
+					themeColor: '#ff5d5b',
+					playerStreamUrl: null,
+					videoWidth: width,
+					videoHeight: height,
+					image: null,
+					description: null,
+					originalUrl: getOriginalUrl(),
+					authorName: null,
+					uploadDate: null,
+					likeCount: null,
+					dislikeCount: null,
+					subscriberCount: null,
+					followersCount: null,
+					viewCount: null,
+					videoCount: null,
+					songCount: null,
+					imageData: base64Image,
+					error: null,
+				};
+
+				const json = JSON.stringify(apiResponse);
+				const cacheEntry: CacheData = {
+					response: json,
+					headers: {
+						'Content-Type': 'application/json',
+						'Cached-On': new Date().toISOString(),
+					},
+				};
+				try {
+					await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.imageExpireTime);
+				} catch (e) {
+					console.error('Cache saving error', e);
+				}
+				return new Response(json, {
+					status: 200,
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
+			}
 
 			const cacheEntry: CacheData = {
 				response: base64Image,
