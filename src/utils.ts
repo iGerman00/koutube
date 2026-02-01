@@ -57,6 +57,10 @@ export async function getVideoInfo(videoId: string): Promise<Video> {
 		},
 	});
 
+	if (page.status === 403 || page.status === 401) {
+		throw new Error('Could not fetch video info, access forbidden');
+	}
+
 	const json = (await page.json()) as Video;
 
 	return json;
