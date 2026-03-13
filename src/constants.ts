@@ -10,7 +10,8 @@ export function getRandomApiInstance() {
 }
 
 export const config = {
-	appName: 'Koutube - use s/y/k',
+	// appName: 'Koutube - use s/y/k',
+	appName: 'Koutube - fuck corsproxy.io!',
 	appLink: 'https://koutube.com',
 
 	enableTickCheck: false, // costs an extra request to the iteroni api
