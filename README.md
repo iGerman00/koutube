@@ -1,6 +1,3 @@
-# Shame on you, corsproxy.io
-Recently, corsproxy.io's vibe-coded "privacy focused" embed player has scraped my Invidious instance and started using it for their shitty [paywall-intent](https://www.reddit.com/r/SideProject/comments/1qdfx71/for_sale_privacyfirst_embeddable_video_player/) service. Screw you, corsproxy! That's scummy!
-
 <div align="center">
 
   [![Badge indicating Invidious instance status](https://status.igerman.cc/api/badge/40/status?upColor=%233d843b&pendingColor=b57602&style=for-the-badge&label=Invidious)](https://koutube.com)
