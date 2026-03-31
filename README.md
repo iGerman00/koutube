@@ -101,7 +101,7 @@ Default is `medium`.
 ```
 <div align="center">
 
-  [![KouTube image generation demonstration, "autism creature (yipee)"](https://koutu.be/img/watch?v=CpJSgoOD1-Y&size=small)](https://koutu.be/watch?v=CpJSgoOD1-Y)
+  [![KouTube image generation demonstration, "autism creature (yipee)"](https://koutube.com/img/watch?v=CpJSgoOD1-Y&size=small)](https://koutube.com/watch?v=CpJSgoOD1-Y)
 
 </div>
 
