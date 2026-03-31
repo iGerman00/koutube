@@ -1,7 +1,8 @@
 import { config } from '../constants';
-import { CacheData, Env } from '../types/types';
-import { putCacheEntry, stripTracking } from '../utils';
+import { CacheData, Env, Video } from '../types/types';
+import { putCacheEntry, stripTracking, getVideoInfo, getDearrowThumbnail, getDearrowBranding } from '../utils';
 import puppeteer from '@cloudflare/puppeteer';
+import embedTemplate from '../templates/embed.html';
 
 export default {
 	async handleEmbedImage(request: Request, env: Env, isApi: boolean = false): Promise<Response> {
@@ -68,27 +69,39 @@ export default {
 			return new Response('Video ID not found!', { status: 400 });
 		}
 		try {
-			const url = `https://youtube.com/embed/${videoId}`;
+			const info = await getVideoInfo(videoId);
+			let bestThumbnail = info.videoThumbnails?.sort((a,b) => b.width - a.width)[0]?.url || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+			let bestAvatar = info.authorThumbnails?.sort((a,b) => b.width - a.width)[0]?.url || 'https://yt3.ggpht.com/a/default-user=s48-c-k-c0x00ffffff-no-rj';
+
+			if (new URL(request.url).searchParams.getCaseInsensitive('dearrow') !== null) {
+				const dearrowBranding = await getDearrowBranding(videoId);
+				if (dearrowBranding) {
+					if (dearrowBranding.titles?.length) {
+						info.title = dearrowBranding.titles[0].title;
+					}
+					if (dearrowBranding.thumbnails?.length) {
+						const timestamp = dearrowBranding.thumbnails[0].timestamp;
+						if (timestamp !== undefined) {
+							const deArrowThumb = await getDearrowThumbnail(timestamp, videoId);
+							if (deArrowThumb) {
+								bestThumbnail = deArrowThumb;
+							}
+						}
+					}
+				}
+			}
+
+			const html = embedTemplate
+				.replace('{{thumbnail_url}}', bestThumbnail)
+				.replace('{{avatar_url}}', bestAvatar)
+				.replace('{{title}}', info.title)
+				.replace('{{channel}}', info.author);
 
 			const browser = await puppeteer.launch(env.BROWSER);
 			const page = await browser.newPage();
 			await page.setViewport({ width, height }); // set viewport size
-			await page.goto(url);
-			await page.evaluate(() => {
-				//@ts-ignore
-				const toast = document.createElement('div');
-				toast.style.position = 'fixed';
-				toast.style.bottom = '10px';
-				toast.style.right = '10px';
-				toast.style.padding = '10px';
-				toast.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-				toast.style.color = 'white';
-				toast.style.fontFamily = 'Arial, sans-serif';
-				toast.style.fontSize = '14px';
-				toast.innerText = 'Powered by Koutube';
-				//@ts-ignore
-				document.body.appendChild(toast);
-			});
+			await page.setContent(html, { waitUntil: 'networkidle0' });
+
 			const screenshot = await page.screenshot();
 			await browser.close();
 

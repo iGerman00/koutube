@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<style>
+		@font-face {
+			font-family: 'Roboto';
+			font-style: normal;
+			font-weight: 400;
+			src: url(https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.woff2) format('woff2');
+		}
+		@font-face {
+			font-family: 'Roboto';
+			font-style: normal;
+			font-weight: 500;
+			src: url(https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.woff2) format('woff2');
+		}
+		body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+			font-family: 'Roboto', Arial, sans-serif;
+			background-color: #000;
+			color: #fff;
+			width: 100vw;
+			height: 100vh;
+		}
+		#player {
+			width: 100%;
+			height: 100%;
+			position: relative;
+		}
+		.video-cover {
+			position: absolute;
+			top: 0; left: 0; right: 0; bottom: 0;
+			background-size: cover;
+			background-position: center;
+		}
+		.top-gradient {
+			position: absolute;
+			top: 0; left: 0; right: 0;
+			height: 98px;
+			background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0px, rgba(0,0,0,0.3) 49px, rgba(0,0,0,0) 98px);
+			pointer-events: none;
+		}
+		.top-content {
+			position: absolute;
+			top: 0; left: 0; right: 0;
+			display: flex;
+			justify-content: space-between;
+			padding: 12px 14px;
+			box-sizing: border-box;
+		}
+
+		.video-info {
+			display: flex;
+			align-items: flex-start;
+			gap: 12px;
+			overflow: hidden;
+		}
+		.avatar {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			object-fit: cover;
+			flex-shrink: 0;
+			margin-top: 2px;
+		}
+		.text-info {
+			display: flex;
+			flex-direction: column;
+			gap: 0px;
+			overflow: hidden;
+			white-space: nowrap;
+			text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+		}
+		.title {
+			font-family: 'Roboto', sans-serif;
+			font-size: 18px;
+			font-weight: 400;
+			text-overflow: ellipsis;
+			overflow: hidden;
+			color: #fff;
+			line-height: normal;
+		}
+		.channel {
+			font-family: 'Roboto', sans-serif;
+			font-size: 13px;
+			color: rgba(255,255,255,0.9);
+			text-overflow: ellipsis;
+			overflow: hidden;
+			line-height: normal;
+			margin-top: 2px;
+		}
+		.action-buttons {
+			display: flex;
+			gap: 16px;
+			align-items: flex-start;
+			margin-top: 6px;
+			margin-right: 6px;
+		}
+		.circle-btn {
+			width: 24px;
+			height: 24px;
+			filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+		}
+		.circle-btn svg {
+			fill: #fff;
+			width: 100%;
+			height: 100%;
+		}
+		.bottom-left, .bottom-right {
+			position: absolute;
+			bottom: 12px;
+			display: flex;
+			align-items: center;
+		}
+		.bottom-right {
+			right: 12px;
+		}
+		.watch-on-btn {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0 14px;
+			height: 36px;
+			border-radius: 18px;
+			background: rgba(28,28,28,0.8);
+			font-size: 14px;
+			font-weight: 500;
+			white-space: nowrap;
+			color: #fff;
+			text-shadow: none;
+			font-family: 'Roboto', sans-serif;
+			backdrop-filter: blur(4px);
+		}
+		.play-btn-container {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			width: 68px;
+			height: 48px;
+		}
+		.play-btn {
+			width: 100%;
+			height: 100%;
+		}
+		.ytp-large-play-button-bg {
+			fill: #FF0000;
+		}
+		.play-btn-triangle {
+			fill: #fff;
+		}
+	</style>
+</head>
+<body>
+	<div id="player">
+		<div class="video-cover" style="background-image: url('{{thumbnail_url}}')"></div>
+		<div class="top-gradient"></div>
+		<div class="top-content">
+			<div class="video-info">
+				<img class="avatar" src="{{avatar_url}}" />
+				<div class="text-info">
+					<div class="title">{{title}}</div>
+					<div class="channel">{{channel}}</div>
+				</div>
+			</div>
+			<div class="action-buttons">
+				<div class="circle-btn">
+					<!-- Share icon -->
+					<svg viewBox="0 0 24 24"><path d="M10 3.158V7.51c-5.428.223-8.27 3.75-8.875 11.199-.04.487-.07.975-.09 1.464l-.014.395c-.014.473.578.684.88.32.302-.368.61-.73.925-1.086l.244-.273c1.79-1.967 3-2.677 4.93-2.917a18.011 18.011 0 012-.112v4.346a1 1 0 001.646.763l9.805-8.297 1.55-1.31-1.55-1.31-9.805-8.297A1 1 0 0010 3.158Zm2 6.27v.002-4.116l7.904 6.688L12 18.689v-4.212l-2.023.024c-1.935.022-3.587.17-5.197 1.024a9 9 0 00-1.348.893c.355-1.947.916-3.39 1.63-4.425 1.062-1.541 2.607-2.385 5.02-2.485L12 9.428Z"></path></svg>
+				</div>
+				<div class="circle-btn">
+					<!-- Watch later icon (Clock) -->
+					<svg viewBox="0 0 24 24"><path d="M12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1Zm0 2a9 9 0 110 18.001A9 9 0 0112 3Zm0 3a1 1 0 00-1 1v5.565l.485.292 3.33 2a1 1 0 001.03-1.714L13 11.435V7a1 1 0 00-1-1Z"></path></svg>
+				</div>
+			</div>
+		</div>
+		<div class="play-btn-container">
+			<svg class="play-btn" viewBox="0 0 67 60">
+				<path class="ytp-large-play-button-bg" d="M63 14.87a7.885 7.885 0 00-5.56-5.56C52.54 8 32.88 8 32.88 8S13.23 8 8.32 9.31c-2.7.72-4.83 2.85-5.56 5.56C1.45 19.77 1.45 30 1.45 30s0 10.23 1.31 15.13c.72 2.7 2.85 4.83 5.56 5.56C13.23 52 32.88 52 32.88 52s19.66 0 24.56-1.31c2.7-.72 4.83-2.85 5.56-5.56C64.31 40.23 64.31 30 64.31 30s0-10.23-1.31-15.13z"></path>
+				<path class="play-btn-triangle" d="M26.6 39.43L42.93 30 26.6 20.57z"></path>
+			</svg>
+		</div>
+		<div class="bottom-right">
+			<div class="watch-on-btn">
+				Embedded via Koutube
+			</div>
+		</div>
+	</div>
+</body>
+</html>

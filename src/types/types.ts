@@ -51,6 +51,7 @@ export type Video = {
 	author: string;
 	authorUrl: string;
 	authorId: string;
+	authorThumbnails?: ThumbnailObject[];
 	subCountText: string;
 	isListed: boolean;
 	liveNow: boolean;
