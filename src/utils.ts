@@ -48,7 +48,16 @@ export async function isChannelVerified(channelId: string): Promise<boolean> {
 	return json.authorVerified;
 }
 
-export async function getVideoInfo(videoId: string): Promise<Video> {
+export async function getVideoInfo(videoId: string, db?: D1Database, skipCache: boolean = false): Promise<Video> {
+	if (db && !skipCache) {
+		const cacheKey = `api:v1:videos:${videoId}`;
+		const cached = await getCacheEntry(db, cacheKey);
+		if (cached) {
+			console.log({ video_metadata_cache_hit: videoId });
+			return JSON.parse(cached.response) as Video;
+		}
+	}
+
 	const page = await fetch(`${config.api_base}/api/v1/videos/${videoId}?hl=en`, {
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
@@ -63,10 +72,31 @@ export async function getVideoInfo(videoId: string): Promise<Video> {
 
 	const json = (await page.json()) as Video;
 
+	if (db && !json.error) {
+		const cacheKey = `api:v1:videos:${videoId}`;
+		const cacheData: CacheData = {
+			response: JSON.stringify(json),
+			headers: {
+				'Content-Type': 'application/json',
+				'Cached-On': new Date().toISOString(),
+			},
+		};
+		// Cache metadata for 1 hour to keep it fresh but reduce load
+		putCacheEntry(db, cacheKey, cacheData, 3600).catch((e) => console.error('Metadata cache save error', e));
+	}
+
 	return json;
 }
 
-export async function getPlaylistInfo(playlistId: string): Promise<PlaylistInfo> {
+export async function getPlaylistInfo(playlistId: string, db?: D1Database, skipCache: boolean = false): Promise<PlaylistInfo> {
+	if (db && !skipCache) {
+		const cacheKey = `api:v1:playlists:${playlistId}`;
+		const cached = await getCacheEntry(db, cacheKey);
+		if (cached) {
+			return JSON.parse(cached.response) as PlaylistInfo;
+		}
+	}
+
 	const page = await fetch(`${config.api_base}/api/v1/playlists/${playlistId}?hl=en`, {
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
@@ -77,10 +107,30 @@ export async function getPlaylistInfo(playlistId: string): Promise<PlaylistInfo>
 
 	const json = (await page.json()) as PlaylistInfo;
 
+	if (db && !json.error) {
+		const cacheKey = `api:v1:playlists:${playlistId}`;
+		const cacheData: CacheData = {
+			response: JSON.stringify(json),
+			headers: {
+				'Content-Type': 'application/json',
+				'Cached-On': new Date().toISOString(),
+			},
+		};
+		putCacheEntry(db, cacheKey, cacheData, 3600).catch((e) => console.error('Metadata cache save error', e));
+	}
+
 	return json;
 }
 
-export async function getChannelInfo(channelId: string): Promise<ChannelInfo> {
+export async function getChannelInfo(channelId: string, db?: D1Database, skipCache: boolean = false): Promise<ChannelInfo> {
+	if (db && !skipCache) {
+		const cacheKey = `api:v1:channels:${channelId}`;
+		const cached = await getCacheEntry(db, cacheKey);
+		if (cached) {
+			return JSON.parse(cached.response) as ChannelInfo;
+		}
+	}
+
 	const page = await fetch(`${config.api_base}/api/v1/channels/${channelId}?hl=en`, {
 		headers: {
 			'Accept-Language': 'en-US,en;q=0.9',
@@ -90,6 +140,18 @@ export async function getChannelInfo(channelId: string): Promise<ChannelInfo> {
 	});
 
 	const json = (await page.json()) as ChannelInfo;
+
+	if (db && !json.error) {
+		const cacheKey = `api:v1:channels:${channelId}`;
+		const cacheData: CacheData = {
+			response: JSON.stringify(json),
+			headers: {
+				'Content-Type': 'application/json',
+				'Cached-On': new Date().toISOString(),
+			},
+		};
+		putCacheEntry(db, cacheKey, cacheData, 3600).catch((e) => console.error('Metadata cache save error', e));
+	}
 
 	return json;
 }
@@ -203,15 +265,15 @@ export async function getDearrowThumbnail(timestamp: number, videoId: string): P
 		let url = new URL(`https://dearrow-thumb.ajay.app/api/v1/getThumbnail`);
 		url.searchParams.set('videoID', videoId);
 		url.searchParams.set('time', timestamp.toString());
-		const page = await fetch(url, {
+		const response = await fetch(url, {
+			method: 'HEAD',
 			headers: {
 				'Accept-Language': 'en-US,en;q=0.9',
 				'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
 			},
 		});
-		if (page.status === 204) return undefined;
-		// simply return our input url
-		return page.url;
+		if (response.status === 200) return url.toString();
+		return undefined;
 	} catch (error: any) {
 		console.error(error);
 		return undefined;
@@ -475,34 +537,52 @@ export async function deleteCacheEntry(db: D1Database, key: string) {
 	await db.prepare('DELETE FROM CacheEntries WHERE EntryKey = ?').bind(key).run();
 }
 
-export async function getDirectUrl(videoId: string, itag: string | number): Promise<string> {
-	const baseUrl = `${config.api_base}/latest_version?id=${videoId}&itag=${itag}`;
-
-	if (!config.enableInvidiousProxying) {
-		const urlWithoutLocal = `${config.api_base}/latest_version?id=${videoId}&itag=${itag}&local=false`;
-		return urlWithoutLocal;
-	}
-
-	const urlWithLocal = `${baseUrl}&local=true`;
+export async function getDirectUrl(videoId: string, itag: string | number, db?: D1Database, skipCache: boolean = false): Promise<string> {
+	const localParam = config.enableInvidiousProxying ? 'true' : 'false';
+	const targetUrl = `${config.api_base}/latest_version?id=${videoId}&itag=${itag}&local=${localParam}`;
 
 	if (!config.shouldResolveRedirect) {
-		return urlWithLocal;
+		return targetUrl;
+	}
+
+	if (db && !skipCache) {
+		const cacheKey = `resolvedUrl:${videoId}:${itag}`;
+		const cached = await getCacheEntry(db, cacheKey);
+		if (cached) {
+			return cached.response;
+		}
 	}
 
 	try {
-		const response = await fetch(urlWithLocal, {
+		console.log('Attempting to resolve redirect for', targetUrl);
+		const response = await fetch(targetUrl, {
 			method: 'HEAD',
-			redirect: 'manual' // don't follow redirects
+			headers: {
+				'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
+				Authorization: config.auth,
+			},
+			redirect: 'follow',
 		});
 
-		if (response.status === 302 && response.headers.has('location')) {
-			const path = response.headers.get('location') as string;
-			const url = new URL(config.api_base + path); // sanity, will throw if something is wrong
-			return url.toString();
+		if (response.url && response.url !== targetUrl) {
+			const resolvedUrl = response.url;
+
+			if (db) {
+				const cacheKey = `resolvedUrl:${videoId}:${itag}`;
+				const cacheData: CacheData = {
+					response: resolvedUrl,
+					headers: {
+						'Content-Type': 'text/plain',
+						'Cached-On': new Date().toISOString(),
+					},
+				};
+				// Cache resolved URL for 3 hours
+				putCacheEntry(db, cacheKey, cacheData, 3 * 3600).catch((e) => console.error('Resolved URL cache save error', e));
+			}
+			return resolvedUrl;
 		}
-		return urlWithLocal;
+		return targetUrl;
 	} catch (error) {
-		console.error('Error resolving redirect:', error);
-		return urlWithLocal;
+		return targetUrl;
 	}
 }

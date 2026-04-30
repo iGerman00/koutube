@@ -14,7 +14,7 @@ import {
 } from '../utils';
 
 export default {
-	async handleVideo(request: Request, env: Env, isApi: boolean = false): Promise<Response> {
+	async handleVideo(request: Request, env: Env, isApi: boolean = false, ctx?: ExecutionContext): Promise<Response> {
 		const overrideShorts = new URL(request.url).searchParams.getCaseInsensitive('shorts') !== null;
 		let overrideNoThumb = new URL(request.url).searchParams.getCaseInsensitive('nothumb') !== null;
 		const overrideDislikes = new URL(request.url).searchParams.getCaseInsensitive('dislikes') !== null;
@@ -91,7 +91,13 @@ export default {
 			}
 		}
 
-		let info = await getVideoInfo(videoId);
+		const shouldCache = new URL(request.url).searchParams.getCaseInsensitive('nocache') === null;
+
+		const [info, rydResponse, dearrow] = await Promise.all([
+			getVideoInfo(videoId, env.D1_DB, !shouldCache),
+			(config.enableDislikes || overrideDislikes) ? getDislikes(videoId) : Promise.resolve(undefined),
+			enableDeArrow ? getDearrowBranding(videoId) : Promise.resolve(undefined),
+		]);
 
 		// TODO: voodoo with some kind of API to get info on scheduled livestreams
 		if (info.error && info.error.startsWith('This live event will begin ')) {
@@ -149,12 +155,7 @@ export default {
 			});
 		}
 
-		// Parallelize optional fetches
-		const [channelVerified, rydResponse, dearrow] = await Promise.all([
-			isChannelVerified(info.authorId),
-			(config.enableDislikes || overrideDislikes) ? getDislikes(videoId) : Promise.resolve(undefined),
-			enableDeArrow ? getDearrowBranding(videoId) : Promise.resolve(undefined),
-		]);
+		const channelVerified = await isChannelVerified(info.authorId);
 
 		info.isAuthorVerified = channelVerified || false;
 
@@ -215,7 +216,7 @@ export default {
 			ownerProfileUrl: 'https://youtube.com' + info.authorUrl,
 			bestThumbnail: isShorts || overrideNoThumb ? '' : info.videoThumbnails[0].url,
 			isLive: info.liveNow,
-			directUrl: await getDirectUrl(videoId, videoResolution.itag),
+			directUrl: await getDirectUrl(videoId, videoResolution.itag, env.D1_DB, !shouldCache),
 			formatStreams: info.formatStreams,
 			resolution: videoResolution,
 			youtubeUrl: getOriginalUrl(),
@@ -257,10 +258,11 @@ export default {
 					'Cached-On': new Date().toISOString(),
 				},
 			};
-			try {
-				await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.videoExpireTime);
-			} catch (e) {
-				console.error('Cache saving error', e);
+			const promise = putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.videoExpireTime);
+			if (ctx) {
+				ctx.waitUntil(promise);
+			} else {
+				await promise;
 			}
 			return new Response(json, {
 				status: 200,
@@ -279,10 +281,11 @@ export default {
 				'Cached-On': new Date().toISOString(),
 			},
 		};
-		try {
-			await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.videoExpireTime);
-		} catch (e) {
-			console.error('Cache saving error', e);
+		const promise = putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.videoExpireTime);
+		if (ctx) {
+			ctx.waitUntil(promise);
+		} else {
+			await promise;
 		}
 
 		return new Response(html, {

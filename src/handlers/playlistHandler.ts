@@ -5,7 +5,7 @@ import { getPlaylistInfo, isChannelVerified, isMix, putCacheEntry, renderGeneric
 import mixHandler from './mixHandler';
 
 export default {
-	async handlePlaylist(request: Request, env: Env, isApi: boolean = false): Promise<Response> {
+	async handlePlaylist(request: Request, env: Env, isApi: boolean = false, ctx?: ExecutionContext): Promise<Response> {
 		let originalPath = request.url.replace(new URL(request.url).origin, '');
 		if (isApi && originalPath.startsWith('/api')) {
 			originalPath = originalPath.substring(4);
@@ -41,10 +41,8 @@ export default {
 			return mixHandler.handleMix(request, env, isApi);
 		}
 
-		const [info, channelVerified] = await Promise.all([
-			getPlaylistInfo(playlistId),
-			isChannelVerified(playlistId),
-		]);
+		const shouldCache = new URL(request.url).searchParams.getCaseInsensitive('nocache') === null;
+		const info = await getPlaylistInfo(playlistId, env.D1_DB, !shouldCache);
 
 		if (info.error) {
 			if (isApi) {
@@ -62,6 +60,8 @@ export default {
 				},
 			});
 		}
+
+		const channelVerified = await isChannelVerified(info.authorId);
 
 		const embedData: PlaylistEmbedData = {
 			appTitle: config.appName,
@@ -113,10 +113,11 @@ export default {
 					'Cached-On': new Date().toISOString(),
 				},
 			};
-			try {
-				await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.playlistExpireTime);
-			} catch (e) {
-				console.error('Cache saving error', e);
+			const promise = putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.playlistExpireTime);
+			if (ctx) {
+				ctx.waitUntil(promise);
+			} else {
+				await promise;
 			}
 			return new Response(json, {
 				status: 200,
@@ -135,10 +136,11 @@ export default {
 				'Cached-On': new Date().toISOString(),
 			},
 		};
-		try {
-			await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.playlistExpireTime);
-		} catch (e) {
-			console.error('Cache saving error', e);
+		const promise = putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.playlistExpireTime);
+		if (ctx) {
+			ctx.waitUntil(promise);
+		} else {
+			await promise;
 		}
 
 		return new Response(html, {

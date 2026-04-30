@@ -47,7 +47,7 @@ export default {
 		console.log({deleted_cache_entries: deleted, timestamp: new Date().toISOString()});
 	},
 
-	async fetch(request: Request, env: Env): Promise<Response> {
+	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		return withTiming(async () => {
 			if (new URL(request.url).pathname === '/') {
 				async function getListing(_request: Request) {
@@ -55,30 +55,34 @@ export default {
 					const { entries, total } = await listCacheEntriesPaginated(env.D1_DB, parseInt(page), 100);
 
 					let obj = entries.map((key) => {
-						if (typeof key.name !== 'string' || key.name.startsWith('rateLimit:')) return;
+						if (typeof key.name !== 'string' || key.name.startsWith('rateLimit:') || key.name.startsWith('api:') || key.name.startsWith('resolvedUrl:')) return;
 
-						const url = new URL(key.name);
-						if (url.searchParams.get('nocache') !== null) return;
-						if (url.pathname.startsWith('/api')) return; // skip api entries, they are still in the db just not publicly listed
+						try {
+							const url = new URL(key.name);
+							if (url.searchParams.get('nocache') !== null) return;
+							if (url.pathname.startsWith('/api')) return; // skip api entries, they are still in the db just not publicly listed
 
-						const timecode = url.searchParams.get('t') || url.searchParams.get('time_continue');
-						const obj: PublicCacheEntry = {
-							url: url.href.replace(url.origin, '').replace('/', ''),
-							type: getURLType(url),
-							timecode: timecode || '',
-							expiration: key?.expiration || 0,
-							size: url.searchParams.get('size') || '',
-							itag: (function () {
-								const itag = url.searchParams.get('itag');
-								if (itag === '18') return '360p';
-								if (itag === '22') return '720p';
-								return itag || '';
-							})(),
-							dearrow: url.searchParams.get('dearrow') !== null ? 'Yes' : '',
-							stock: url.searchParams.get('stock') !== null ? 'Yes' : '',
-						};
+							const timecode = url.searchParams.get('t') || url.searchParams.get('time_continue');
+							const obj: PublicCacheEntry = {
+								url: url.href.replace(url.origin, '').replace('/', ''),
+								type: getURLType(url),
+								timecode: timecode || '',
+								expiration: key?.expiration || 0,
+								size: url.searchParams.get('size') || '',
+								itag: (function () {
+									const itag = url.searchParams.get('itag');
+									if (itag === '18') return '360p';
+									if (itag === '22') return '720p';
+									return itag || '';
+								})(),
+								dearrow: url.searchParams.get('dearrow') !== null ? 'Yes' : '',
+								stock: url.searchParams.get('stock') !== null ? 'Yes' : '',
+							};
 
-						return obj;
+							return obj;
+						} catch (e) {
+							return;
+						}
 					});
 
 					obj = obj.filter(Boolean);
@@ -107,17 +111,17 @@ export default {
 				});
 			}
 
-			config.api_base = getRandomApiInstance();
-
-			if (env.IV_AUTH && env.IV_DOMAIN) {
-				config.api_base = 'https://' + env.IV_DOMAIN;
-				config.auth = env.IV_AUTH;
-			}
-
 			const MAX_RETRIES = 3;
 			const RETRY_DELAY_MS = 1000;
 
 			for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+				config.api_base = getRandomApiInstance();
+
+				if (env.IV_AUTH && env.IV_DOMAIN) {
+					config.api_base = 'https://' + env.IV_DOMAIN;
+					config.auth = env.IV_AUTH;
+				}
+
 				try {
 					const url = stripTracking(request.url);
 					const cache = await getCacheEntry(env.D1_DB, url);
@@ -143,7 +147,7 @@ export default {
 
 				// if subdomain is img, embedImageHandler
 				if ((urlObj.pathname.startsWith('/img/') || (isApi && urlObj.pathname.startsWith('/api/img/'))) && config.enableImageEmbeds) {
-					return embedImageHandler.handleEmbedImage(request, env, isApi);
+					return embedImageHandler.handleEmbedImage(request, env, isApi, ctx);
 				}
 
 				// if we fetch oembed, get all params and return them as json
@@ -178,11 +182,11 @@ export default {
 				try {
 					let result;
 					if (isPlaylist) {
-						result = await playlistHandler.handlePlaylist(request, env, isApi);
+						result = await playlistHandler.handlePlaylist(request, env, isApi, ctx);
 					} else if (isChannel) {
-						result = await channelHandler.handleChannel(request, env, isApi);
+						result = await channelHandler.handleChannel(request, env, isApi, ctx);
 					} else {
-						result = await videoHandler.handleVideo(request, env, isApi);
+						result = await videoHandler.handleVideo(request, env, isApi, ctx);
 					}
 					return result;
 				} catch (e) {

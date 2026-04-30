@@ -4,7 +4,7 @@ import he from 'he';
 import { getChannelInfo, putCacheEntry, renderGenericTemplate, resolveUrl, isChannelVerified, stripTracking } from '../utils';
 
 export default {
-	async handleChannel(request: Request, env: Env, isApi: boolean = false): Promise<Response> {
+	async handleChannel(request: Request, env: Env, isApi: boolean = false, ctx?: ExecutionContext): Promise<Response> {
 		let originalPath = request.url.replace(new URL(request.url).origin, '');
 		if (isApi && originalPath.startsWith('/api')) {
 			originalPath = originalPath.substring(4);
@@ -41,9 +41,10 @@ export default {
 			});
 		}
 
+		const shouldCache = new URL(request.url).searchParams.getCaseInsensitive('nocache') === null;
 		// Once we have channel ID, fetch info and verification status in parallel
 		const [info, isVerified] = await Promise.all([
-			getChannelInfo(channel),
+			getChannelInfo(channel, env.D1_DB, !shouldCache),
 			isChannelVerified(channel)
 		]);
 
@@ -112,10 +113,11 @@ export default {
 					'Cached-On': new Date().toISOString(),
 				},
 			};
-			try {
-				await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.channelExpireTime);
-			} catch (e) {
-				console.error('Cache saving error', e);
+			const promise = putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.channelExpireTime);
+			if (ctx) {
+				ctx.waitUntil(promise);
+			} else {
+				await promise;
 			}
 			return new Response(json, {
 				status: 200,
@@ -134,10 +136,11 @@ export default {
 				'Cached-On': new Date().toISOString(),
 			},
 		};
-		try {
-			await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.channelExpireTime);
-		} catch (e) {
-			console.error('Cache saving error', e);
+		const promise = putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.channelExpireTime);
+		if (ctx) {
+			ctx.waitUntil(promise);
+		} else {
+			await promise;
 		}
 
 		return new Response(html, {

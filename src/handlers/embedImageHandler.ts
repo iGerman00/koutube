@@ -5,7 +5,7 @@ import puppeteer from '@cloudflare/puppeteer';
 import embedTemplate from '../templates/embed.html';
 
 export default {
-	async handleEmbedImage(request: Request, env: Env, isApi: boolean = false): Promise<Response> {
+	async handleEmbedImage(request: Request, env: Env, isApi: boolean = false, ctx?: ExecutionContext): Promise<Response> {
 		const overrideShorts = new URL(request.url).searchParams.getCaseInsensitive('shorts') !== null;
 		const overrideSize = new URL(request.url).searchParams.getCaseInsensitive('size');
 
@@ -69,12 +69,15 @@ export default {
 			return new Response('Video ID not found!', { status: 400 });
 		}
 		try {
-			const info = await getVideoInfo(videoId);
+			const shouldCache = new URL(request.url).searchParams.getCaseInsensitive('nocache') === null;
+			const info = await getVideoInfo(videoId, env.D1_DB, !shouldCache);
 			let bestThumbnail = info.videoThumbnails?.sort((a,b) => b.width - a.width)[0]?.url || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 			let bestAvatar = info.authorThumbnails?.sort((a,b) => b.width - a.width)[0]?.url || 'https://yt3.ggpht.com/a/default-user=s48-c-k-c0x00ffffff-no-rj';
 
 			if (new URL(request.url).searchParams.getCaseInsensitive('dearrow') !== null) {
-				const dearrowBranding = await getDearrowBranding(videoId);
+				const [dearrowBranding] = await Promise.all([
+					getDearrowBranding(videoId)
+				]);
 				if (dearrowBranding) {
 					if (dearrowBranding.titles?.length) {
 						info.title = dearrowBranding.titles[0].title;
@@ -139,10 +142,11 @@ export default {
 						'Cached-On': new Date().toISOString(),
 					},
 				};
-				try {
-					await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.imageExpireTime);
-				} catch (e) {
-					console.error('Cache saving error', e);
+				const promise = putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.imageExpireTime);
+				if (ctx) {
+					ctx.waitUntil(promise);
+				} else {
+					await promise;
 				}
 				return new Response(json, {
 					status: 200,
@@ -160,10 +164,11 @@ export default {
 				},
 			};
 
-			try {
-				await putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.imageExpireTime);
-			} catch (e) {
-				console.error('Cache saving error', e);
+			const promise = putCacheEntry(env.D1_DB, stripTracking(request.url), cacheEntry, config.imageExpireTime);
+			if (ctx) {
+				ctx.waitUntil(promise);
+			} else {
+				await promise;
 			}
 
 			return new Response(screenshot, {
