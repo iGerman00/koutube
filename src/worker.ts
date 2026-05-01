@@ -87,7 +87,9 @@ export default {
 
 					obj = obj.filter(Boolean);
 
-					const body = template.replace('$CACHE_ENTRIES', JSON.stringify(obj)).replace('$COUNT_ENTRIES', (total as number).toString());
+					const body = template
+						.replace('$CACHE_ENTRIES', () => JSON.stringify(obj).replace(/</g, '\\u003c'))
+						.replace('$COUNT_ENTRIES', () => String(total));
 
 					return new Response(body, {
 						headers: { 'Content-Type': 'text/html' },

@@ -433,6 +433,14 @@ export async function deleteExpiredCacheEntries(db: D1Database) {
 	}
 }
 
+const PUBLIC_CACHE_FILTER = `
+	WHERE EntryKey NOT LIKE 'api:%' 
+	AND EntryKey NOT LIKE 'rateLimit:%' 
+	AND EntryKey NOT LIKE 'resolvedUrl:%'
+	AND EntryKey NOT LIKE '%/api/%'
+	AND EntryKey NOT LIKE '%nocache%'
+`;
+
 export async function listCacheEntriesPaginated(db: D1Database, page: number = 1, limit: number = 10) {
 	if (!db) {
 		console.error('No database');
@@ -463,11 +471,12 @@ export async function listCacheEntriesPaginated(db: D1Database, page: number = 1
 			)
 		  ) as Expired
 		FROM CacheEntries
+		${PUBLIC_CACHE_FILTER}
 		ORDER BY EntryKey
 		LIMIT ? OFFSET ?
 	  `;
 
-		const countQuery = 'SELECT COUNT(*) as total FROM CacheEntries';
+		const countQuery = `SELECT COUNT(*) as total FROM CacheEntries ${PUBLIC_CACHE_FILTER}`;
 
 		const [rows, countResult] = await Promise.all([db.prepare(query).bind(limit, offset).all(), db.prepare(countQuery).first()]);
 
@@ -497,7 +506,7 @@ export async function getCountCacheEntries(db: D1Database) {
 		return 0;
 	}
 	try {
-		const row = await db.prepare('SELECT COUNT(*) AS total FROM CacheEntries').first();
+		const row = await db.prepare(`SELECT COUNT(*) AS total FROM CacheEntries ${PUBLIC_CACHE_FILTER}`).first();
 		return row ? row.total : 0;
 	} catch (error: any) {
 		console.error(error);

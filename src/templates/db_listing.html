@@ -170,6 +170,7 @@
   try {
     window.cache_entries = $CACHE_ENTRIES;
   } catch (e) {
+    console.error('Error parsing cache entries:', e);
     window.cache_entries = [];
   }
 
@@ -214,57 +215,60 @@
 
       // Populate table rows
       entriesToShow.forEach(entry => {
-        const tr = document.createElement('tr');
+        try {
+          const tr = document.createElement('tr');
 
-        headers.forEach(header => {
-          const headerKey = header.toLowerCase();
-          const td = document.createElement('td');
-          const cellValue = entry[headerKey];
+          headers.forEach(header => {
+            const headerKey = header.toLowerCase();
+            const td = document.createElement('td');
+            const cellValue = entry[headerKey];
 
-          if (headerKey === 'url') {
-            const baseUrl = entry['type'] === 'music' ? 'https://music.koutube.com/' : window.location.origin + '/';
-            const a = document.createElement('a');
-            let cleanedUrl = cellValue;
+            if (headerKey === 'url') {
+              const baseUrl = entry['type'] === 'music' ? 'https://music.koutube.com/' : window.location.origin + '/';
+              const a = document.createElement('a');
+              let cleanedUrl = cellValue;
 
-            const paramsToRemove = ['t', 'nocache', 'nothumb', 'shorts', 'dislikes', 'itag', 'dearrow', 'stock', 'size'];
-            cleanedUrl = removeParamsFromUrl(cleanedUrl, paramsToRemove);
+              const paramsToRemove = ['t', 'nocache', 'nothumb', 'shorts', 'dislikes', 'itag', 'dearrow', 'stock', 'size'];
+              cleanedUrl = removeParamsFromUrl(cleanedUrl, paramsToRemove);
 
-            cleanedUrl = cleanedUrl.replace('img/', '');
+              cleanedUrl = cleanedUrl.replace('img/', '');
 
-            const prefixes = ['shorts/', 'watch?v=', 'music/', 'channel/', 'user/', 'playlist/', 'playlist?list=', '/c/'];
-            cleanedUrl = trimUrlPrefix(cleanedUrl, prefixes);
+              const prefixes = ['shorts/', 'watch?v=', 'music/', 'channel/', 'user/', 'playlist/', 'playlist?list=', '/c/'];
+              cleanedUrl = trimUrlPrefix(cleanedUrl, prefixes);
 
-            if (cleanedUrl.length > 50) {
-              cleanedUrl = cleanedUrl.substr(0, 50) + '...';
+              if (cleanedUrl.length > 50) {
+                cleanedUrl = cleanedUrl.substr(0, 50) + '...';
+              }
+              a.href = `${baseUrl}${cellValue}`;
+              a.innerText = cleanedUrl;
+              a.title = cellValue;
+              a.target = '_blank';
+              td.appendChild(a);
+            } else if (headerKey === 'expiration') {
+              td.innerText = formatExpirationDate(cellValue);
+              td.title = new Date(cellValue * 1000).toISOString();
+            } else if (headerKey === 'timecode') {
+              td.innerText = formatTimeCode(cellValue);
+            } else if (headerKey === 'size') {
+              td.innerText = cellValue;
+            } else if (headerKey === 'itag') {
+              td.innerText = cellValue || '';
+            } else if (headerKey === 'dearrow') {
+              td.innerText = cellValue || '';
+            } else if (headerKey === 'stock') {
+              td.innerText = cellValue || '';
             }
-            a.href = `${baseUrl}${cellValue}`;
-            a.innerText = cleanedUrl;
-            a.title = cellValue;
-            a.target = '_blank';
-            td.appendChild(a);
-          } else if (headerKey === 'expiration') {
-            td.innerText = formatExpirationDate(cellValue);
-            td.title = new Date(cellValue * 1000).toISOString();
-          } else if (headerKey === 'timecode') {
-            td.innerText = formatTimeCode(cellValue);
-          } else if (headerKey === 'size') {
-            td.innerText = cellValue;
-            // else td.innerText = 'N/A';
-          } else if (headerKey === 'itag') {
-            td.innerText = cellValue || '';
-          } else if (headerKey === 'dearrow') {
-            td.innerText = cellValue || '';
-          } else if (headerKey === 'stock') {
-            td.innerText = cellValue || '';
-          }
-          else {
-            td.innerText = cellValue || '';
-          }
+            else {
+              td.innerText = cellValue || '';
+            }
 
-          tr.appendChild(td);
-        });
+            tr.appendChild(td);
+          });
 
-        tbody.appendChild(tr);
+          tbody.appendChild(tr);
+        } catch (e) {
+          console.error('Error rendering entry:', e, entry);
+        }
       });
 
       table.appendChild(thead);
