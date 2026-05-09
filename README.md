@@ -64,11 +64,11 @@ See [API.md](API.md).
 - `dearrow` - requests the thumbnail and title from [DeArrow](https://dearrow.ajay.app/)
 - `direct` - bypasses cache and all metadata, only returns a direct link to the video
 - `dislikes` - shows dislikes, requests from [Return YouTube Dislike](https://github.com/Anarios/return-youtube-dislike)
-- `itag` - forces a specific video quality, only `itag=22` for 720p and `itag=18` for 360p are allowed
 - `nocache` - disables fetching the cached version
 - `nothumb` - disable embedding the thumbnail, may help fix video cropping on mobile Discord clients
 - `shorts` - treats the video as shorts
 - `stock` - embed the regular YouTube embed. Automatically set to true for some content like livestreams and premieres
+<!-- - `itag` - forces a specific video quality, only `itag=22` for 720p and `itag=18` for 360p are allowed --> <!-- this doesn't really work anymore, F U youtube -->
 
 > The `dearrow` parameter uses SponsorBlock data licensed used under CC BY-NC-SA 4.0 from https://sponsor.ajay.app/.
 
@@ -140,8 +140,6 @@ wrangler deploy
 You should see a message like this:
 
 ```bash
- ⛅️ wrangler 3.9.0
-------------------
 Total Upload: 7.10 KiB / gzip: 2.45 KiB
 Uploaded Koutube (1.96 sec)
 Published Koutube (1.43 sec)
@@ -188,16 +186,7 @@ wrangler dev
 You should see a message like this:
 
 ```bash
-⛅️ wrangler 3.9.0
-------------------
-wrangler dev now uses local mode by default, powered by 🔥 Miniflare and 👷 workerd.
-To run an edge preview session for your Worker, use wrangler dev --remote
-⎔ Starting local server...
 [mf:inf] Ready on http://0.0.0.0:8787
-╭─────────────────────────────────────────────────────────────────────────────────╮
-│ [b open a       [d] open        [l] turn off local   [c] clear       [x] to     │
-│   browser,         Devtools,       mode,                console,        exit    │
-╰─────────────────────────────────────────────────────────────────────────────────╯
 ```
 
 To **manually purge** the production database, run:
@@ -222,7 +211,7 @@ Koutube is licensed under the GPL-3.0 License.
 
 - I try not to log anything I don't need, but I log some errors here and there and whenever a cached response is returned. The processing time of the request is also logged, for me to debug any anomalies.
 
-- A private Invidious instance that I host is used. No logging is configured on it.
+- A private Invidious instance that I host is used. Logs are disabled - unless I need to debug an issue.
 
 > I have to actively enable log streaming by typing a command or logging into the Cloudflare dashboard. As you can imagine, I don't do that unless I am debugging an error.
 
