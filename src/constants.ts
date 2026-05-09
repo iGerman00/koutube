@@ -16,8 +16,8 @@ export const config = {
 	enableTickCheck: false, // costs an extra request to the iteroni api
 	enableDislikes: true, // costs a request to the RYD api
 	enableImageEmbeds: true, // requires browser rendering api which is waitlisted as of now
-	enableInvidiousProxying: false, // controls whether &local=true or &local=false is appended to latest_version requests
-	shouldResolveRedirect: true, // controls whether the above is resolved into a /videoplayback URL or kept as a redirect
+	enableInvidiousProxying: true, // controls whether &local=true or &local=false is appended to latest_version requests
+	shouldResolveRedirect: false, // controls whether the above is resolved into a /videoplayback URL or kept as a redirect
 
 	api_base: getRandomApiInstance(),
 	auth: '',
