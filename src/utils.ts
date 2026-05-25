@@ -193,6 +193,7 @@ export function stripTracking(link: string) {
 	url.searchParams.delete('feature');
 	url.searchParams.delete('pp');
 	url.searchParams.delete('si');
+	url.searchParams.delete('is');
 	url.searchParams.delete('a');
 	url.searchParams.delete('embeds_referring_euri');
 	url.searchParams.delete('embeds_referring_origin');
@@ -434,8 +435,8 @@ export async function deleteExpiredCacheEntries(db: D1Database) {
 }
 
 const PUBLIC_CACHE_FILTER = `
-	WHERE EntryKey NOT LIKE 'api:%' 
-	AND EntryKey NOT LIKE 'rateLimit:%' 
+	WHERE EntryKey NOT LIKE 'api:%'
+	AND EntryKey NOT LIKE 'rateLimit:%'
 	AND EntryKey NOT LIKE 'resolvedUrl:%'
 	AND EntryKey NOT LIKE '%/api/%'
 	AND EntryKey NOT LIKE '%nocache%'
