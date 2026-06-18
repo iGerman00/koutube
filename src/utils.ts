@@ -503,7 +503,7 @@ export async function getCountCacheEntries(db: D1Database) {
 		const row = await db.prepare(`SELECT COUNT(*) AS total FROM CacheEntries ${PUBLIC_CACHE_FILTER}`).first();
 		const count = row ? (row.total as number) : 0;
 		_cachedCount = { count, ts: now };
-		updatePublicCount(db).catch((e) => console.error('updatePublicCount fallback error', e));
+		await updatePublicCount(db, count);
 		return count;
 	} catch (error: any) {
 		console.error(error);
@@ -511,11 +511,13 @@ export async function getCountCacheEntries(db: D1Database) {
 	}
 }
 
-export async function updatePublicCount(db: D1Database) {
+export async function updatePublicCount(db: D1Database, count?: number) {
 	if (!db) return;
 	try {
-		const row = await db.prepare(`SELECT COUNT(*) as total FROM CacheEntries ${PUBLIC_CACHE_FILTER}`).first();
-		const count = row ? (row.total as number) : 0;
+		if (count === undefined) {
+			const row = await db.prepare(`SELECT COUNT(*) as total FROM CacheEntries ${PUBLIC_CACHE_FILTER}`).first();
+			count = row ? (row.total as number) : 0;
+		}
 		const now = Math.floor(Date.now() / 1000);
 		await db
 			.prepare(
