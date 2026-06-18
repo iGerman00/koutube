@@ -1,8 +1,6 @@
-import { BrowserWorker } from '@cloudflare/puppeteer';
-
 export type Env = {
 	D1_DB: D1Database;
-	BROWSER: BrowserWorker;
+	BROWSER: Fetcher;
 	IV_DOMAIN: string;
 	IV_AUTH: string;
 };
