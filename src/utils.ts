@@ -380,25 +380,9 @@ export async function listCacheEntries(db: D1Database) {
 		const query = `
 		SELECT
 		  EntryKey,
-		  json_extract(Entry, '$.headers.Cached-On') as CachedOn,
-		  json_extract(Entry, '$.headers.Content-Type') as ContentType,
 		  Entry,
-		  (
-			strftime('%s', json_extract(Entry, '$.headers.Cached-On')) +
-			CASE
-			  WHEN json_extract(Entry, '$.headers.Content-Type') LIKE 'image/%' THEN 365*24*60*60
-			  ELSE 7*24*60*60
-			END
-		  ) as Expiration,
-		  (
-			strftime('%s', 'now') > (
-			  strftime('%s', json_extract(Entry, '$.headers.Cached-On')) +
-			  CASE
-				WHEN json_extract(Entry, '$.headers.Content-Type') LIKE 'image/%' THEN 365*24*60*60
-				ELSE 7*24*60*60
-			  END
-			)
-		  ) as Expired
+		  Expiration,
+		  (Expiration < strftime('%s', 'now')) as Expired
 		FROM CacheEntries
 	  `;
 
@@ -434,12 +418,15 @@ export async function deleteExpiredCacheEntries(db: D1Database) {
 	}
 }
 
+const META_COUNT_KEY = '__meta:public_count';
+
 const PUBLIC_CACHE_FILTER = `
 	WHERE EntryKey NOT LIKE 'api:%'
 	AND EntryKey NOT LIKE 'rateLimit:%'
 	AND EntryKey NOT LIKE 'resolvedUrl:%'
 	AND EntryKey NOT LIKE '%/api/%'
 	AND EntryKey NOT LIKE '%nocache%'
+	AND EntryKey NOT LIKE '__meta:%'
 `;
 
 export async function listCacheEntriesPaginated(db: D1Database, page: number = 1, limit: number = 10) {
@@ -453,38 +440,25 @@ export async function listCacheEntriesPaginated(db: D1Database, page: number = 1
 		const query = `
 		SELECT
 		  EntryKey,
-		  json_extract(Entry, '$.headers.Cached-On') as CachedOn,
-		  json_extract(Entry, '$.headers.Content-Type') as ContentType,
-		  (
-			strftime('%s', json_extract(Entry, '$.headers.Cached-On')) +
-			CASE
-			  WHEN json_extract(Entry, '$.headers.Content-Type') LIKE 'image/%' THEN 365*24*60*60
-			  ELSE 7*24*60*60
-			END
-		  ) as Expiration,
-		  (
-			strftime('%s', 'now') > (
-			  strftime('%s', json_extract(Entry, '$.headers.Cached-On')) +
-			  CASE
-				WHEN json_extract(Entry, '$.headers.Content-Type') LIKE 'image/%' THEN 365*24*60*60
-				ELSE 7*24*60*60
-			  END
-			)
-		  ) as Expired
+		  CachedOn,
+		  ContentType,
+		  Expiration,
+		  (Expiration < strftime('%s', 'now')) as Expired
 		FROM CacheEntries
 		${PUBLIC_CACHE_FILTER}
 		ORDER BY EntryKey
 		LIMIT ? OFFSET ?
 	  `;
 
-		const countQuery = `SELECT COUNT(*) as total FROM CacheEntries ${PUBLIC_CACHE_FILTER}`;
-
-		const [rows, countResult] = await Promise.all([db.prepare(query).bind(limit, offset).all(), db.prepare(countQuery).first()]);
+		const [rows, total] = await Promise.all([
+			db.prepare(query).bind(limit, offset).all(),
+			getCountCacheEntries(db),
+		]);
 
 		const entries = rows.results.map((row) => {
 			return {
 				name: row.EntryKey as string,
-				cachedOn: row.CachedOn as string,
+				cachedOn: row.CachedOn as number,
 				contentType: row.ContentType as string,
 				expiration: Number(row.Expiration),
 				expired: Boolean(row.Expired),
@@ -493,7 +467,7 @@ export async function listCacheEntriesPaginated(db: D1Database, page: number = 1
 
 		return {
 			entries,
-			total: countResult ? (countResult.total as number) : 0,
+			total,
 		};
 	} catch (error: any) {
 		console.error(error);
@@ -501,17 +475,62 @@ export async function listCacheEntriesPaginated(db: D1Database, page: number = 1
 	}
 }
 
+let _cachedCount: { count: number; ts: number } | null = null;
+
 export async function getCountCacheEntries(db: D1Database) {
 	if (!db) {
 		console.error('No database');
 		return 0;
 	}
+
+	const now = Date.now();
+	if (_cachedCount && (now - _cachedCount.ts) < 30_000) {
+		return _cachedCount.count;
+	}
+
 	try {
+		const metaRow = await db.prepare('SELECT Entry FROM CacheEntries WHERE EntryKey = ?').bind(META_COUNT_KEY).first();
+		if (metaRow) {
+			try {
+				const meta = JSON.parse(metaRow.Entry as string);
+				if (meta.count != null && meta.updated && (now / 1000 - meta.updated) < 86_400) {
+					_cachedCount = { count: meta.count, ts: now };
+					return meta.count as number;
+				}
+			} catch { /* corrupt meta, fall through */ }
+		}
+
 		const row = await db.prepare(`SELECT COUNT(*) AS total FROM CacheEntries ${PUBLIC_CACHE_FILTER}`).first();
-		return row ? row.total : 0;
+		const count = row ? (row.total as number) : 0;
+		_cachedCount = { count, ts: now };
+		updatePublicCount(db).catch((e) => console.error('updatePublicCount fallback error', e));
+		return count;
 	} catch (error: any) {
 		console.error(error);
 		return 0;
+	}
+}
+
+export async function updatePublicCount(db: D1Database) {
+	if (!db) return;
+	try {
+		const row = await db.prepare(`SELECT COUNT(*) as total FROM CacheEntries ${PUBLIC_CACHE_FILTER}`).first();
+		const count = row ? (row.total as number) : 0;
+		const now = Math.floor(Date.now() / 1000);
+		await db
+			.prepare(
+				`INSERT INTO CacheEntries (EntryKey, Entry, Expiration, ContentType, CachedOn)
+			 VALUES (?, ?, ?, ?, ?)
+			 ON CONFLICT(EntryKey) DO UPDATE SET
+			   Entry = excluded.Entry,
+			   Expiration = excluded.Expiration,
+			   ContentType = excluded.ContentType,
+			   CachedOn = excluded.CachedOn`
+			)
+			.bind(META_COUNT_KEY, JSON.stringify({ count, updated: now }), now + 86_400, 'text/plain', now)
+			.run();
+	} catch (e) {
+		console.error('updatePublicCount error', e);
 	}
 }
 
@@ -520,22 +539,24 @@ export async function putCacheEntry(db: D1Database, key: string, value: CacheDat
 		console.error('No database');
 		return;
 	}
-	expiration = Math.floor(Date.now() / 1000) + expiration; // expiration is relative in seconds
+	expiration = Math.floor(Date.now() / 1000) + expiration;
+	const cachedOn = Math.floor(Date.now() / 1000);
+	const contentType = value.headers['Content-Type'];
 	try {
 		await db
-			.prepare('INSERT INTO CacheEntries (EntryKey, Entry, Expiration) VALUES (?, ?, ?)')
-			.bind(key, JSON.stringify(value), expiration)
+			.prepare(
+				`INSERT INTO CacheEntries (EntryKey, Entry, Expiration, ContentType, CachedOn)
+			 VALUES (?, ?, ?, ?, ?)
+			 ON CONFLICT(EntryKey) DO UPDATE SET
+			   Entry = excluded.Entry,
+			   Expiration = excluded.Expiration,
+			   ContentType = excluded.ContentType,
+			   CachedOn = excluded.CachedOn`
+			)
+			.bind(key, JSON.stringify(value), expiration, contentType, cachedOn)
 			.run();
 	} catch (error: any) {
-		if (error.message.includes('UNIQUE constraint failed')) {
-			console.log('Cache entry already exists, updating instead');
-			await db
-				.prepare('UPDATE CacheEntries SET Entry = ?, Expiration = ? WHERE EntryKey = ?')
-				.bind(JSON.stringify(value), expiration, key)
-				.run();
-		} else {
-			console.error('Error inserting cache entry:', error);
-		}
+		console.error('Error inserting cache entry:', error);
 	}
 }
 

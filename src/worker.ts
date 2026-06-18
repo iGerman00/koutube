@@ -9,6 +9,7 @@ import {
 	listCacheEntriesPaginated,
 	renderGenericTemplate,
 	stripTracking,
+	updatePublicCount,
 } from './utils';
 import template from './templates/db_listing.html';
 import { config, getRandomApiInstance, robots } from './constants';
@@ -45,6 +46,7 @@ export default {
 	async scheduled(event: ScheduledEvent, env: Env) {
 		const deleted = await deleteExpiredCacheEntries(env.D1_DB);
 		console.log({deleted_cache_entries: deleted, timestamp: new Date().toISOString()});
+		await updatePublicCount(env.D1_DB);
 	},
 
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
