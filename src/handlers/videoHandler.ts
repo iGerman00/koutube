@@ -11,6 +11,7 @@ import {
 	renderGenericTemplate,
 	stripTracking,
 	getDirectUrl,
+	warmCompanionResolve,
 } from '../utils';
 
 export default {
@@ -68,6 +69,8 @@ export default {
 				},
 			});
 		}
+
+		if (ctx && !isApi) ctx.waitUntil(warmCompanionResolve(videoId));
 
 		if (useDirectMode) {
 			// no caching - just a simple redirect to Invidious

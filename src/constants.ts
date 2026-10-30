@@ -19,6 +19,8 @@ export const config = {
 	enableInvidiousProxying: true, // controls whether &local=true or &local=false is appended to latest_version requests
 	shouldResolveRedirect: false, // controls whether the above is resolved into a /videoplayback URL or kept as a redirect
 
+	enableCompanionPrewarm: true, // warms the companion's player cache while the page is rendered
+
 	api_base: getRandomApiInstance(),
 	auth: '',
 

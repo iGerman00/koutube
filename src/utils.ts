@@ -619,3 +619,19 @@ export async function getDirectUrl(videoId: string, itag: string | number, db?: 
 		return targetUrl;
 	}
 }
+
+export async function warmCompanionResolve(videoId: string, itag: string | number = 18): Promise<void> {
+	if (!config.enableCompanionPrewarm) return;
+
+	try {
+		await fetch(`${config.api_base}/companion/latest_version?id=${videoId}&itag=${itag}&local=false`, {
+			headers: {
+				'User-Agent': 'Mozilla/5.0 (compatible; Koutube/1.0; +https://github.com/igerman00/koutube)',
+				Authorization: config.auth,
+			},
+			redirect: 'manual',
+		});
+	} catch (e) {
+		console.error('Companion prewarm failed', e);
+	}
+}

@@ -11,12 +11,12 @@
     "drop-last-1d": "wrangler d1 execute koutube-db --remote --file=./drop_last_1d.sql"
   },
   "devDependencies": {
-    "@cloudflare/puppeteer": "^1.1.0",
-    "@cloudflare/workers-types": "^4.20230419.0",
-    "@types/he": "^1.2.1",
-    "@types/node": "^20.14.6",
-    "typescript": "^5.0.4",
-    "wrangler": "^4.102.0"
+    "@cloudflare/puppeteer": "^1.4.0",
+    "@cloudflare/workers-types": "^5.20261030.1",
+    "@types/he": "^1.2.3",
+    "@types/node": "^22.20.5",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.156.0"
   },
   "dependencies": {
     "he": "^1.2.0"
