@@ -15,7 +15,7 @@ export default {
 			return stripTracking(`https://www.youtube.com${originalPath}`);
 		}
 
-		const parserRe = /(.*?)(^|\/|list=)([a-zA-Z0-9_-]{18,})(.*)?/gim;
+		const parserRe = /(.*?)(^|\/|list=)([a-zA-Z0-9_-]{13,})(.*)?/gim;
 		const match = parserRe.exec(getOriginalUrl());
 		const playlistId = match ? match[3] : null;
 
